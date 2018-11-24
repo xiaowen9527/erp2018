@@ -439,7 +439,7 @@ export default {
             let data = index.split(",");
             
             let params = {
-                rdProcedureSn: data[0],
+                rdProcedure: data[0],
                 page: 0,
                 orderBy: "rd_sn asc",
                 count: this.pageSize
