@@ -1,0 +1,471 @@
+* 
+  -webkit-box-sizing border-box
+  -moz-box-sizing border-box
+  box-sizing border-box
+*:before,
+*:after 
+  -webkit-box-sizing border-box
+  -moz-box-sizing border-box
+  box-sizing border-box
+body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, code, form, fieldset, legend, input, button, textarea, p, blockquote, th, td 
+  margin 0
+  padding 0
+// body
+//     overflow hidden
+label
+    white-space nowrap !important
+body 
+  background #fff
+  color #555
+  font-size 1.6vh
+  font-family "Arial", "Microsoft YaHei", "黑体", "宋体", sans-serif
+td, th, caption 
+  font-size 1.6vh
+h1, h2, h3, h4, h5, h6 
+  font-weight normal
+  font-size 100%
+address, caption, cite, code, dfn, em, strong, th, var 
+  font-style normal
+  font-weight normal
+a 
+  color #555
+  text-decoration none
+  &:hover 
+    text-decoration underline
+img 
+  border none
+  vertical-align middle
+ol, ul, li 
+  list-style none
+input, textarea, select, button 
+  font 1.6vh "Arial", "Microsoft YaHei", "黑体", "宋体", sans-serif
+  outline none
+  cursor pointer
+input::-webkit-outer-spin-button,input::-webkit-inner-spin-button 
+    -webkit-appearance: none !important;       
+input,select
+    border: .1vh solid #d2d2d2
+table 
+  border-collapse collapse
+html 
+  overflow hidden
+.clearfix:before,
+.clearfix:after 
+  content " "
+  display block
+  height 0
+  clear both
+  visibility hidden
+.clearfix 
+  *zoom 1
+.order_table
+    border-width: .1vh !important
+/*公共类*/
+.fl 
+  float left
+.fr 
+  float right
+.al 
+  text-align left
+.ac 
+  text-align center
+.ar 
+  text-align right
+.hide 
+  display none
+
+.el-submenu__icon-arrow
+    position: static !important
+    margin-top: 0
+.el-submenu .el-menu-item
+    min-width auto  !important  
+
+/* 子页面公共样式 */
+.container 
+  padding-left: .5vh
+  position absolute
+  top 8.5vh
+  left 12vw
+  width 88vw
+  transition left .3s ease-in-out
+.container_collapse 
+  left 0 !important
+  width 100%
+/* 子页面标题 */
+.page_title 
+  width 100%
+  line-height 4vh
+  text-align center
+  color #444444
+  font-weight bold
+  font-size 2.5vh
+/* 子页面头部按钮条 */
+.btn-box
+    width 100%
+    min-width 1400px
+    height 4.5vh
+    border .2vh solid #d9d9d9
+    border-radius 2px
+    button,a.export_btn
+        padding 0 2vh
+        height 3.5vh
+        line-height 3.5vh
+        border .1vh solid #d9d9d9
+        background #ffffff
+        margin .3vh .3vh
+        font-size 1.4vh
+        display block
+        float left
+        text-align center
+        text-decoration underline
+        cursor pointer
+        border-radius 4px
+        &.button_btn
+            border .1vh solid #409EFF
+            font-weight bold
+            color #409EFF
+    .doSearch
+        width:15%
+        height 3.5vh
+        margin-top: .3vh
+        border-radius: 2px
+        border: .1vh solid #d2d2d2
+        padding-left: 1vh
+        float left
+        cursor: pointer
+    .btn_right
+        float right
+        margin-right 3vh            
+//子菜单主体
+.set_box
+    width 100%
+    height 75.5vh
+    position relative
+    overflow-x hidden   
+    .menu_box
+        height 100%
+        position absolute
+        top 0
+        left 0
+        background #f2f2f2
+        overflow auto
+        border: solid .1vh #e6e6e6    
+
+        ul
+            height 71%  
+            // overflow-x hidden
+            &.el-menu
+                border: none     
+    .set_info
+        height 100%
+        position absolute
+        top 0
+        padding-left .5vh
+        right 0    
+        overflow hidden
+        ul
+            min-width 900px
+
+        .firstForm
+            width 100%
+            border .1vh solid #d2d2d2
+            margin-top .5vh
+            border-radius .5vh
+            padding 0 1vh
+            ul
+                min-width: 900px
+                li
+                    width 25%
+                    height 3.5vh
+                    line-height 3.5vh
+                    float left
+                    display block
+                    margin 1vh 0
+                    &.gui
+                        width 100%
+                        label
+                            width 10%
+                        input
+                            width 30%
+                            margin-right .5vh
+                            &.guiNum
+                                width 6%
+                                text-align center
+                                padding: 0
+                        button
+                            width 50px
+                            height 3.5vh
+                            border .1vh solid #d2d2d2
+                            background none
+                            line-height 3.5vh
+                            text-align center
+                            border-radius .5vh
+                            cursor pointer
+                    label
+                        width 40%
+                        display block
+                        float left
+                        text-align center
+                        word-wrap hidden
+                        &.name
+                            font-size 1.4vh
+                    input
+                        line-height 3.5vh
+                        height 3.5vh
+                        float left
+                        width 60%
+                        padding-left: 1vh
+                        &.half
+                            width 28% !important
+                            margin-left 1%
+                    .el-select
+                        width 60%
+                        display block
+                        height 3.5vh
+                        line-height: 3.5vh
+                        float left
+                        &.half
+                            width 30% !important
+                            margin-left 1%
+                        .el-input__inner
+                            height 3.5vh !important
+                            width 100% !important
+                            border .1vh solid #d2d2d2
+                            border-radius: 0
+                            font-size: 1.6vh
+                        .el-input__icon
+                            line-height: 3vh !important
+                        
+                .save
+                    padding 0 2vh
+                    height 3.5vh
+                    line-height 3.5vh
+                    border .1vh solid #d9d9d9
+                    background #ffffff
+                    margin-top 2px
+                    font-size 1.4vh
+                    display block
+                    float left
+                    text-align center
+                    text-decoration underline
+                    margin-left 30%
+                    cursor pointer
+                    border-radius 4px
+                    &.button_btn
+                        border .1vh solid #409EFF
+                        font-weight bold
+                        color #409EFF
+                button.gui-btn
+                    border .1vh solid #409EFF !important
+                    font-weight bold
+                    color #409EFF
+
+        .secondForm
+            border .1vh solid #d2d2d2
+            display: block
+            width 100%
+            height 100%
+            min-width 900px
+            border-radius .5vh  
+            margin-top: .5vh
+            li
+                width 25%
+                height 3.5vh
+                line-height 3.5vh
+                float left
+                display block
+                margin 1vh 0
+                &.gui
+                    width 35%
+                    label
+                        width 25%
+                        white-space: normal
+                    input
+                        width 40%
+                        margin-right .5vh
+                        &.guiNum
+                            width 15%
+                            text-align center
+                            padding: 0
+                    button
+                        width 50px
+                        height 3.5vh
+                        border .1vh solid #d2d2d2
+                        background none
+                        line-height 3.5vh
+                        text-align center
+                        border-radius .5vh
+                        cursor pointer
+                label
+                    width 30%
+                    display block
+                    float left
+                    text-align center
+                    word-wrap hidden
+                    &.name
+                        font-size 1.4vh
+                input
+                    line-height 3.5vh
+                    height 3.5vh
+                    float left
+                    width 70%
+                    padding-left: 1vh
+                    &.half
+                        width 30%
+                        margin-right .5vh
+            .save
+                padding 0 2vh
+                height 3.5vh
+                line-height 3.5vh
+                border .1vh solid #d9d9d9
+                background #ffffff
+                margin-top 2px
+                font-size 1.4vh
+                display block
+                float left
+                text-align center
+                text-decoration underline
+                margin-left 10%
+                cursor pointer
+                border-radius 4px
+                &.button_btn
+                    border .1vh solid #409EFF
+                    font-weight bold
+                    color #409EFF
+
+                     
+//子页面页脚和分页
+.pageBox
+    width 100vw
+    min-width 1300px
+    height 4vh
+    border-radius 2px
+    background #f2f2f2
+    border-left: .1vh solid #cccccc
+    border-top: .1vh solid #cccccc
+    position: fixed
+    bottom 3.5vh
+    &.collapse
+        .el-pagination
+            right: 0
+    li
+        float left
+        height 3vh !important
+        span
+            line-height 4vh !important
+            padding 0 .5vh
+            float left
+            display block
+            font-size 1.5vh
+            color #444444
+    .el-pagination
+        width: 30%    
+        position: absolute
+        top: .4vh  
+        right: 12%
+        background: #f2f2f2
+        
+    .pageData
+        height 4vh
+        float left
+        li,span
+            height 4vh !important
+            line-height: 4vh !important
+            font-size: 1.2vh
+        .el-pager li
+            font-size: 1.2vh
+            line-height: 2.8vh
+            height 2.8vh !important
+    .el-pagination.is-background .el-pager li:not(.disabled).active
+        height 2.8vh !important
+        line-height: 2.8vh
+        font-size: 1.5vh
+    .el-pagination.is-background .btn-next, .el-pagination.is-background .btn-prev, .el-pagination.is-background .el-pager li
+        line-height: 2.8vh
+        font-size: 1.5vh
+    .el-pagination button
+        line-height: 2.8vh
+        font-size: 1.5vh  
+        height 2.8vh
+    .el-pagination button
+        height 2.8vh !important
+    .el-pager .more::before
+        line-height: 3vh !important     
+    .el-pagination span:not([class*=suffix])
+        display: inline-block;
+        font-size: 1.5vh !important 
+        height: 2.8vh !important 
+        line-height: 2.8vh !important 
+    .el-pagination__editor.el-input .el-input__inner
+        height 2.8vh !important     
+          
+//导入导出框
+.importExport
+    position: fixed
+    z-index 9999999
+    left 0
+    right 0
+    top 0
+    bottom 0
+    margin: auto
+    clear both
+    .down
+        display inline
+        float left
+        width 100%
+        line-height: 3.5vh
+        color: red
+    button
+        float: none
+        display: inline-block
+        color: #444
+           
+//dialog弹出窗
+.srcond_menu
+    li
+        width 100%
+        margin .5vh 0
+        height auot !important
+        span
+            cursor pointer
+            font-size 1.6vh
+            font-weight bold
+            line-height 2.5vh
+            width 100%
+            display block
+            //background #d2d2d2
+        .second
+            padding-left: 2em
+            p
+                width 100%
+                font-size 1.6vh
+                color #444
+                line-height 2.2vh
+                cursor pointer         
+// 导入遮罩
+.importZhe
+    position fixed
+    top 0
+    left 0
+    width 100%
+    height 100%
+    background #000000
+    z-index 999999999999999999
+    opacity .3  
+//树形                
+.el-tree
+    background: #f2f2f2 !important    
+    height 75vh   
+    overflow-y: auto
+.el-tree--highlight-current .el-tree-node.is-current>.el-tree-node__content
+    background: #e5e5e5 !important              
+//导航searchYearMonth
+.searchYearMonth .el-date-editor.el-input,.searchYearMonth .el-input__inner
+    width 100%  !important 
+    height 4vh
+    line-height: 4vh
+.searchYear .el-date-editor.el-input,.searchYear .el-input__inner
+    width 100%  !important 
+    height 4vh
+    line-height: 4vh
+    

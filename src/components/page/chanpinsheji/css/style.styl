@@ -1,0 +1,140 @@
+.set_box    
+    min-width 1280px 
+    .menu_box
+        width 15%
+        position: relative
+        .searchYear
+            position: absolute
+            top 0
+            width: 100%
+        .el-menu
+            position: absolute
+            top: 4vh
+            width: 100%
+    .set_info
+        width 85%
+        .firstForm
+            ul
+                li
+                    margin: .5vh 0
+                    &.searchQihua
+                        width: 100%
+                        label
+                            width: 10%
+                        input 
+                            width: 30%
+                    &.leibie
+                        width: 40%
+                        label
+                            width: 25%
+                        input 
+                            width: 50%
+                            margin-right: 1vh
+                            &.leibie_num
+                                width: 15%
+                    &.qujian
+                        width: 30%
+                        label
+                            width: 33%
+                        input 
+                            width: 50%
+                        .qujianLabel
+                            width: 10%
+                    &.open,&.wide
+                        width: 33%
+                        label
+                            width: 30%
+                        input 
+                            width: 35%
+                            &.wideinp
+                                width: 70%
+                            &.open_num
+                                width: 15%
+                                margin-right: 1vh
+                        .button
+                            padding: 0
+                            text-decoration: none
+                    &.upload
+                        width: 40%
+                        float: left
+                        margin: 0 0 1vh 2vh
+                        .button
+                            text-decoration: none
+                .el-radio
+                    height: 3.5vh;
+                    margin: 0.5vh;
+                    line-height: 3.5vh;
+                    float left
+
+
+.imgBox
+    li
+        // width: 24vh
+        float left
+        height 30vh
+        margin: 1vh .5vh
+        position: relative
+        &:hover
+            .zhezhao,i,.detail
+                display: block
+        img 
+            display: block  
+            max-height 100% 
+            max-width 35vw     
+        .zhezhao
+            width: 100%
+            height 100%
+            background: #000000
+            opacity 0.6
+            position: absolute
+            top: 0
+            left: 0
+            z-index: 999
+            display: none 
+            p
+                width: 100%
+                line-height: 3.5vh
+                text-align: center
+                color: #ffffff
+        i 
+            position: absolute
+            top: .5vh
+            right: .5vh
+            color: #ffffff
+            font-size: 2.5vh
+            z-index 999999
+            opacity .8
+            cursor pointer
+            display: none
+            &.detail 
+                display: block
+                width: 50%
+                height: 50%
+                text-align: center
+                line-height: 15vh
+                font-size: 5vh
+                top: 25%
+                left: 25%
+                display: none
+
+
+
+.button
+    padding 0 2vh
+    height 3.5vh
+    line-height 3.5vh
+    border .1vh solid #d9d9d9
+    background #ffffff
+    margin 0 1vh
+    font-size 1.4vh
+    display block
+    float left
+    text-align center
+    text-decoration underline
+    cursor pointer
+    border-radius 4px
+    &.button_btn
+        border .1vh solid #409EFF
+        font-weight bold
+        color #409EFF        
+        
