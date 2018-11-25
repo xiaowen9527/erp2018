@@ -7,7 +7,7 @@
             <button :disabled='doPrint' :class="{button_btn:!doPrint}" @click="doPrints">打印</button>
             <button :disabled='doImport' :class="{button_btn:!doImport}" @click="doImports">导入</button>
             <input type="text" placeholder="请选择" class="doSearch" v-model="search">
-            <button @click="doSearchs" class="button_btn">查询</button>
+            <button @click="doSearchs" :class="{button_btn:!doSearch}" :disabled="doSearch">查询</button>
             <button class="button_btn" @click="doOuts">退出</button>
             <div class="btn_right">
 
@@ -297,6 +297,7 @@ export default {
             doCancel: true,
             doImport: false,
             doPrint: true,
+            doSearch:true,
 
             search: "",
             oldSearch: false,
@@ -1010,7 +1011,14 @@ export default {
                 this.oldPsnList = []
             }
             this.doAdd = false
-        },        
+        },  
+        search(){
+            if(this.search){
+                this.doSearch = false
+            }else{
+                this.doSearch = true
+            }
+        },      
         //获取查询设计编号
         // search(){
         //     if(this.search){
