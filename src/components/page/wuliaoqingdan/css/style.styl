@@ -46,48 +46,79 @@
             border-left: 1px solid #ebeef5;
             .order_table
                 width: 1000px
-                height 47vh
+                height 50vh
                 overflow hidden
                 overflow-x: auto
                 button 
                     padding:  .5vh
                     display: block
                     float left
-                    margin: .4vh .2vh
+                    margin: .8vh .2vh 0
                     border: 1px solid #d2d2d2
                     &.btn
                         border: 1px solid #409EFF
                         color: #409EFF
+                .el-checkbox
+                    font-size: 1.2vh
+                    
 
         .fr
             width: 47%
             margin-right: 2%
-            height 49vh
+            height 52vh
             border-radius: 2px
             overflow hidden
             overflow-x auto
             border: 1px solid #ebeef5;
-            ul
+            .titleColor
                 min-width 100px
                 width: 100%
-                height: 49vh
-                overflow hidden
-                overflow-x auto
+                height: 8vh
+                // overflow hidden
                 display: flex
                 li
-                    width: 180px
-                    margin: 0
-                    float left
-                    height auto
+                    
+                    height 8vh
                     p
-                        height 3.5vh
-                        line-height: 3.5vh
+                        line-height: 4vh
+                        width: 210px
                         text-align: center
-                        font-size: 1.5vh
-                        font-weight: bold
-                        border-right: 1px solid #ebeef5;
-                         
-                
+                        border: 1px solid #ebeef5;
+                    span 
+                        display: block
+                        float left
+                        width: 105px
+                        text-align: center
+                        line-height: 4vh
+                        height 4vh
+                        font-size: 1.2vh
+                        border: 1px solid #ebeef5;
+                        
+            .mainColor
+                min-width 100px
+                width: 100%
+                // overflow hidden
+                display: flex
+                li
+                    p
+                        width: 210px
+                        
+                        span 
+                            display: block
+                            float left
+                            width: 105px    
+                            text-align: center
+                            line-height: 4vh
+                            font-size: 1.2vh
+                            border: 1px solid #ebeef5;
+                            height:-moz-calc(4vh+1.2px)
+                            height:-webkit-calc(4vh+1.2px)
+                            height: calc(4vh+1.2px)
+                            padding-bottom .2px
+                            &.btn
+                                color:#409EFF
+                                cursor pointer 
+
 .gui_btn
     border .1vh solid #409EFF !important
     font-weight bold

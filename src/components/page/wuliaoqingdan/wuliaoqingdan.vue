@@ -5,14 +5,14 @@
             <button :disabled='doAdd' :class="{button_btn:!doAdd}" @click="doAdds">新增</button>
             <button :disabled='doCancel' :class="{button_btn:!doCancel}" @click="doCancels">取消</button>
             <button :disabled='doPrint' :class="{button_btn:!doPrint}" @click="doPrints">打印</button>
-            <button :disabled='doImport' :class="{button_btn:!doImport}">导入</button>
+            <button :disabled='doImport' :class="{button_btn:!doImport}" @click="doImports">导入</button>
+            <input type="text" placeholder="请选择" class="doSearch" v-model="search">
             <button @click="doSearchs" class="button_btn">查询</button>
-            <input type="text" placeholder="请选择" class="doSearch" readonly @click="doSearchs">
             <button class="button_btn" @click="doOuts">退出</button>
             <div class="btn_right">
 
-                <button :disabled='(firstForm.sh==1||firstForm.sh==-1)' :class="{button_btn:(firstForm.sh==0)}" @click="doExamines">审核</button>
-                <button :disabled='(firstForm.sh==0||firstForm.sh==-1)' :class="{button_btn:(firstForm.sh==1)}" @click="doExamineAgains">反审</button>
+                <button class="button_btn" @click="doExamines">审核</button>
+                <button  class="button_btn" @click="doExamineAgains">反审</button>
             </div>
         </div>
         <div class="set_box">
@@ -84,7 +84,7 @@
                 <div class="main clearfix">
                     <div class="fl">
                         <div class="order_table fl_table">
-                            <el-table :data="list" height="52vh" border style="width: 100%">
+                            <el-table :data="list" height="52vh" border style="width: 100%"  @selection-change="handleSelectionChange">
                                 <el-table-column type="selection" min-width="3%">
                                 </el-table-column>
                                 <el-table-column prop="materialSn" label="物料编码" min-width="7.5%">
@@ -109,43 +109,34 @@
                                 </el-table-column>
                                 <el-table-column prop="nature" label="性质" min-width="7.5%">
                                 </el-table-column>
-                                <el-table-column label="操作" min-width="10%">
+                                <el-table-column label="操作" min-width="14%">
                                     <template slot-scope="scope">
-                                        <el-button :disabled='(firstForm.sh==1||firstForm.sh==-1)' :class="{btn:firstForm.sh==0}" type="text" @click="handleEdit(scope.$index, scope.row)">修改</el-button>
-                                        <el-button :disabled='(firstForm.sh==1||firstForm.sh==-1)'  :class="{btn:firstForm.sh==0}" type="text" @click="tableDelete(scope.$index, scope.row)">删除</el-button>
+                                        <el-button :disabled='(scope.row.sh==1)' :class="{btn:(scope.row.sh==0)}" type="text" @click="handleEdit(scope.$index, scope.row)">修改</el-button>
+                                        <el-button :disabled='(scope.row.sh==1)'  :class="{btn:(scope.row.sh==0)}" type="text" @click="tableDelete(scope.$index, scope.row)">删除</el-button>
+                                        <el-checkbox disabled v-model="scope.row.sh==1">审核</el-checkbox>
                                     </template>
                                 </el-table-column>
                             </el-table>
                         </div>                            
                     </div>                        
                     <div class="fr">
-                        <ul class="clearfix">
+                        <ul class="clearfix titleColor">
                             <li v-for="(item,i) in DesignColor" :key="i">
                                 <P>{{item.colorSn}}-{{item.colorName}}</P>
-                                <div class="order_table">
-                                    <ol>
-                                        <li>编号名称</li>
-                                        <li>操作</li>
-                                        <li>{{item.material}}</li>
-                                        <li>
-                                            <el-button :disabled='(firstForm.sh==1||firstForm.sh==-1)' :class="{btn:firstForm.sh==0}" type="text" v-if="!item.material">添加</el-button>
-                                            <el-button :disabled='(firstForm.sh==1||firstForm.sh==-1)' :class="{btn:firstForm.sh==0}" type="text" v-if="item.material">删除</el-button>
-                                        </li>
-                                    </ol>
-
-                                    <!-- <el-table :data="list" height="48.1vh" border style="width: 100%">
-                                        <el-table-column prop="sn" label="编号名称" min-width="50%">
-                                        </el-table-column>
-                                        <el-table-column label="操作" min-width="50%">
-                                            <template slot-scope="scope">
-                                                <el-button :disabled='(firstForm.sh==1||firstForm.sh==-1)' :class="{btn:firstForm.sh==0}" type="text">添加</el-button>
-                                                <el-button :disabled='(firstForm.sh==1||firstForm.sh==-1)' :class="{btn:firstForm.sh==0}" type="text">删除</el-button>
-                                            </template>
-                                        </el-table-column>
-                                    </el-table> -->
-                                </div>                                     
+                                <span>编号名称</span>
+                                <span>操作</span>
                             </li>
-                        
+                        </ul>
+                        <ul class="clearfix mainColor" v-for="(item,i) in list" :key="i">
+                            <li v-for="(items,j) in item.attachment.color" :key="j">
+                                <P>
+                                    <span>{{items.colorSn}}-{{items.color}}</span>
+                                    <span v-if="!item.color">
+                                        <el-button type="text" @click="addItem(items)" >添加</el-button>
+                                        <el-button type="text">删除</el-button>
+                                    </span>
+                                </P>
+                            </li>
                         </ul>
                     </div>
                 </div>                
@@ -185,7 +176,7 @@
         </div>     
 
         <!-- 查询框 -->
-        <el-dialog title="请输入您要查询的设计款号" :visible.sync="oldSearch">
+        <!-- <el-dialog title="请输入您要查询的设计款号" :visible.sync="oldSearch">
             <el-input v-model="search" placeholder="请输入您要查询的设计款号"></el-input>
             <ul class="srcond_menu">
                 <p v-if="oldSearchList.length===0">暂无数据</p>
@@ -193,7 +184,7 @@
                     <span @click="getItemSearch(item)">{{item.psn}}</span>
                 </li>
             </ul>
-        </el-dialog>         
+        </el-dialog>          -->
         <el-dialog title="请输入您要查询的设计款号" :visible.sync="oldPsn">
             <el-input v-model="psn" placeholder="请输入您要查询的设计款号"></el-input>
             <ul class="srcond_menu">
@@ -210,6 +201,14 @@
                 <li v-for="(item,i) in oldMaterialList" :key="i" class="clearfix">
                     <span class="material" @click="getItemMaterial(item)">{{item.nameSn}}</span>
                     <span class="material" @click="getItemMaterial(item)">{{item.name}}</span>
+                </li>
+            </ul>
+        </el-dialog>  
+        <el-dialog title="请选择物料颜色" :visible.sync="oldMaterialColor">
+            <ul class="srcond_menu">
+                <p v-if="materialColorList.length===0">暂无数据</p>
+                <li v-for="(item,i) in materialColorList" :key="i" class="clearfix">
+                    <span style="padding-left:0" class="material" @click="getmaterialColorItem(item)">{{item.yscmSn}}-{{item.yscmName}}</span>
                 </li>
             </ul>
         </el-dialog>  
@@ -250,14 +249,29 @@
                     </el-select>                     
                 </el-form-item>
                 <el-form-item label="说明">
-                    <el-input v-model="dialog.explain" type="text"></el-input>
+                    <el-input v-model="dialog.explain" type="textarea"></el-input>
                 </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="editVisible = false">取 消</el-button>
                 <el-button type="primary" @click="saveEdit">确 定</el-button>
             </span>
-        </el-dialog>        
+        </el-dialog>  
+
+        <!-- 导入弹窗 -->
+        <el-dialog class="importExport" title="导入" :visible.sync="importbox" width="30%" :showClose="false" :show-file-list="false">
+            <a class="down" href="/TPA/cMatBill/downExcel">下载导入模板</a>
+            <el-upload name="file" class="upload-demo" ref="upload" action="" :file-list="fileList" :http-request="uploadFile" :auto-upload="false" accept=".xls,.xlsx,.csv">
+                <el-button slot="trigger" size="small" type="primary" plain>选取文件</el-button>
+                <div slot="tip" class="el-upload__tip">只能上传excel文件</div>
+            </el-upload>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="importCancel">取 消</el-button>
+                <el-button type="primary" @click="submitUpload" plain>确 定</el-button>
+            </span>
+        </el-dialog>
+        <div class="importZhe" v-if="importZhe" v-loading="true" element-loading-text="正在上传中..." element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)"></div>
+
               
     </div>
 </template>
@@ -299,24 +313,7 @@ export default {
             dosageUnit: [], //用量单位
 
             DesignColor:[],
-            materialColor:[],
-            // DesignColor: [
-            //     {
-            //         colorName:"红底兰白条",
-            //         colorSn:"0014",
-            //         material:"1"
-            //     },
-            //     {
-            //         colorName:"红白条",
-            //         colorSn:"0014",
-            //         material:""
-            //     },
-            //     {
-            //         colorName:"红底条",
-            //         colorSn:"0014",
-            //         material:"33"
-            //     },
-            // ], //款号下的所有产品颜色
+
 
             firstFormNo: true,
             firstFormOn: true,
@@ -346,6 +343,13 @@ export default {
                 dosageUnitSn: "",
                 explain: "" //说明
             },
+            
+            oldMaterialColor:false,
+            materialItem:{},        //当前选择的物料
+            materialColorItem:"",       //选择的物料颜色
+            materialColorList:[],       //物料颜色列表
+
+            materialColor:[],           //所有的产品颜色
 
             natureList: [], //性质列表
             //表格数据
@@ -432,6 +436,7 @@ export default {
 
         //新增
         doAdds() {
+            this.search = ""
             this.doCancels();
             this.emptyBtnTo();
             this.noDisabledFirstForm()
@@ -448,7 +453,7 @@ export default {
             this.pageOnOff = false;
 
             this.pSn = "";
-            this.search = "";
+            // this.search = "";
             this.oldSearchList = [];
 
             this.list = [];
@@ -459,6 +464,11 @@ export default {
             this.fileList = [];
             this.dosageUnit = [];
             this.DesignColor = [];
+
+            this.oldMaterialColor=false
+            this.materialItem={}     //当前选择的物料
+            this.materialColorItem=""      //选择的物料颜色
+            this.materialColorList=[]      //物料颜色列表            
         },
         //first保存
         firstSave() {
@@ -470,16 +480,29 @@ export default {
             let term = !this.firstForm.psn||!this.firstForm.materialSn||!this.firstForm.materialName||!this.firstForm.amount||!this.firstForm.nature||!this.firstForm.productSn||!this.firstForm.func||!this.firstForm.part||!this.firstForm.loss||!this.firstForm.dosage||!this.firstForm.dosageUnit||!this.firstForm.dosageUnitSn||!this.firstForm.dosage    
             
             if(!term){
+                console.log(this.firstForm)
                 this.$http.post('/TPA/cMatBill/insert',qs.stringify(this.firstForm))
                         .then(res=>{
                             if(res.data.code===0){
                                 succ(res.data.msg)
-                                this.emptySecondForm()
-                                this.getPageData(); 
+                                let params = {
+                                    psn:this.firstForm.psn,
+                                    count:this.pageSize,
+                                    page:0
+                                }
+                                this.pageParams = params
+                                this.getPageData(this.pageParams)  
+                                this.getDesignColor(this.firstForm.psn)
+
+                                let psn = this.firstForm.psn
+                                this.emptyFirstForm()
+                                this.firstFormGui = true;
+                                this.firstForm.psn = psn
+                                  
+
                             }else{
                                 error(res.data.msg)
                             }
-                            this.emptySecondForm()
                         })
                         .catch(err=>{
                             NetworkAnomaly()
@@ -491,8 +514,22 @@ export default {
 
         //查询
         doSearchs() {
-            this.oldSearch = true
-            this.doCancels()            
+            // this.oldSearch = true
+            this.doCancels() 
+            this.doCancel = false
+    
+            let params = {
+                psn:this.search,
+                count:this.pageSize,
+                page:0
+            }
+            this.pageParams = params
+            this.getPageData(this.pageParams)
+      
+            this.getDesignColor(this.search)
+            
+            
+                
         },
         //点击设计款号
         handlePsn(){
@@ -518,16 +555,20 @@ export default {
 
         //审核
         doExamines() {
-            let params = {
-                id: this.firstForm.id,
-                status: "1"
-            };
+            let form = []
+            for(let i in this.multipleSelection){
+                let obj = {}
+                obj.id = this.multipleSelection[i].id
+                obj.status = 1
+                form.push(obj)
+            }
+            console.log(this.form)
             this.$http
-                .post("/TPA/cMatBill/auditing", qs.stringify(params))
+                .post("/TPA/cMatBill/auditing", form)
                 .then(res => {
                     if (res.data.code === 0) {
-                        this.firstForm.sh = params.status;
                         succ(res.data.msg);
+                        this.getPageData()
                     } else {
                         error(res.data.msg);
                     }
@@ -538,16 +579,20 @@ export default {
         },
         //反审
         doExamineAgains() {
-            let params = {
-                id: this.firstForm.id,
-                status: "0"
-            };
+            let form = []
+            for(let i in this.multipleSelection){
+                let obj = {}
+                obj.id = this.multipleSelection[i].id
+                obj.status = 0
+                form.push(obj)
+            }
+            console.log(form)
             this.$http
-                .post("/TPA/cMatBill/auditing", qs.stringify(params))
+                .post("/TPA/cMatBill/auditing", form)
                 .then(res => {
                     if (res.data.code === 0) {
-                        this.firstForm.sh = params.status;
                         succ(res.data.msg);
+                        this.getPageData()
                     } else {
                         error(res.data.msg);
                     }
@@ -578,7 +623,7 @@ export default {
             let formData = new FormData();
             formData.append("file", _file);
             this.$ajax
-                .post("/TPA/cWlda/importExcel", formData)
+                .post("/TPA/cMatBill/importExcel", formData)
                 .then(res => {
                     if (res.status === 200) {
                         if (res.data.code === 0) {
@@ -601,9 +646,30 @@ export default {
         },
         //导出
         doExports() {
-            window.location.href = "/TPA/cWlda/exportExcel";
+            window.location.href = "/TPA/cMatBill/exportExcel";
         },
 
+        //点击物料颜色添加按钮
+        addItem(item){
+            this.materialItem = item
+            this.getmaterialColorList(item.masterSn)
+            this.oldMaterialColor = true
+        },
+
+        //获取物料颜色列表
+        getmaterialColorList(sn){
+            this.$http.post('/TPA/cMatBillA/getBySn?sn='+sn)
+                .then(res=>{
+                    if(res.data.code===0){
+                        this.materialColorList = res.data.data
+                    }else{
+                        error(res.data.msg)
+                    }
+                })
+                .catch(err=>{
+                    NetworkAnomaly()
+                })
+        },
 
         //编辑单条数据
         handleEdit(index, row) {
@@ -647,16 +713,10 @@ export default {
                             this.$set(this.list, this.idx, this.dialog);
                             this.editVisible = false;
                             succ(res.data.msg);
-                            this.getPageData();
+                            this.getPageData(this.pageParams);
                             }else{
                                 error(res.data.msg)
-                            }
-                            // this.emptySecondForm()
-
-                            // this.$set(this.list, this.idx, this.dialog);
-                            // this.editVisible = false;
-                            // succ(res.data.msg);
-                            // this.getPageData();                            
+                            }                          
                         })
                         .catch(err=>{
                             NetworkAnomaly()
@@ -674,7 +734,7 @@ export default {
                 .then(res => {
                     if (res.data.code === 0) {
                         succ(res.data.msg);
-                        this.getPageData();
+                        this.getPageData(this.pageParams);
                     } else {
                         error(res.data.msg);
                     }
@@ -806,16 +866,54 @@ export default {
             this.oldMaterial = false
             this.material = ""
         },
+        //选择物料颜色
+        getmaterialColorItem(item){
+            let form = this.materialItem
+            form.color = item.yscmName
+            form.colorSn = item.yscmSn
+            this.oldMaterialColor = false
+            
+            this.$http.post('/TPA/cMatBillA/insert',qs.stringify(form))
+                .then(res=>{
+                    if(res.data.code===0){
+                        succ(res.data.msg)
+                        let params = {
+                            psn:this.firstForm.psn,
+                            count:this.pageSize,
+                            page:0
+                        }
+                        this.pageParams = params
+                        this.getPageData(this.pageParams)                         
+                    }else{
+                        error(res.data.msg)
+                    }
+                })
+                .catch(err=>{
+                    NetworkAnomaly()
+                })
+
+        },
         //选择生产只能（领用部门）
         getItemFunc(item){
             this.firstForm.func = item.name
             this.oldFunc = false
         },        
         //分页
-        getPageData() {
+        getPageData(params) {
+
+            // this.$http.post('/TPA/cMatBill/getByPsn2?psn='+this.search)
+            //     .then(res=>{
+            //         if(res.data.code===0){
+            //             this.doPrint = false;
+            //             this.list = res.data.data
+            //         }
+            //     })  
+            //     .catch(err=>{
+            //         NetworkAnomaly()
+            //     })             
             
             this.$http
-                .post("/TPA/cMatBill/search", qs.stringify(this.pageParams))
+                .post("/TPA/cMatBill/search", qs.stringify(params))
                 .then(res => {
                     if (res.data.code === 0) {
                         this.doPrint = false;
@@ -847,7 +945,7 @@ export default {
     watch: {
         page() {
             this.pageParams.page = this.page - 1;
-            this.getPageData();
+            this.getPageData(this.pageParams);
         },
         //获取设计编号
         psn(){
@@ -874,26 +972,26 @@ export default {
             this.doAdd = false
         },        
         //获取查询设计编号
-        search(){
-            if(this.search){
-                this.$http
-                    .post("/TPA/cMatBill/getByPsn2?psn=" + this.search)
-                    .then(res => {
-                       if(res.data.code===0){
-                           this.oldSearchList = res.data.data
-                           console.log(res)
-                       }else{
-                           error(res.data.msg)
-                       }
-                    })
-                    .catch(err => {
-                        NetworkAnomaly();
-                    });                
-            }else{
-                this.oldPsnList = []
-            }
-            this.doAdd = false
-        },    
+        // search(){
+        //     if(this.search){
+        //         this.$http
+        //             .post("/TPA/cMatBill/getByPsn2?psn=" + this.search)
+        //             .then(res => {
+        //                if(res.data.code===0){
+        //                    this.oldSearchList = res.data.data
+        //                    console.log(res)
+        //                }else{
+        //                    error(res.data.msg)
+        //                }
+        //             })
+        //             .catch(err => {
+        //                 NetworkAnomaly();
+        //             });                
+        //     }else{
+        //         this.oldPsnList = []
+        //     }
+        //     this.doAdd = false
+        // },    
         //获取物料
         material(){
             if(this.material){
@@ -924,18 +1022,23 @@ export default {
 <style lang="stylus" scoped>
 @import './css/style.styl'
 // table
+.container>>>.el-checkbox__label
+    padding-left 0 !important
 .container>>>th, .order_table>>>.el-table td, .el-table th
     padding 0
     font-szie 1vh
 .container>>>.el-table .cell
     line-height 4vh
     text-align center
-    font-size 1.4vh
-    white-space pre-wrap
+    font-size 12px
+    word-break:normal;
+    // white-space pre-wrap
+    padding 0 5px
 .container>>>.fl_table .el-table th .cell
-    line-height 7.5vh
+    line-height 8vh
     text-align center
-    font-size 1.4vh
+    word-break:normal;
+    font-size 12px
     white-space pre-wrap
 
 .container>>>.el-dialog
