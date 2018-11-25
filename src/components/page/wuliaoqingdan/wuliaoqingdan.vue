@@ -550,11 +550,12 @@ export default {
         },
         //打印
         doPrints() {
-            this.$http.post("/TPA/cStandardOper/search?psn="+this.list[0].psn)
+            this.$http.post("/TPA/cMatBill/search?psn="+this.list[0].psn)
                 .then(res => {
                     if (res.data.code === 0) {
                         this.printList = res.data.data.list;
                         localStorage.setItem("printList", JSON.stringify(this.printList));
+                        localStorage.setItem("DesignColor", JSON.stringify(this.DesignColor));
                         
                         // window.open("/#/mianliaoyudingjihuaPrint");
                     } else {
