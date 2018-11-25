@@ -133,7 +133,7 @@
                                     <span>{{items.colorSn}}-{{items.color}}</span>
                                     <span v-if="!item.color">
                                         <el-button type="text" @click="addItem(items)" >添加</el-button>
-                                        <el-button type="text">删除</el-button>
+                                        <el-button type="text" @click="deleteItem(items)">删除</el-button>
                                     </span>
                                 </P>
                             </li>
@@ -654,6 +654,28 @@ export default {
             this.materialItem = item
             this.getmaterialColorList(item.masterSn)
             this.oldMaterialColor = true
+        },
+        //删除物料颜色
+        deleteItem(item){
+            console.log(item)
+            this.$http.post('/TPA/cMatBillA/delete?id='+item.id)
+                .then(res=>{
+                    if(res.data.code===0){
+                        succ(res.data.msg)
+                        let params = {
+                            psn:item.psn,
+                            count:this.pageSize,
+                            page:0
+                        }
+                        this.pageParams = params
+                        this.getPageData(this.pageParams)                         
+                    }else{
+                        error(res.data.msg)
+                    }
+                })
+                .catch(err=>{
+                    NetworkAnomaly()
+                })
         },
 
         //获取物料颜色列表
