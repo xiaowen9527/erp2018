@@ -354,6 +354,7 @@ export default {
             natureList: [], //性质列表
             //表格数据
             list: [],
+            printList:[],
 
             //导入弹出开关
             importbox: false,
@@ -549,8 +550,24 @@ export default {
         },
         //打印
         doPrints() {
+            this.$http.post("/TPA/cStandardOper/search?psn="+this.list[0].psn)
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.printList = res.data.data.list;
+                        localStorage.setItem("printList", JSON.stringify(this.printList));
+                        
+                        // window.open("/#/mianliaoyudingjihuaPrint");
+                    } else {
+                        error(res.data.msg);
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
+            // localStorage.setItem("pageTit", JSON.stringify(this.firstForm));
 
             window.open("/erp/#/wuliaoqingdanPrint");
+            this.printList = []
         },        
 
         //审核

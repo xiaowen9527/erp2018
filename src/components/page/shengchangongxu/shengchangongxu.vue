@@ -163,7 +163,7 @@
 
         <!-- 导入弹窗 -->
         <el-dialog class="importExport" title="导入" :visible.sync="importbox" width="30%" :showClose="false" :show-file-list="false">
-            <a class="down" href="/TPA/cSpda/downExcel">下载导入模板</a>
+            <a class="down" href="/TPA/cStandardOper/downExcel">下载导入模板</a>
             <el-upload name="file" class="upload-demo" ref="upload" action="" :file-list="fileList" :http-request="uploadFile" :auto-upload="false" accept=".xls,.xlsx,.csv">
                 <el-button slot="trigger" size="small" type="primary" plain>选取文件</el-button>
                 <div slot="tip" class="el-upload__tip">只能上传excel文件</div>
@@ -462,7 +462,7 @@ export default {
             let formData = new FormData();
             formData.append("file", _file);
                 this.$ajax
-                    .post("/TPA/cSpda/importExcel", formData)
+                    .post("/TPA/cStandardOper/importExcel", formData)
                     .then(res => {
                         console.log(res);
                         if (res.status === 200) {
@@ -486,7 +486,7 @@ export default {
         },
         //导出
         doExports() {
-            window.location.href = "/TPA/cSpda/exportExcel";
+            window.location.href = "/TPA/cStandardOper/exportExcel";
         },
 
         //选择查询的设计编号

@@ -61,6 +61,7 @@ export default {
   name: "wuliaoqingdanPrint",
   data() {
     return {
+        pageTableArr:[],
       mianliaoFristForm: {
         pageTitle: "物料清单",
         pageTit: {},
@@ -90,10 +91,10 @@ export default {
     this.mianliaoFristForm.pageTable = JSON.parse(
       localStorage.getItem("printList")
     );
-    if (this.mianliaoFristForm) {
-      window.print();
-      localStorage.clear();
-    }
+    // if (this.mianliaoFristForm) {
+    //   window.print();
+    //   localStorage.clear();
+    // }
 
     this.pageTableArr = this.sliceArray(this.mianliaoFristForm.pageTable, 10);
     document.getElementsByTagName("html")[0].style.overflow = "auto";
@@ -128,7 +129,7 @@ export default {
         }
       }
     }
-    this.mianliaoFristForm.pageTable = Ar;
+    this.mianliaoFristForm.pageTable = Arr;
     console.log(this.mianliaoFristForm.pageTable) 
   }
 };
