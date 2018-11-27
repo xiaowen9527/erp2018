@@ -255,7 +255,7 @@ const router = new Router({
           name: "chanpindingjia",
           component: resolve => require(['@/components/page/chanpindingjia/chanpindingjia'], resolve),
           meta: {
-            title: '物料清单'
+            title: '产品定价'
           },
         },
         {
@@ -264,6 +264,14 @@ const router = new Router({
           component: resolve => require(['@/components/page/chanpinchaxun/chanpinchaxun'], resolve),
           meta: {
             title: '产品查询'
+          },
+        },
+        {
+          path: '/shengchangongxu',
+          name: "shengchangongxu",
+          component: resolve => require(['@/components/page/shengchangongxu/shengchangongxu'], resolve),
+          meta: {
+            title: '生产工序'
           },
         },
 

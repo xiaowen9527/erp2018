@@ -149,7 +149,7 @@
 
         <!-- 导入弹窗 -->
         <el-dialog class="importExport" title="导入尺码" :visible.sync="importbox" width="30%" :showClose="false" :show-file-list="false">
-            <a class="down" href="/TPA/cStandardOper/downExcel">下载导入模板</a>
+            <a class="down" href="/TPA/cSpdaB/downExcel">下载导入模板</a>
             <el-upload name="file" class="upload-demo" ref="upload" action="" :file-list="fileList" :http-request="uploadFile" :auto-upload="false" accept=".xls,.xlsx,.csv">
                 <el-button slot="trigger" size="small" type="primary" plain>选取文件</el-button>
                 <div slot="tip" class="el-upload__tip">只能上传excel文件</div>
@@ -163,6 +163,7 @@
         <div class="importZhe" v-if="importZhe" v-loading="true" element-loading-text="正在上传中..." element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)"></div>
 
         <el-dialog class="importExport" title="导入颜色" :visible.sync="designbox" width="30%" :showClose="false" :show-file-list="false">
+            <a class="down" href="/TPA/cSpdaA/downExcel">下载导入模板</a>
             <el-upload name="file" class="upload-demo" ref="designq" action="" :file-list="designfileList" :http-request="designUploadFile" :auto-upload="false" accept=".xls,.xlsx,.csv">
                 <el-button slot="trigger" size="small" type="primary" plain>选取文件</el-button>
                 <div slot="tip" class="el-upload__tip">只能上传excel文件</div>
@@ -442,7 +443,7 @@ export default {
             let formData = new FormData();
             formData.append("file", _file);
                 this.$ajax
-                    .post("/TPA/cStandardOper/importExcel", formData)
+                    .post("/TPA/cSpdaB/importExcel/importExcel", formData)
                     .then(res => {
                         console.log(res);
                         if (res.status === 200) {
@@ -484,7 +485,7 @@ export default {
             let formData = new FormData();
             formData.append("file", _file);
             this.$ajax
-                .post("/TPA/cSpda/loadDesign?id=" + this.firstForm.id, formData)
+                .post("/TPA/cSpdaA/importExcel?id=" + this.firstForm.id, formData)
                 .then(res => {
                     if (res.status === 200) {
                         console.log(res);

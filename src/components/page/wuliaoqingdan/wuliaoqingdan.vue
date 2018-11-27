@@ -10,9 +10,8 @@
             <button @click="doSearchs" :class="{button_btn:!doSearch}" :disabled="doSearch">查询</button>
             <button class="button_btn" @click="doOuts">退出</button>
             <div class="btn_right">
-
-                <button class="button_btn" @click="doExamines">审核</button>
-                <button  class="button_btn" @click="doExamineAgains">反审</button>
+                <button :disabled="list.length==0||list[0].sh==1" :class="{button_btn:list.length>0&&list[list.length-1].sh==0}" @click="doExamines">审核</button>
+                <button :disabled="list.length==0||list[0].sh==0" :class="{button_btn:list.length>0&&list[list.length-1].sh==1}" @click="doExamineAgains">反审</button>
             </div>
         </div>
         <div class="set_box">
@@ -27,7 +26,7 @@
                         <li class="gui">
                             <label>物料编号</label>
                             <input :disabled="firstFormNo" readonly placeholder="请选择(必选)" v-model="firstForm.materialSn" class="guiNum" type="text" @click="handleMaterial">
-                            <input :disabled="firstFormNo" readonly v-model="firstForm.materialName" class="guiName" type="text" @click="handleMaterial">
+                            <input :disabled="firstFormNo" readonly placeholder="请选择(必选)" v-model="firstForm.materialName" class="guiName" type="text" @click="handleMaterial">
                             <button :class="{gui_btn:!firstFormGui}" :disabled="firstFormGui" @click="handleMaterial" >。。。</button>
                         </li>
                         <li>
@@ -84,36 +83,33 @@
                 <div class="main clearfix">
                     <div class="fl">
                         <div class="order_table fl_table">
-                            <el-table :data="list" height="52vh" border style="width: 100%"  @selection-change="handleSelectionChange">
-                                <el-table-column type="selection" min-width="3%">
+                            <el-table :data="list" height="52vh" border style="width: 100%" >
+                                <el-table-column prop="materialSn" label="物料编码" min-width="8.2%">
                                 </el-table-column>
-                                <el-table-column prop="materialSn" label="物料编码" min-width="7.5%">
+                                <el-table-column prop="materialName" label="名称" min-width="8.2%">
                                 </el-table-column>
-                                <el-table-column prop="materialName" label="名称" min-width="7.5%">
+                                <el-table-column prop="kz" label="克重" min-width="8.2%">
                                 </el-table-column>
-                                <el-table-column prop="kz" label="克重" min-width="7.5%">
+                                <el-table-column prop="size" label="布宽" min-width="8.2%">
                                 </el-table-column>
-                                <el-table-column prop="size" label="布宽" min-width="7.5%">
+                                <el-table-column prop="dosageUnit" label="用量单位" min-width="8.2%">
                                 </el-table-column>
-                                <el-table-column prop="dosageUnit" label="用量单位" min-width="7.5%">
+                                <el-table-column prop="dosage" label="用量" min-width="8.2%">
                                 </el-table-column>
-                                <el-table-column prop="dosage" label="用量" min-width="7.5%">
+                                <el-table-column prop="purchaseUnit" label="采购单位" min-width="8.2%">
                                 </el-table-column>
-                                <el-table-column prop="purchaseUnit" label="采购单位" min-width="7.5%">
+                                <el-table-column prop="func" label="领用部门" min-width="8.2%">
                                 </el-table-column>
-                                <el-table-column prop="func" label="领用部门" min-width="7.5%">
+                                <el-table-column prop="part" label="应用部位" min-width="8.2%">
                                 </el-table-column>
-                                <el-table-column prop="part" label="应用部位" min-width="7.5%">
+                                <el-table-column prop="explain" label="规格说明" min-width="8.2%">
                                 </el-table-column>
-                                <el-table-column prop="explain" label="规格说明" min-width="7.5%">
+                                <el-table-column prop="nature" label="性质" min-width="8.2%">
                                 </el-table-column>
-                                <el-table-column prop="nature" label="性质" min-width="7.5%">
-                                </el-table-column>
-                                <el-table-column label="操作" min-width="14%">
+                                <el-table-column label="操作" min-width="9.8%">
                                     <template slot-scope="scope">
                                         <el-button :disabled='(scope.row.sh==1)' :class="{btn:(scope.row.sh==0)}" type="text" @click="handleEdit(scope.$index, scope.row)">修改</el-button>
                                         <el-button :disabled='(scope.row.sh==1)'  :class="{btn:(scope.row.sh==0)}" type="text" @click="tableDelete(scope.$index, scope.row)">删除</el-button>
-                                        <el-checkbox disabled v-model="scope.row.sh==1">审核</el-checkbox>
                                     </template>
                                 </el-table-column>
                             </el-table>
@@ -131,8 +127,8 @@
                             <li v-for="(items,j) in item.attachment.color" :key="j">
                                 <P>
                                     <span>{{items.colorSn}}-{{items.color}}</span>
-                                    <span v-if="!item.color">
-                                        <el-button type="text" @click="addItem(items)" >添加</el-button>
+                                    <span>
+                                        <el-button type="text" @click="addItem(item,items)" >添加</el-button>
                                         <el-button type="text" @click="deleteItem(items)">删除</el-button>
                                     </span>
                                 </P>
@@ -194,12 +190,12 @@
                 </li>
             </ul>
         </el-dialog>
-        <el-dialog title="请输入您要查询的物料名称编号" :visible.sync="oldMaterial">
-            <el-input v-model="material" placeholder="请输入您要查询的物料名称编号"></el-input>
+        <el-dialog title="请输入您要查询的物料名称" :visible.sync="oldMaterial">
+            <el-input v-model="material" placeholder="请输入您要查询的物料名称"></el-input>
             <ul class="srcond_menu">
                 <p v-if="oldMaterialList.length===0">暂无数据</p>
                 <li v-for="(item,i) in oldMaterialList" :key="i" class="clearfix">
-                    <span class="material" @click="getItemMaterial(item)">{{item.nameSn}}</span>
+                    <span class="material" @click="getItemMaterial(item)">{{item.sn}}</span>
                     <span class="material" @click="getItemMaterial(item)">{{item.name}}</span>
                 </li>
             </ul>
@@ -368,7 +364,6 @@ export default {
             idx: 0,
             //编辑弹出框数据
             dialog: {},
-            multipleSelection:[],
 
             //分页：当前页码/总数量/每页显示条数
             page: 0,
@@ -487,6 +482,7 @@ export default {
                         .then(res=>{
                             if(res.data.code===0){
                                 succ(res.data.msg)
+                                this.pageOnOff = false
                                 let params = {
                                     psn:this.firstForm.psn,
                                     count:this.pageSize,
@@ -574,20 +570,12 @@ export default {
 
         //审核
         doExamines() {
-            let form = []
-            for(let i in this.multipleSelection){
-                let obj = {}
-                obj.id = this.multipleSelection[i].id
-                obj.status = 1
-                form.push(obj)
-            }
-            console.log(this.form)
             this.$http
-                .post("/TPA/cMatBill/auditing", form)
+                .post("/TPA/cMatBill/auditing?status=1&psn="+this.list[0].psn)
                 .then(res => {
                     if (res.data.code === 0) {
                         succ(res.data.msg);
-                        this.getPageData()
+                        this.getPageData(this.pageParams)
                     } else {
                         error(res.data.msg);
                     }
@@ -598,20 +586,12 @@ export default {
         },
         //反审
         doExamineAgains() {
-            let form = []
-            for(let i in this.multipleSelection){
-                let obj = {}
-                obj.id = this.multipleSelection[i].id
-                obj.status = 0
-                form.push(obj)
-            }
-            console.log(form)
             this.$http
-                .post("/TPA/cMatBill/auditing", form)
+                .post("/TPA/cMatBill/auditing?status=0&psn="+this.list[0].psn)
                 .then(res => {
                     if (res.data.code === 0) {
                         succ(res.data.msg);
-                        this.getPageData()
+                        this.getPageData(this.pageParams)
                     } else {
                         error(res.data.msg);
                     }
@@ -669,9 +649,12 @@ export default {
         },
 
         //点击物料颜色添加按钮
-        addItem(item){
+        addItem(item,items){
+            // console.log(item)
             this.materialItem = item
-            this.getmaterialColorList(item.masterSn)
+            this.materialItem.psnColor = items.psnColor
+            this.materialItem.psnColorSn  = items.psnColorSn 
+            this.getmaterialColorList(item.materialSn)
             this.oldMaterialColor = true
         },
         //删除物料颜色
@@ -831,11 +814,6 @@ export default {
                 });
         },
 
-        //获取table选择的表格
-        handleSelectionChange(val) {
-            this.multipleSelection = val;
-        },
-
         //查询当前设计款号下的所有产品颜色
         getDesignColor(psn){
 
@@ -902,7 +880,7 @@ export default {
         },        
         //选择物料
         getItemMaterial(item){
-            this.firstForm.materialSn = item.nameSn
+            this.firstForm.materialSn = item.sn
             this.firstForm.materialName = item.name
             this.oldMaterial = false
             this.material = ""
@@ -912,14 +890,15 @@ export default {
             let form = this.materialItem
             form.color = item.yscmName
             form.colorSn = item.yscmSn
+            form.masterSn = form.sn
             this.oldMaterialColor = false
-            
+            // console.log(form)
             this.$http.post('/TPA/cMatBillA/insert',qs.stringify(form))
                 .then(res=>{
                     if(res.data.code===0){
                         succ(res.data.msg)
                         let params = {
-                            psn:this.firstForm.psn,
+                            psn:form.psn,
                             count:this.pageSize,
                             page:0
                         }
@@ -940,19 +919,8 @@ export default {
             this.oldFunc = false
         },        
         //分页
-        getPageData(params) {
-
-            // this.$http.post('/TPA/cMatBill/getByPsn2?psn='+this.search)
-            //     .then(res=>{
-            //         if(res.data.code===0){
-            //             this.doPrint = false;
-            //             this.list = res.data.data
-            //         }
-            //     })  
-            //     .catch(err=>{
-            //         NetworkAnomaly()
-            //     })             
-            
+        getPageData(params) {             
+            this.list = []
             this.$http
                 .post("/TPA/cMatBill/search", qs.stringify(params))
                 .then(res => {
@@ -1044,7 +1012,7 @@ export default {
         material(){
             if(this.material){
                 let search = {
-                    nameSn: 17 + "|" + this.material
+                    name: 17 + "|" + this.material
                 };
                 let searchStr = JSON.stringify(search);
                 this.$http

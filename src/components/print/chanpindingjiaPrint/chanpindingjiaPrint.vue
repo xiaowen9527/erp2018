@@ -64,6 +64,7 @@ export default {
   name: "changpindingjiaPrint",
   data() {
     return {
+        pageTableArr:[],
       mianliaoFristForm: {
         pageTitle: "产品价格表",
         pageTit: {},

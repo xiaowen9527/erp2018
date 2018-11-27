@@ -38,9 +38,9 @@
                         </el-table-column>
                         <el-table-column prop="nature" label="性质" min-width="6.8%">
                         </el-table-column>
-                        <el-table-column prop="lsj" label="物料颜色" min-width="9.2%">
+                        <el-table-column label="物料颜色" min-width="9.2%">
                             <template slot-scope="scope">
-                                <span v-for="materialColor in scope.row.attachment.color ">{{materialColor.colorSn}}-{{materialColor.color}},</span>
+                                <span v-for="materialColor in scope.row.attachment.color " v-if="materialColor.colorSn">{{materialColor.colorSn}}-{{materialColor.color}},</span>
                             </template>                            
                         </el-table-column>
                         <el-table-column prop="DesignColor" label="产品颜色" min-width="9.2%">
@@ -85,8 +85,10 @@ export default {
             for (var x = 0; x < Math.ceil(array.length / size); x++) {
                 var start = x * size;
                 var end = start + size;
-                array[x].DesignColor = this.mianliaoFristForm.DesignColor
                 result.push(array.slice(start, end));
+            }
+            for(let i in array){
+                array[i].DesignColor = this.mianliaoFristForm.DesignColor
             }
             return result;
         }
