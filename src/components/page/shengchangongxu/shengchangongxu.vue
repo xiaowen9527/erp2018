@@ -702,6 +702,7 @@ export default {
     padding 0
 .container>>>.el-table .cell
     line-height 4.5vh
+    height 4.5vh
     text-align center
     font-size 1.3vh !important
     white-space pre-line !important
