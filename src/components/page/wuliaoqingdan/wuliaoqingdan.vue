@@ -6,7 +6,7 @@
             <button :disabled='doCancel' :class="{button_btn:!doCancel}" @click="doCancels">取消</button>
             <button :disabled='doPrint' :class="{button_btn:!doPrint}" @click="doPrints">打印</button>
             <button :disabled='doImport' :class="{button_btn:!doImport}" @click="doImports">导入</button>
-            <input type="text" placeholder="请选择" class="doSearch" v-model="search">
+            <input type="text" placeholder="请输入产品的设计款号" class="doSearch" v-model="search">
             <button @click="doSearchs" :class="{button_btn:!doSearch}" :disabled="doSearch">查询</button>
             <button class="button_btn" @click="doOuts">退出</button>
             <div class="btn_right">
@@ -20,19 +20,26 @@
                     <ul class="clearfix">
                         <li class="gui clearfix">
                             <label>设计款号</label>
-                            <input type="text" placeholder="请选择(必填)" readonly :disabled="firstFormOn"  v-model="firstForm.psn" @click="handlePsn">
+                            <input type="text" placeholder="请选择(必填)" readonly :disabled="firstFormGui"  v-model="firstForm.psn" @click="handlePsn">
                             <button :class="{gui_btn:!firstFormGui}" :disabled="firstFormOn" @click="handlePsn" >。。。</button>
                         </li>
                         <li class="gui">
                             <label>物料编号</label>
                             <input :disabled="firstFormNo" readonly placeholder="请选择(必选)" v-model="firstForm.materialSn" class="guiNum" type="text" @click="handleMaterial">
                             <input :disabled="firstFormNo" readonly placeholder="请选择(必选)" v-model="firstForm.materialName" class="guiName" type="text" @click="handleMaterial">
-                            <button :class="{gui_btn:!firstFormGui}" :disabled="firstFormGui" @click="handleMaterial" >。。。</button>
+                            <button :class="{gui_btn:!firstFormOn}" :disabled="firstFormOn" @click="handleMaterial" >。。。</button>
                         </li>
                         <li>
                             <label>开发用量</label>
                             <input type="text" v-model="firstForm.amount" :disabled="firstFormOn" placeholder="必填">
                         </li>
+                        <li>
+                            <label>用量单位</label>
+                            <el-select :disabled="firstFormOn" v-model="firstForm.dosageUnit" placeholder="请选择(必选)">
+                                <el-option v-for="item in this.dosageUnit" :key="item.name" :label="item.name" :value="item.name">
+                                </el-option>
+                            </el-select>
+                        </li>                        
                         <li>
                             <label>性质</label>
                             <el-select :disabled="firstFormOn" v-model="firstForm.nature" placeholder="请选择(必选)">
@@ -63,13 +70,7 @@
                             <label>大量货用量</label>
                             <input type="text" v-model="firstForm.dosage" :disabled="firstFormOn" placeholder="必填">
                         </li>
-                        <li>
-                            <label>用量单位</label>
-                            <el-select :disabled="firstFormOn" v-model="firstForm.dosageUnit" placeholder="请选择(必选)">
-                                <el-option v-for="item in this.dosageUnit" :key="item.name" :label="item.name" :value="item.name">
-                                </el-option>
-                            </el-select>
-                        </li>
+
                         <li class="explain">
                             <label>说明</label>
                             <input type="text" v-model="firstForm.explain" :disabled="firstFormOn">
@@ -496,7 +497,7 @@ export default {
                                 this.emptyFirstForm()
                                 this.firstFormGui = true;
                                 this.firstForm.psn = psn
-                                  
+                                  console.log(this.firstFormGui)
 
                             }else{
                                 error(res.data.msg)
@@ -960,7 +961,7 @@ export default {
         psn(){
             if(this.psn){
                 let search = {
-                    psn: 17 + "|" + this.psn
+                    pSn: 17 + "|" + this.psn
                 };
                 let searchStr = JSON.stringify(search);
                 this.$http

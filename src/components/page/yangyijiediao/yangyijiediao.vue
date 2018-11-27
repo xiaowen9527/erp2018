@@ -31,10 +31,6 @@
                             <label class="name">日期</label>
                             <el-date-picker format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd" :disabled="confirm" v-model="form.date" type="date" placeholder="选择日期"> </el-date-picker>
                         </li>
-                        <!-- <li>
-                            <label>日期</label>
-                            <input type="text" :disabled="confirm" v-model="form.date">
-                        </li> -->
 
                         <li>
                             <label>借衣人</label>
@@ -303,7 +299,7 @@ export default {
       this.$http
         .post("/TPA/aLbJb/getBySn?sn=001")
         .then(res => {
-          console.log(res);
+          // console.log(res);
           if (res.data.code === 0) {
             this.searchYearList = res.data.data;
           } else {
@@ -404,22 +400,10 @@ export default {
 
     // 点击左侧树形导航
     menuSelected(e) {
-      this.page = 1;
+      this.page = 0;
       this.pageOnOff = false;
       this.queryFun(e);
     },
-
-    // 点击“还”按钮
-    // handleEdit(index, row) {
-    //   this.idx = index;
-    //   const item = this.list[index];
-    //   this.dialog = {
-    //     id: item.id,
-    //     stillUser: item.stillUser
-    //   };
-    //   this.editVisible = true;
-    //   //   console.log(item);
-    // },
 
     // 保存单条数据
     saveEdit() {
@@ -441,7 +425,7 @@ export default {
         this.$http
           .post("/TPA/cYpjc/update", params)
           .then(res => {
-            console.log(res);
+            // console.log(res);
             // let stillDate = res.data.data.stillDate.slice(0, 10);
             // this.form.stillDate = stillDate;
             // this.form.stillUser = res.data.data.stillUser;
@@ -504,7 +488,7 @@ export default {
     // 选择要还的样品
     handleSelectionChange(val) {
       this.multipleSelection = val;
-      console.log(this.multipleSelection);
+      // console.log(this.multipleSelection);
       if (this.multipleSelection.length != 0) {
         this.returnDisabled = false;
       } else {
@@ -529,7 +513,7 @@ export default {
       this.$http
         .post("/TPA/cYpjc/search", qs.stringify(pageParams))
         .then(res => {
-          console.log(res)
+          // console.log(res)
           if (res.data.code === 0) {
             this.list = res.data.data.list;
             if (this.list.length != 0) {
@@ -548,7 +532,7 @@ export default {
               if (this.list[i].stillDate) {
                 var stillDate = this.list[i].stillDate.slice(0, 10);
                 this.list[i].stillDate = stillDate;
-                console.log(this.list);
+                // console.log(this.list);
               }
             }
 
@@ -579,6 +563,7 @@ export default {
         .post("/TPA/cYpjc/search", qs.stringify(this.pageParams))
         .then(res => {
           // console.log(res);
+          console.log(2)
           if (res.data.code === 0) {
             this.list = res.data.data.list;
             this.total = res.data.data.total;

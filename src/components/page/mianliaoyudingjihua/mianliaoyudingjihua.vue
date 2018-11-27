@@ -32,8 +32,8 @@
                     <ul class="clearfix">
                         <li class="gui">
                             <label>供应商</label>
-                            <input :disabled="firstFormOn" v-model="firstForm.aKsDaSn" class="guiNum" readonly type="text" placeholder="请选择">
-                            <input :disabled="firstFormOn" v-model="firstForm.aKsDaName" class="guiName" readonly type="text" placeholder="请选择">
+                            <input :disabled="firstFormOn" v-model="firstForm.aKsDaSn" class="guiNum" readonly type="text" placeholder="请选择" @click="oldMenu = true">
+                            <input :disabled="firstFormOn" v-model="firstForm.aKsDaName" class="guiName" readonly type="text" placeholder="请选择" @click="oldMenu = true">
                             <button :disabled="firstFormOn" @click="oldMenu = true">。。。</button>
                         </li>
 
@@ -224,17 +224,6 @@
             <ul class="srcond_menu" ref="gysaaa">
                 <li v-if="gys.length===0">暂无数据</li>
                 <li v-for="(item,i) in gys" :key="i">
-                    <span class="oldMenu" @click="getOldMenu(item)">|--{{item.name}}</span>
-                    <span class="oldMenu" @click="getOldMenu(item)">|--{{item.name}}</span>
-                    <span class="oldMenu" @click="getOldMenu(item)">|--{{item.name}}</span>
-                    <span class="oldMenu" @click="getOldMenu(item)">|--{{item.name}}</span>
-                    <span class="oldMenu" @click="getOldMenu(item)">|--{{item.name}}</span>
-                    <span class="oldMenu" @click="getOldMenu(item)">|--{{item.name}}</span>
-                    <span class="oldMenu" @click="getOldMenu(item)">|--{{item.name}}</span>
-                    <span class="oldMenu" @click="getOldMenu(item)">|--{{item.name}}</span>
-                    <span class="oldMenu" @click="getOldMenu(item)">|--{{item.name}}</span>
-                    <span class="oldMenu" @click="getOldMenu(item)">|--{{item.name}}</span>
-                    <span class="oldMenu" @click="getOldMenu(item)">|--{{item.name}}</span>
                     <span class="oldMenu" @click="getOldMenu(item)">|--{{item.name}}</span>
                 </li>
             </ul>
@@ -807,10 +796,10 @@ export default {
         },
         //选择供应商
         getOldMenu(item) {
-            console.log(this.$refs.gysaaa.scrollTop,this.$refs.gysaaa.scrollHeight,this.$refs.gysaaa.clientHeight)
-            // this.firstForm.aKsDaSn = item.sn;
-            // this.firstForm.aKsDaName = item.name;
-            // this.oldMenu = false;
+            // console.log(this.$refs.gysaaa.scrollTop,this.$refs.gysaaa.scrollHeight,this.$refs.gysaaa.clientHeight)
+            this.firstForm.aKsDaSn = item.sn;
+            this.firstForm.aKsDaName = item.name;
+            this.oldMenu = false;
         },
         //菜单点击查询
         menuSelected(index) {

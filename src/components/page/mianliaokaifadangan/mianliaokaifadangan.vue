@@ -191,7 +191,7 @@
             <ul class="srcond_menu">
                 <li v-if="nameList.length===0">暂无数据</li>
                 <li v-for="(item,i) in nameList" :key="i">
-                    <span @click="getOldMenu(item)">|--{{item.name}}</span>
+                    <span @click="getOldMenu(item)">|--{{item.name}}&nbsp;&nbsp;-&nbsp;&nbsp;{{item.type}}</span>
                 </li>
             </ul>
         </el-dialog>
@@ -1224,4 +1224,8 @@ export default {
         &.btn
             border 1px solid #409eff
             color #409eff
+.srcond_menu
+    li
+        &:hover
+            background #d2d2d2            
 </style>

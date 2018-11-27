@@ -153,7 +153,7 @@ export default {
         .post("/TPA/cYpzz/getByPsn", qs.stringify(queryInfo))
         .then(res => {
           if (res.data.code == 0) {
-            console.log(res);
+            // console.log(res);
             // 判断点击的导航是否为数字
             var reg = /^[0-9]+.?[0-9]*$/;
             if (res.data.data.length != 0) {
@@ -208,7 +208,7 @@ export default {
               this.list = [];
             }
           }
-          console.log(res);
+          // console.log(res);
         });
     },
 
@@ -247,7 +247,7 @@ export default {
           } else {
             error(res.data.msg);
           }
-          console.log(res);
+          // console.log(res);
         });
     },
 
@@ -348,7 +348,7 @@ export default {
         count: this.pageSize,
         msg: "NULL"
       };
-      console.log(queryInfo);
+      // console.log(queryInfo);
       // 因为数据请求返回的速度有延迟，所以更新列表需要设置一下延迟
       setTimeout(() => {
         this.queryFun(queryInfo);
@@ -360,7 +360,7 @@ export default {
       this.$http
         .post("/TPA/psn/tree?sp=1&year=" + this.searchYear)
         .then(res => {
-          console.log(res);
+          // console.log(res);
           if (res.data.code === 0) {
             this.navMenus = res.data.data.childs;
           } else {
@@ -377,7 +377,7 @@ export default {
       this.$http
         .post("/TPA/aLbJb/getBySn?sn=001")
         .then(res => {
-          console.log(res);
+          // console.log(res);
           if (res.data.code === 0) {
             this.searchYearList = res.data.data;
           } else {
@@ -406,7 +406,7 @@ export default {
         count: this.pageSize
       };
       localStorage.setItem("psn", e);
-      console.log(e);
+      // console.log(e);
       this.queryFun(queryInfo);
     },
 

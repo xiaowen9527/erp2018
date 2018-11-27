@@ -684,6 +684,7 @@ export default {
         refresh() {
             this.getDateYear()
             this.doCancels();
+            this.getnavMenu()
             succ("刷新成功");
         },
         pushArr(name){
@@ -1261,7 +1262,7 @@ export default {
         //获取设计师
         getDesigner() {
             this.$http
-                .post("/TPA/cYffg/getBySn?&rdProcedureSn=020-1")
+                .post("/TPA/cYffg/getBySn?&rdProcedureSn=02001")
                 .then(res => {
                     if (res.data.code === 0) {
                         this.designer = res.data.data;
@@ -1444,7 +1445,7 @@ export default {
     watch: {
         //模糊搜索框
         searchSecondTable() {
-            if (this.searchSecondTable.length !== 0) {
+            if (this.searchSecondTable.length > 0) {
                 this.getSearchTable();
             } else {
                 this.searchSecondTableList = [];

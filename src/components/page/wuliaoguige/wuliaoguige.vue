@@ -14,7 +14,7 @@
 
         <div class="set_box">
             <div class="menu_box">
-                <el-menu @select="menuSelected" @open="menuSelected" unique-opened background-color="#f2f2f2" text-color="#303133" active-text-color="#303133">
+                <el-menu @select="menuSelected" unique-opened background-color="#f2f2f2" text-color="#303133" active-text-color="#303133">
                     <nav-menu :navMenus="this.navMenus"></nav-menu>
                 </el-menu>
             </div>
@@ -23,8 +23,8 @@
                     <ul class="clearfix">
                         <li class="gui">
                             <label>归属</label>
-                            <input type="text" placeholder="顶级" v-model="firstForm.typeSn" readonly :disabled="firstFormGui" class="gui_num">
-                            <input type="text" placeholder="顶级" v-model="firstForm.type" readonly :disabled="firstFormGui">
+                            <input type="text" placeholder="顶级" v-model="firstForm.typeSn" readonly :disabled="firstFormGui" class="gui_num" @click="openGui">
+                            <input type="text" placeholder="顶级" v-model="firstForm.type" readonly :disabled="firstFormGui" @click="openGui">
                             <button :disabled="firstFormGui" :class="{btn:!firstFormGui}" @click="openGui">。。。</button>
                         </li>
                         <li>
@@ -41,12 +41,10 @@
 
                 <div class="secondForm">
                     <div class="order_table">
-                        <el-table :data="list" height="46.5vh" border style="width: 100%"  @sort-change='sortChange' :default-sort="{prop:'typeSn',order: 'ascending'}">
-                            <el-table-column prop="sn" label="编号" min-width="30%" sortable='custom'>
+                        <el-table :data="list" height="46.5vh" border style="width: 100%">
+                            <el-table-column prop="name" label="物料规格名称" min-width="50%">
                             </el-table-column>
-                            <el-table-column prop="name" label="物料规格名称" min-width="40%">
-                            </el-table-column>
-                            <el-table-column label="操作" min-width="30%">
+                            <el-table-column label="操作" min-width="50%">
                                 <template slot-scope="scope">
                                     <el-button :disabled="(scope.row.status == 1)" :class="{btn:(scope.row.status == 1)}" @click="effective(scope.$index, scope.row)" type="text">有效</el-button>
                                     <el-button :disabled="(scope.row.status == 0)" :class="{btn:(scope.row.status == 0)}" @click="invalid(scope.$index, scope.row)" type="text">无效</el-button>
@@ -112,10 +110,9 @@
 
         <!-- 导入弹窗 -->
         <el-dialog class="importExport" title="导入" :visible.sync="importbox" width="30%" :showClose="false" :show-file-list="false">
-            <a class="down" href="/TPA/cWlda/downExcel">下载导入模板</a>
+            <a class="down" href="/TPA/cSpecification/downExcel">下载导入模板</a>
             <el-upload name="file" class="upload-demo" ref="upload" action="" :file-list="fileList" :http-request="uploadFile" :auto-upload="false" accept=".xls,.xlsx,.csv">
                 <el-button slot="trigger" size="small" type="primary" plain>选取文件</el-button>
-                <el-checkbox v-model="isCover" style="margin-left:5vh">覆盖重复数据</el-checkbox>
                 <div slot="tip" class="el-upload__tip">只能上传excel文件</div>
             </el-upload>
             <span slot="footer" class="dialog-footer">
@@ -135,7 +132,7 @@
                     <el-button type="primary" @click="importErr">下载</el-button>
                 </span>
             </ul>
-        </el-dialog>        
+        </el-dialog>      
 
     </div>
 </template>
@@ -196,9 +193,7 @@ export default {
             pageSize: 10,
             pageOnOff: false,
             //分页排序查询条件
-            pageParams: {
-                orderBy: "sn asc"
-            },            
+            pageParams: {},            
 
            //导入弹出开关
             importbox: false,
@@ -207,9 +202,9 @@ export default {
             project:"",         //错误文件名
             //上传的文件
             fileList: [],
-            //导入时重复的数据
-            Tips: [],
-            tipOffON: false,            
+            Tips:"",               //错误提示
+            tipOffON: false,        //错误文件下载开关
+           
         };
     },
     mounted() {
@@ -326,7 +321,6 @@ export default {
                         let params = {
                             typeSn: this.firstForm.typeSn,
                             page: 0,
-                            orderBy: "sn asc",
                             count: this.pageSize
                         };
                         this.pageParams = params;
@@ -348,7 +342,6 @@ export default {
 
         //导入按纽
         doImports() {
-            this.isCover = false
             this.importbox = true;
         },
         //导入取消
@@ -368,19 +361,20 @@ export default {
             let formData = new FormData();
             formData.append("file", _file);
                 this.$ajax
-                    .post("/TPA/cWlda/importExcel?isCover="+this.isCover, formData)
+                    .post("/TPA/cSpecification/importExcel", formData)
                     .then(res => {
                         console.log(res);
                         if (res.status === 200) {
                             if (res.data.code === 0) {
                                 succ(res.data.msg);
+                                this.getnavMenu();
                                 this.importCancel();
                                 this.$refs.upload.clearFiles();
-                                this.tipOffON = false;
-                            }if(res.data.code === 100){
+                            }else if(res.data.code === 100){
                                 this.tipOffON = true;
-                                this.project = res.data.msg
-                            }else {
+                                this.project = res.data.attachment.name
+                                console.log(this.project)
+                            }else{
                                 error(res.data.msg);
                             }
                         } else {
@@ -395,16 +389,17 @@ export default {
         },
         //下载错误文件按钮
         importErr() {
-            let errUrl = '/TPA/cWlda/exportMsg?name=' + this.project
+            let errUrl = '/TPA/aImportExcel/exportMsg?name=' + this.project
+            // console.log(errUrl)
             window.location.href = errUrl;
             setTimeout(()=>{
                 this.tipOffON = false;
                 this.importCancel();
             },500)
-        },
+        },        
         //导出
         doExports() {
-            window.location.href = "/TPA/cWlda/exportExcel";
+            window.location.href = "/TPA/cSpecification/exportExcel";
         },
         
         
@@ -414,11 +409,11 @@ export default {
             this.doCancel = false;
             let data = index.split(",");
             
+            this.disabledFirstForm()
             this.getItem(data[1])
             let params = {
                 typeSn: data[0],
                 page: 0,
-                orderBy: "sn asc",
                 count: this.pageSize
             };
             this.pageParams = params;
@@ -526,18 +521,7 @@ export default {
                     NetworkAnomaly();
                 });
         },        
-        //顺序
-        sortChange(column) {
-            console.log(column.prop, column.order);
-                if (column.prop == "sn" && column.order == "descending") {
-                    this.pageParams.orderBy = "sn desc";
-                } else if ( column.prop == "sn" && column.order == "ascending" ) {
-                    this.pageParams.orderBy = "sn asc";
-                }
-                if (this.list.length !== 0) {
-                    this.getPageData();
-                }                
-        },  
+
         //获取页码
         currentPage(val){
             this.page = val
@@ -551,15 +535,23 @@ export default {
         NavMenu
     },
     watch: {
+        //翻页
         page() {
             this.pageParams.page = this.page - 1;
             this.getPageData();
-        },        
+        },    
+        //查询    
         search(){
             if(this.search.length!==0){
                 this.getSearch(this.search)
             }
         },
+        //错误文件下载框消失的时候把消除上传记录
+        importbox(){
+            if(!this.importbox){
+                this.$refs.upload.clearFiles();
+            }
+        }
 
     }
 };

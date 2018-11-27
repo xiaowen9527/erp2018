@@ -148,10 +148,10 @@
                     <el-input v-model="dialog.name" type="text"></el-input>
                 </el-form-item>
                 <el-form-item label="工艺要求">
-                    <el-input v-model="dialog.require" type="text"></el-input>
+                    <el-input v-model="dialog.require" type="textarea"></el-input>
                 </el-form-item>
                 <el-form-item label="设备工具">
-                    <el-input v-model="dialog.tool" type="text"></el-input>
+                    <el-input v-model="dialog.tool" type="textarea"></el-input>
                 </el-form-item>
 
             </el-form>
@@ -693,8 +693,8 @@ export default {
     line-height 3.5vh
 
 .container>>>.el-dialog
-    width 400px
-    height 500px
+    width 500px
+    height 550px
     overflow-x hidden
     .el-select
         width 100%
@@ -703,9 +703,12 @@ export default {
 .container>>>.el-table .cell
     line-height 4.5vh
     height 4.5vh
+    white-space: nowrap !important
+    text-overflow:ellipsis !important
+    overflow:hidden !important
     text-align center
     font-size 1.3vh !important
-    white-space pre-line !important
+    // white-space pre-line !important
 .srcond_menu
     li
         &:hover

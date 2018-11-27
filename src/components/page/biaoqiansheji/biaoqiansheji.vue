@@ -45,7 +45,7 @@
 
                         <li>
                             <label>编号</label>
-                            <input type="text" v-model="firstForm.sn" disabled>
+                            <input type="text" placeholder="自动生成" v-model="firstForm.sn" disabled>
                         </li>
 
                         <li>
@@ -311,7 +311,7 @@ export default {
                 this.$ajax
                     .post("/TPA/aYscm/importExcelTab", formData)
                     .then(res => {
-                        console.log(res);
+                        // console.log(res);
                         if (res.status === 200) {
                             if (res.data.code === 0) {
                                 succ(res.data.msg);
@@ -429,7 +429,7 @@ export default {
             this.$http
                 .post("/TPA/aYscm/treeTab")
                 .then(res => {
-                    console.log(res);
+                    // console.log(res);
                     if (res.data.code === 0) {
                         this.navMenus = res.data.data;
                         this.renav();
@@ -501,11 +501,11 @@ export default {
             };
 
             this.pageParams = params;
-            console.log(this.pageParams);
+            // console.log(this.pageParams);
             this.$http
                 .post("/TPA/aYscm/searchTab", qs.stringify(params))
                 .then(res => {
-                    console.log(res);
+                    // console.log(res);
                     if (res.data.code === 0) {
                         // console.log(this.pageParams);
                         // console.log(res);
@@ -577,7 +577,7 @@ export default {
                                         qs.stringify(this.pageParams)
                                     )
                                     .then(res => {
-                                        console.log(this.pageParams);
+                                        // console.log(this.pageParams);
                                         if (res.data.code === 0) {
                                             this.list = res.data.data.list;
                                             this.total = res.data.data.total;
@@ -609,7 +609,7 @@ export default {
                         .then(res => {
                             if (res.data.code === 0) {
                                 succ(res.data.msg);
-                                console.log(res);
+                                // console.log(res);
 
                                 let status = this.firstForm.status;
                                 let addUser = this.firstForm.addUser;
@@ -755,8 +755,8 @@ export default {
     watch: {
         page() {
             this.pageParams.page = this.page - 1;
-            console.log("pageParams:" + this.pageParams.page);
-            console.log("page" + this.page);
+            // console.log("pageParams:" + this.pageParams.page);
+            // console.log("page" + this.page);
             this.$http
                 .post("/TPA/aYscm/searchTab", qs.stringify(this.pageParams))
                 .then(res => {

@@ -17,18 +17,12 @@
         </div>
 
         <div class="set_box">
-            <!-- <el-menu @select="menuSelected" unique-opened background-color="#f2f2f2" text-color="#303133" active-text-color="#303133">
-                <nav-menu :navMenus="this.navMenus"></nav-menu>
-            </el-menu> -->
             <div class="set_info">
                 <!-- 表单内容 -->
                 <div class="info_form">
                     <ul class="clearfix">
                         <li>
                             <label>款号</label>
-                            <!-- <el-popover placement="bottom-start" width="200" trigger="input" content="测试">
-                            <input type="text" v-model="form.sn">
-                            </el-popover> -->
                             <input type="text" v-model="form.psn" @click="searchSn">
                         </li>
                         <li>
@@ -46,9 +40,6 @@
                             <label>生效日期</label>
                             <el-date-picker format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd" v-model="form.activeDate" type="date" placeholder="选择日期"> </el-date-picker>
                         </li>
-                        <!-- <div class="checkBox">
-                            <el-checkbox disabled v-model="checked">审核</el-checkbox>
-                        </div> -->
                         <button class="save button_btn" @click="doSaves">保存</button>
                     </ul>
                 </div>
@@ -58,7 +49,7 @@
                     <el-table :data="list" border style="width: 100%" ref="multipleTable" tooltip-effect="dark" @selection-change="handleSelectionChange" @sort-change='sortChange' :default-sort="{prop: 'psn', order: 'ascending'}">
                         <el-table-column type="selection" min-width="6%">
                         </el-table-column>
-                        <el-table-column prop="sn" label="编号" min-width="6%">
+                        <el-table-column prop="bianHao" label="编号" min-width="6%">
                         </el-table-column>
                         <el-table-column prop="psn" label="款号" min-width="12%">
                         </el-table-column>
@@ -232,7 +223,9 @@ export default {
             importbox: false,
             importZhe: false, //导入遮罩
             //上传的文件
-            fileList: []
+            fileList: [],
+            // 编号
+            bianHao: 0
         };
     },
     methods: {
@@ -261,7 +254,7 @@ export default {
             this.$ajax
                 .post("/TPA/CProductPrice/importExcel", formData)
                 .then(res => {
-                    console.log(res);
+                    // console.log(res);
                     if (res.status === 200) {
                         if (res.data.code === 0) {
                             succ(res.data.msg);
@@ -348,7 +341,7 @@ export default {
                     .post("/TPA/CProductPrice/auditing", idArr)
                     .then(res => {
                         if (res.data.code === 0) {
-                            console.log(res);
+                            // console.log(res);
                             this.getPageData();
                         }
                     })
@@ -375,7 +368,7 @@ export default {
                     .post("/TPA/CProductPrice/auditing", idArr)
                     .then(res => {
                         if (res.data.code === 0) {
-                            console.log(res);
+                            // console.log(res);
                             this.getPageData();
                         }
                     })
@@ -577,6 +570,12 @@ export default {
                         succ(res.data.msg);
                         this.doPrint = false;
                         this.list = res.data.data.list;
+                        for (let i in this.list) {
+                            // this.list[i].bianHao = this.pageParams.page + String(Number(i)+1);
+                            this.list[i].bianHao = this.pageParams.page * this.pageSize + Number(i)+1;
+                            // this.bianHao++;
+                            // this.list[i].bianHao = this.bianHao;
+                        }
                         if (this.list.length === 0) {
                             this.doPrint = true;
                         }
@@ -620,13 +619,14 @@ export default {
         searchXun() {
             if (this.searchXun.length !== 0) {
                 let search = {
-                    psn: 17 + "|" + this.searchXun
+                    pSn: 17 + "|" + this.searchXun
                 };
                 let searchStr = JSON.stringify(search);
                 this.$http
                     .post("/TPA/cSpda/search?sp=1&search=" + searchStr)
                     .then(res => {
                         this.searchList = res.data.data.list;
+                        // console.log(res.data.data.list)
                     })
                     .catch(err => {
                         NetworkAnomaly();
@@ -649,7 +649,8 @@ export default {
     display inline-block
     position relative
 .container>>>.el-select>.el-input
-    width 70%
+    width 100%
+    line-height 3.5vh
     display inline-block
 .container>>> .el-input__inner
     width 100% !important
@@ -678,8 +679,8 @@ export default {
     min-height 3.5vh
 // 弹出框
 .container>>>.el-dialog
-    width 500px !important
-    height 500px
+    width 390px !important
+    height 390px
     overflow-x hidden
 .container>>>.el-dialog .el-table td
     padding 0
@@ -744,11 +745,11 @@ export default {
         width 30%
     .save
         padding 0 2vh
-        height 4vh
-        line-height 4vh
+        height 3.5vh
+        line-height 3.5vh
         border 0.1vh solid #d9d9d9
         background #ffffff
-        margin-top 0.8vh
+        margin-top 1.3vh
         margin-left 1.5vh
         font-size 1.2vh
         display block
