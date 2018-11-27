@@ -570,10 +570,10 @@ export default {
             let terms =
                 this.firstForm.plksSn.length === 0 
 
-            if (terms) {
-                error("表单项不能为空");
-            } else {
-                console.log(this.firstForm);
+            // if (terms) {
+            //     error("表单项不能为空");
+            // } else {
+            //     console.log(this.firstForm);
                 if (this.addEdit) {
                     this.$http
                         .post("/TPA/cSpda/insert", qs.stringify(this.firstForm))
@@ -626,7 +626,7 @@ export default {
                             NetworkAnomaly();
                         });
                 }
-            }
+            // }
         },
         //有效按钮
         doEffectives() {
@@ -685,6 +685,7 @@ export default {
             this.getDateYear()
             this.doCancels();
             this.getnavMenu()
+            console.log(0)
             succ("刷新成功");
         },
         pushArr(name){
@@ -1175,9 +1176,10 @@ export default {
             this.disabledSecondForm();
             let data = index.split(",");
             this.getPageDate(data[0]);
+            
         },
         getPageDate(name) {
-            if (parseInt(name)) {
+            if (name.length>7) {
                 this.$http
                     .post("/TPA/cSpda/getBy?psn=" + name)
                     .then(res => {
