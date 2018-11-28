@@ -122,10 +122,11 @@
         </el-dialog>
         <div class="importZhe" v-if="importZhe" v-loading="true" element-loading-text="正在上传中..." element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)"></div>
         <!-- 下载错误文件 -->
-        <el-dialog title="导入提示" :visible.sync="tipOffON">
+        <el-dialog title="错误提示" :visible.sync="tipOffON">
             <ul class="srcond_menu">
                 <li>
-                    <span>是否下载错误提示文件</span>
+                    <el-alert :title="Tips" type="error"></el-alert>
+                    <span style="margin-top:5vh">是否下载错误提示文件</span>
                 </li>
                 <span slot="footer" class="dialog-footer">
                     <el-button @click="tipOffON = importbox = false">取 消</el-button>
@@ -373,7 +374,7 @@ export default {
                             }else if(res.data.code === 100){
                                 this.tipOffON = true;
                                 this.project = res.data.attachment.name
-                                console.log(this.project)
+                                this.Tips = res.data.msg
                             }else{
                                 error(res.data.msg);
                             }

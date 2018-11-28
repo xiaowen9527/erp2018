@@ -138,9 +138,10 @@
             </ul>
         </el-dialog>
 
+        <!-- 导入弹窗 -->
         <el-dialog class="importExport" title="导入" :visible.sync="importbox" width="30%" :showClose="false" :show-file-list="false">
             <a class="down" href="/TPA/aLbJb/downExcel">下载导入模板</a>
-            <el-upload name="file" class="upload-demo" ref="upload" action="" :file-list="fileList" :http-request="uploadFile"  :auto-upload="false" accept=".xls,.xlsx,.csv">
+            <el-upload name="file" class="upload-demo" ref="upload" action="" :file-list="fileList" :http-request="uploadFile" :auto-upload="false" accept=".xls,.xlsx,.csv">
                 <el-button slot="trigger" size="small" type="primary" plain>选取文件</el-button>
                 <div slot="tip" class="el-upload__tip">只能上传excel文件</div>
             </el-upload>
@@ -148,24 +149,26 @@
                 <el-button @click="importCancel">取 消</el-button>
                 <el-button type="primary" @click="submitUpload" plain>确 定</el-button>
             </span>
-        </el-dialog>        
-        <el-dialog title="导入提示" :visible.sync="tipOffON">
+        </el-dialog>
+        <div class="importZhe" v-if="importZhe" v-loading="true" element-loading-text="正在上传中..." element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)"></div>
+        <!-- 下载错误文件 -->
+        <el-dialog title="错误提示" :visible.sync="tipOffON">
             <ul class="srcond_menu">
-                <li v-for="(item,i) in Tips" :key="i">
-                    <span>{{item.msg}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;第{{item.line}}行</span>
+                <li>
+                    <el-alert :title="Tips" type="error"></el-alert>
+                    <span style="margin-top:5vh">是否下载错误提示文件</span>
                 </li>
                 <span slot="footer" class="dialog-footer">
                     <el-button @click="tipOffON = importbox = false">取 消</el-button>
-                    <el-button type="primary" @click="importFuGai" plain>覆盖</el-button>
+                    <el-button type="primary" @click="importErr">下载</el-button>
                 </span>
             </ul>
-        </el-dialog>     
-        <div class="importZhe" v-if="importZhe" v-loading="true" element-loading-text="正在上传中..." element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)"></div>       
+        </el-dialog>    
     </div>
 </template>
 
 <script>
-import '@/assets/js/import.js' //导入请求超时拦截
+import "@/assets/js/import.js"; //导入请求超时拦截
 import { mapState } from "vuex";
 import NavMenu from "./NavMenu";
 import qs from "qs";
@@ -181,14 +184,14 @@ export default {
   data() {
     return {
       //导入弹出开关
-      importbox: false,  
-      importZhe:false,  //导入遮罩
-        //上传的文件
-      fileList: [],            
-      //导入时重复的数据  
-      Tips:[],
-      tipOffON:false,
-      fugai:false,        
+      importbox: false,
+      importZhe: false, //导入遮罩
+      isCover: false, //默认导入不覆盖
+      project: "", //错误文件名
+      //上传的文件
+      fileList: [],
+      Tips: "", //错误提示
+      tipOffON: false, //错误文件下载开关
       //选取的当前菜单的index
       selectMenu: "",
 
@@ -266,84 +269,63 @@ export default {
     //文件上传到服务器按钮
     submitUpload() {
       this.$refs.upload.submit();
-      this.importZhe = true
-      console.log(this.$refs.upload);
+      this.importZhe = true;
     },
     //自定义上传
-    uploadFile(params){
-        const _file = params.file;
-        let formData = new FormData();
-        formData.append("file", _file);
-        //是否覆盖
-        if(this.fugai){
-            this.$ajax.post('/TPA/aLbJb/importExcel?isCover=true',formData)
-                .then(res=>{
-                    console.log(res);
-                if(res.status===200){
-                    if(res.data.code===0){
-                            succ(res.data.msg)
-                            this.getnavMenu()
-                            this.importCancel()
-                            this.$refs.upload.clearFiles();
-                            this.tipOffON = false   
-                    }else{
-                        error(res.data.msg)
-                    }
-                }else{
-                    NetworkAnomaly()
-                }
-                this.importZhe = false
-                })
-                .catch(err=>{
-                NetworkAnomaly()
-                this.importZhe = false
-                })
-        }else{
-            this.$ajax.post('/TPA/aLbJb/importExcel?isCover=false',formData)
-                .then(res=>{
-                if(res.status===200){
-                    if(res.data.code===0){
-                            succ(res.data.msg)
-                            this.getnavMenu()
-                            this.importCancel()
-                            this.$refs.upload.clearFiles();
-                    }else if(res.data.code===3){
-                        this.tipOffON = true
-                        this.Tips = res.data.data
-                    }else{
-                        error(res.data.msg)
-                    }
-                }else{
-                    NetworkAnomaly()
-                }
-                this.importZhe = false
-                })
-                .catch(err=>{
-                NetworkAnomaly()
-                this.importZhe = false
-                })
-        }
-        this.fugai = false
-
+    uploadFile(params) {
+      const _file = params.file;
+      let formData = new FormData();
+      formData.append("file", _file);
+      this.$ajax
+        .post("/TPA/aLbJb/importExcel", formData)
+        .then(res => {
+          console.log(res);
+          if (res.status === 200) {
+            if (res.data.code === 0) {
+              succ(res.data.msg);
+              this.getnavMenu();
+              this.importCancel();
+              this.$refs.upload.clearFiles();
+            } else if (res.data.code === 100) {
+              this.tipOffON = true;
+              this.project = res.data.attachment.name;
+              this.Tips = res.data.msg
+            } else {
+              error(res.data.msg);
+            }
+          } else {
+            NetworkAnomaly();
+          }
+          this.importZhe = false;
+        })
+        .catch(err => {
+          NetworkAnomaly();
+          this.importZhe = false;
+        });
     },
-    importFuGai(){
-        this.fugai = true
-        this.submitUpload()
+    //下载错误文件按钮
+    importErr() {
+      let errUrl = "/TPA/aImportExcel/exportMsg?name=" + this.project;
+      // console.log(errUrl)
+      window.location.href = errUrl;
+      setTimeout(() => {
+        this.tipOffON = false;
+        this.importCancel();
+      }, 500);
     },
-    //导出按钮
+    //导出
     doExports() {
-      window.location.href =
-        "/TPA/aLbJb/exportExcel";
+      window.location.href = "/TPA/aLbJb/exportExcel";
     },
-    
+
     //刷新
-    refresh(){
-        this.emptyBtn()
-        this.emptyform()
-        this.getnavMenu()
-        succ('刷新成功')
-        this.list = []
-    },      
+    refresh() {
+      this.emptyBtn();
+      this.emptyform();
+      this.getnavMenu();
+      succ("刷新成功");
+      this.list = [];
+    },
     //编辑单条数据
     handleEdit(index, row) {
       this.idx = index;
@@ -384,9 +366,9 @@ export default {
       } else if (this.form.jc.length === 0) {
         error("编号不能为空");
       } else {
-          if(this.form.sort.length === 0){
-              this.form.sort = 0
-          }
+        if (this.form.sort.length === 0) {
+          this.form.sort = 0;
+        }
         if (this.addEdit) {
           this.$http
             .post("/TPA/aLbJb/insert", qs.stringify(this.form))
@@ -398,36 +380,37 @@ export default {
                 this.form = {};
                 this.form.pidSn = res.data.data.pidSn;
                 this.form.pidName = res.data.data.pidName;
-                this.form.sort = ""
-                this.form.status = "3"
+                this.form.sort = "";
+                this.form.status = "3";
                 this.doAdd = false;
                 this.doSave = false;
 
                 let params = {
-                    pidSn: this.form.pidSn,
-                    page: 0,
-                    count: this.pageSize
+                  pidSn: this.form.pidSn,
+                  page: 0,
+                  count: this.pageSize
                 };
                 this.pageParams = params;
-                if(this.pageParams.pidSn.length === 0){this.pageParams.pidSn=-1}
-                console.log(this.pageParams)
+                if (this.pageParams.pidSn.length === 0) {
+                  this.pageParams.pidSn = -1;
+                }
+                console.log(this.pageParams);
                 this.$http
-                    .post("/TPA/aLbJb/search", qs.stringify(this.pageParams))
-                    .then(res => {
-                        if (res.data.code === 0) {
-                            this.list = res.data.data.list;
-                            this.total = res.data.data.total;
-                            if (this.total > this.pageSize) {
-                            this.pageOnOff = true;
-                            }
-                        } else {
-                            error(res.data.msg);
-                        }
-                    })
-                    .catch(err => {
+                  .post("/TPA/aLbJb/search", qs.stringify(this.pageParams))
+                  .then(res => {
+                    if (res.data.code === 0) {
+                      this.list = res.data.data.list;
+                      this.total = res.data.data.total;
+                      if (this.total > this.pageSize) {
+                        this.pageOnOff = true;
+                      }
+                    } else {
+                      error(res.data.msg);
+                    }
+                  })
+                  .catch(err => {
                     abnormal();
-                    });
-
+                  });
               } else {
                 error(res.data.msg);
               }
@@ -590,7 +573,7 @@ export default {
         count: this.pageSize
       };
       this.pageParams = params;
-      console.log(this.pageParams)
+      console.log(this.pageParams);
       this.$http
         .post("/TPA/aLbJb/search", qs.stringify(params))
         .then(res => {
@@ -682,48 +665,48 @@ export default {
     },
     // 保存编辑
     saveEdit() {
+      this.forms.name = this.dialog.name;
+      this.forms.sort = this.dialog.sort;
+      this.forms.sn = this.dialog.sn;
+      this.forms.jc = this.dialog.jc;
+      if (this.forms.sort.length === 0) {
+        this.forms.sort = 0;
+      }
 
-        this.forms.name = this.dialog.name;
-        this.forms.sort = this.dialog.sort;
-        this.forms.sn = this.dialog.sn;
-        this.forms.jc = this.dialog.jc;
-        if(this.forms.sort.length === 0){this.forms.sort=0}
-        
-        this.$http
-          .post("/TPA/aLbJb/update", qs.stringify(this.forms))
-          .then(res => {
-            if (res.data.code === 0) {
-              succ(res.data.msg);
-              this.getnavMenu();
-              this.editVisible = false;
-              this.$set(this.list, this.idx, this.forms);
-              this.$http
-                .post("/TPA/aLbJb/search", qs.stringify(this.pageParams))
-                .then(res => {
-                  if (res.data.code === 0) {
-                    this.list = res.data.data.list;
-                    this.total = res.data.data.total;
-                    if (this.total > this.pageSize) {
-                      this.pageOnOff = true;
-                    }
-                    this.emptyBtnTo();
-                    this.doEdit = false;
-                    this.doAdd = false;
-                  } else {
-                    error(res.data.msg);
+      this.$http
+        .post("/TPA/aLbJb/update", qs.stringify(this.forms))
+        .then(res => {
+          if (res.data.code === 0) {
+            succ(res.data.msg);
+            this.getnavMenu();
+            this.editVisible = false;
+            this.$set(this.list, this.idx, this.forms);
+            this.$http
+              .post("/TPA/aLbJb/search", qs.stringify(this.pageParams))
+              .then(res => {
+                if (res.data.code === 0) {
+                  this.list = res.data.data.list;
+                  this.total = res.data.data.total;
+                  if (this.total > this.pageSize) {
+                    this.pageOnOff = true;
                   }
-                })
-                .catch(err => {
-                  abnormal();
-                });
-            } else {
-              error(res.data.msg);
-            }
-          })
-          .catch(err => {
-            NetworkAnomaly();
-          });
-
+                  this.emptyBtnTo();
+                  this.doEdit = false;
+                  this.doAdd = false;
+                } else {
+                  error(res.data.msg);
+                }
+              })
+              .catch(err => {
+                abnormal();
+              });
+          } else {
+            error(res.data.msg);
+          }
+        })
+        .catch(err => {
+          NetworkAnomaly();
+        });
     },
     //有效
     effective(index, row) {
@@ -768,7 +751,7 @@ export default {
     //获取当前页码
     currentPage(val) {
       this.page = val;
-      console.log(this.page)
+      console.log(this.page);
     }
   },
   watch: {
@@ -788,16 +771,16 @@ export default {
           NetworkAnomaly();
         });
     },
-    tipOffON(){
-        if(this.tipOffON === false){
-            console.log(0);
-        }
+    tipOffON() {
+      if (this.tipOffON === false) {
+        console.log(0);
+      }
     },
-    importbox(){
-        if(this.importbox===false){
-            this.$refs.upload.clearFiles();
-        }
-    }     
+    importbox() {
+      if (this.importbox === false) {
+        this.$refs.upload.clearFiles();
+      }
+    }
   },
   computed: {
     ...mapState(["collapse"])
@@ -809,171 +792,170 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
-
 .container>>>.el-submenu__title, .container>>>.el-menu-item
+  height 3vh
+  line-height 3vh
+  font-size 1.6vh !important
+.container>>>th, .order_table>>>.el-table td, .el-table th
+  padding 0
+.container>>>.el-table .cell
+  height 4vh
+  line-height 4vh
+  text-align center
+  font-size 1.6vh
+.container>>>.el-table__empty-block
+  min-height 3.5vh
+.container>>>.el-dialog
+  width 400px
+  height 400px
+  overflow-x hidden
+.container>>>.el-dialog__body
+  cursor pointer !important
+  line-height 2.5vh
+  font-weight bold
+  padding 1vh 2vh
+.menu_box
+  width 12%
+.set_info
+  width 88%
+.searchBox
+  height 3vh
+  margin-left 50px
+  width 300px
+  float left
+  position relative
+  input
+    width 200px
     height 3vh
     line-height 3vh
-    font-size 1.6vh !important
-.container>>>th, .order_table>>>.el-table td, .el-table th
-    padding 0
-.container>>>.el-table .cell
+    float left
+    margin-top 3px
+    padding-left 1vh
+    border 0.1vh solid #d2d2d2
+    border-radius 0.4vh
+  button
+    padding 0 2.5vh
+    height 3vh
+    line-height 3vh
+    background #ffffff
+    font-size 1.2vh
+    display block
+    text-align center
+    margin-left 1vh
+    text-decoration underline
+    cursor pointer
+    border-radius 0.4vh
+  .searchList
+    width 200px
+    height 300px
+    border 0.1vh solid #d2d2d2
+    position absolute
+    top 3.5vh
+    left 0
+    z-index 999
+    background #ffffff
+    overflow-x hidden
+    .second
+      margin-left 2em
+      p
+        cursor pointer
+    .searchFirst
+      font-weight 1000
+      color #444
+      font-size 1.5vh
+      cursor pointer
+      display block
+      width 100%
+      line-height 2.5vh
+      padding 0 1vh
+  .searchSecond
+    padding-left 2em
+    cursor pointer
+    line-height 2.5vh
+    height 2.5vh
+    display block
+    font-weight 600
+    font-size 1.4vh
+  .searchThird
+    padding-left 4em
+    cursor pointer
+    line-height 2.5vh
+    height 2.5vh
+    font-size 13px
+    display block
+    font-weight 400
+.info_form
+  width 100%
+  li
+    padding 0 2vh 0 0
+    height 3.5vh
+    margin 1vh 0
+    float left
+    width 30%
+    &.menuLi
+      width 40%
+      .first
+        width 20%
+      input
+        width 40%
+        float left
+    label
+      padding 0 1vh
+      float left
+      line-height 3.5vh
+      width 20%
+    input
+      height 3.5vh
+      line-height 3.5vh
+      border 0.1vh solid #d2d2d2
+      outline none
+      margin-left 0.5vh
+      padding-left 1vh
+      width 75%
+      float left
+      overflow hidden
+    button
+      width 50px
+      height 3.5vh
+      border 0.1vh solid #d2d2d2
+      background none
+      margin-left 0.5vh
+      line-height 3.5vh
+      text-align center
+      border-radius 0.5vh
+      cursor pointer
+  .save
+    padding 0 2vh
     height 4vh
     line-height 4vh
-    text-align center
-    font-size 1.6vh
-.container>>>.el-table__empty-block
-    min-height 3.5vh
-.container>>>.el-dialog
-    width 400px
-    height 400px
-    overflow-x hidden
-.container>>>.el-dialog__body
-    cursor pointer !important
-    line-height 2.5vh
-    font-weight bold
-    padding 1vh 2vh
-.menu_box
-    width 12%
-.set_info
-    width 88%
-.searchBox
-    height 3vh
-    margin-left 50px
-    width 300px
+    border 0.1vh solid #d9d9d9
+    background #ffffff
+    margin 0.5vh
+    font-size 1.2vh
+    display block
     float left
-    position relative
-    input
-        width 200px
-        height 3vh
-        line-height 3vh
-        float left
-        margin-top 3px
-        padding-left 1vh
-        border .1vh solid #d2d2d2
-        border-radius .4vh
-    button
-        padding 0 2.5vh
-        height 3vh
-        line-height 3vh
-        background #ffffff
-        font-size 1.2vh
-        display block
-        text-align center
-        margin-left 1vh
-        text-decoration underline
-        cursor pointer
-        border-radius .4vh
-    .searchList
-        width 200px
-        height 300px
-        border .1vh solid #d2d2d2
-        position absolute
-        top 3.5vh
-        left 0
-        z-index 999
-        background #ffffff
-        overflow-x hidden
-        .second
-            margin-left 2em
-            p
-                cursor pointer
-        .searchFirst
-            font-weight 1000
-            color #444
-            font-size 1.5vh
-            cursor pointer
-            display block
-            width 100%
-            line-height 2.5vh
-            padding 0 1vh
-    .searchSecond
-        padding-left 2em
-        cursor pointer
-        line-height 2.5vh
-        height 2.5vh
-        display block
-        font-weight 600
-        font-size 1.4vh
-    .searchThird
-        padding-left 4em
-        cursor pointer
-        line-height 2.5vh
-        height 2.5vh
-        font-size 13px
-        display block
-        font-weight 400
-.info_form
-    width 100%
-    li
-        padding 0 2vh 0 0
-        height 3.5vh
-        margin 1vh 0
-        float left
-        width 30%
-        &.menuLi
-            width 40%
-            .first
-                width 20%
-            input
-                width 40%
-                float left
-        label
-            padding 0 1vh
-            float left
-            line-height 3.5vh
-            width 20%
-        input
-            height 3.5vh
-            line-height 3.5vh
-            border .1vh solid #d2d2d2
-            outline none
-            margin-left .5vh
-            padding-left 1vh
-            width 75%
-            float left
-            overflow hidden
-        button
-            width 50px
-            height 3.5vh
-            border .1vh solid #d2d2d2
-            background none
-            margin-left .5vh
-            line-height 3.5vh
-            text-align center
-            border-radius .5vh
-            cursor pointer
-    .save
-        padding 0 2vh
-        height 4vh
-        line-height 4vh
-        border .1vh solid #d9d9d9
-        background #ffffff
-        margin .5vh
-        font-size 1.2vh
-        display block
-        float left
-        text-align center
-        text-decoration underline
-        cursor pointer
-        border-radius .4vh
-        &.button_btn
-            border .1vh solid #409EFF
-            font-weight bold
-            color #409EFF
-            color #409EFF
+    text-align center
+    text-decoration underline
+    cursor pointer
+    border-radius 0.4vh
+    &.button_btn
+      border 0.1vh solid #409EFF
+      font-weight bold
+      color #409EFF
+      color #409EFF
 .order_table
-    width 99%
-    margin .5vh auto 0
-    max-height 550px
-    border .1vh solid #d9d9d9
-    overflow hidden
-    .el-button
-        padding .6vh 1vh
-        margin-top .4vh
-        border .1vh solid #409eff
-        color #409eff
-        font-size 1.6vh
-        &.btn
-            border .1vh solid #d2d2d2
-            color #d2d2d2
+  width 99%
+  margin 0.5vh auto 0
+  max-height 550px
+  border 0.1vh solid #d9d9d9
+  overflow hidden
+  .el-button
+    padding 0.6vh 1vh
+    margin-top 0.4vh
+    border 0.1vh solid #409eff
+    color #409eff
+    font-size 1.6vh
+    &.btn
+      border 0.1vh solid #d2d2d2
+      color #d2d2d2
 </style>

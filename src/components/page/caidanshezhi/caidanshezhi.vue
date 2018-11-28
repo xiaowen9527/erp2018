@@ -92,6 +92,7 @@
             </ul>
         </el-dialog>
 
+        <!-- 导入弹窗 -->
         <el-dialog class="importExport" title="导入" :visible.sync="importbox" width="30%" :showClose="false" :show-file-list="false">
             <a class="down" href="/TPA/bCdLr/downExcel">下载导入模板</a>
             <el-upload name="file" class="upload-demo" ref="upload" action="" :file-list="fileList" :http-request="uploadFile" :auto-upload="false" accept=".xls,.xlsx,.csv">
@@ -103,18 +104,20 @@
                 <el-button type="primary" @click="submitUpload" plain>确 定</el-button>
             </span>
         </el-dialog>
-        <el-dialog title="导入提示" :visible.sync="tipOffON">
+        <div class="importZhe" v-if="importZhe" v-loading="true" element-loading-text="正在上传中..." element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)"></div>
+        <!-- 下载错误文件 -->
+        <el-dialog title="错误提示" :visible.sync="tipOffON">
             <ul class="srcond_menu">
-                <li v-for="(item,i) in Tips" :key="i">
-                    <span>{{item.msg}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;第{{item.line}}行</span>
+                <li>
+                    <el-alert :title="Tips" type="error"></el-alert>
+                    <span style="margin-top:5vh">是否下载错误提示文件</span>
                 </li>
                 <span slot="footer" class="dialog-footer">
                     <el-button @click="tipOffON = importbox = false">取 消</el-button>
-                    <el-button type="primary" @click="importFuGai" plain>覆盖</el-button>
+                    <el-button type="primary" @click="importErr">下载</el-button>
                 </span>
             </ul>
-        </el-dialog>
-        <div class="importZhe" v-if="importZhe" v-loading="true" element-loading-text="正在上传中..." element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)"></div>
+        </el-dialog>      
 
     </div>
 </template>
@@ -135,15 +138,16 @@ export default {
     name: "caidanshezhi",
     data() {
         return {
-            //导入弹出开关
+           //导入弹出开关
             importbox: false,
             importZhe: false, //导入遮罩
+            isCover:false,      //默认导入不覆盖
+            project:"",         //错误文件名
             //上传的文件
             fileList: [],
-            //导入时重复的数据
-            Tips: [],
-            tipOffON: false,
-            fugai: false,
+            Tips:"",               //错误提示
+            tipOffON: false,        //错误文件下载开关
+
             //选取的当前菜单的index
             selectMenu: "",
 
@@ -210,18 +214,15 @@ export default {
         //文件上传到服务器按钮
         submitUpload() {
             this.$refs.upload.submit();
-            this.importbox = false;
-            console.log(this.$refs.upload);
+            this.importZhe = true;
         },
         //自定义上传
         uploadFile(params) {
             const _file = params.file;
             let formData = new FormData();
             formData.append("file", _file);
-            //是否覆盖
-            if (this.fugai) {
                 this.$ajax
-                    .post("/TPA/bCdLr/importExcel?isCover=true", formData)
+                    .post("/TPA/bCdLr/importExcel", formData)
                     .then(res => {
                         console.log(res);
                         if (res.status === 200) {
@@ -230,57 +231,38 @@ export default {
                                 this.getnavMenu();
                                 this.importCancel();
                                 this.$refs.upload.clearFiles();
-                                this.tipOffON = false;
-                            } else {
-                                error(res.data.msg);
-                            }
-                            this.importZhe = false;
-                        } else {
-                            NetworkAnomaly();
-                            this.importZhe = false;
-                        }
-                    })
-                    .catch(err => {
-                        NetworkAnomaly();
-                        this.importZhe = false;
-                    });
-            } else {
-                this.$ajax
-                    .post("/TPA/bCdLr/importExcel?isCover=false", formData)
-                    .then(res => {
-                        if (res.status === 200) {
-                            if (res.data.code === 0) {
-                                succ(res.data.msg);
-                                this.getnavMenu();
-                                this.importCancel();
-                                this.$refs.upload.clearFiles();
-                            } else if (res.data.code === 3) {
+                            }else if(res.data.code === 100){
                                 this.tipOffON = true;
-                                this.Tips = res.data.data;
-                            } else {
+                                this.project = res.data.attachment.name
+                                this.Tips = res.data.msg
+                            }else{
                                 error(res.data.msg);
                             }
-                            this.importZhe = false;
                         } else {
                             NetworkAnomaly();
-                            this.importZhe = false;
                         }
+                        this.importZhe = false;
                     })
                     .catch(err => {
                         NetworkAnomaly();
                         this.importZhe = false;
                     });
-            }
-            this.fugai = false;
         },
-        importFuGai() {
-            this.fugai = true;
-            this.submitUpload();
-        },
-        //导出按钮
+        //下载错误文件按钮
+        importErr() {
+            let errUrl = '/TPA/aImportExcel/exportMsg?name=' + this.project
+            // console.log(errUrl)
+            window.location.href = errUrl;
+            setTimeout(()=>{
+                this.tipOffON = false;
+                this.importCancel();
+            },500)
+        },        
+        //导出
         doExports() {
             window.location.href = "/TPA/bCdLr/exportExcel";
         },
+        
 
         //刷新
         refresh() {

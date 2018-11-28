@@ -162,6 +162,20 @@
         
         <div class="importZhe" v-if="importZhe" v-loading="true" element-loading-text="正在上传中..." element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)"></div>
 
+        <!-- 下载错误文件 -->
+        <el-dialog title="错误提示" :visible.sync="tipOffON">
+            <ul class="srcond_menu">
+                <li>
+                    <el-alert :title="Tips" type="error"></el-alert>
+                    <span style="margin-top:5vh">是否下载错误提示文件</span>
+                </li>
+                <span slot="footer" class="dialog-footer">
+                    <el-button @click="tipOffON = importbox = false">取 消</el-button>
+                    <el-button type="primary" @click="importErr">下载</el-button>
+                </span>
+            </ul>
+        </el-dialog>      
+
         <el-dialog class="importExport" title="导入颜色" :visible.sync="designbox" width="30%" :showClose="false" :show-file-list="false">
             <a class="down" href="/TPA/cSpdaA/downExcel">下载导入模板</a>
             <el-upload name="file" class="upload-demo" ref="designq" action="" :file-list="designfileList" :http-request="designUploadFile" :auto-upload="false" accept=".xls,.xlsx,.csv">
@@ -265,7 +279,9 @@ export default {
             //上传的文件
             fileList: [],   
             designbox: false,
-            designfileList:[],         
+            designfileList:[],   
+            Tips:"",               //错误提示
+            tipOffON: false,        //错误文件下载开关                  
         };
     },
     methods: {
@@ -452,6 +468,10 @@ export default {
                                 this.getnavMenu();
                                 this.importCancel();
                                 this.$refs.upload.clearFiles();
+                            }else if(res.data.code === 100){
+                                this.tipOffON = true;
+                                this.project = res.data.attachment.name
+                                this.Tips = res.data.msg
                             }else{
                                 error(res.data.msg);
                             }
@@ -495,6 +515,10 @@ export default {
                             this.$refs.designq.clearFiles();
                             this.designbox = false;
                             this.design.push(imgUrl + res.data.data);
+                        }else if(res.data.code === 100){
+                                this.tipOffON = true;
+                                this.project = res.data.attachment.name
+                                this.Tips = res.data.msg
                         } else {
                             console.log("1");
                             error(res.data.msg);
@@ -510,6 +534,17 @@ export default {
                     this.importZhe = false;
                 });
         },
+
+        //下载错误文件按钮
+        importErr() {
+            let errUrl = '/TPA/aImportExcel/exportMsg?name=' + this.project
+            // console.log(errUrl)
+            window.location.href = errUrl;
+            setTimeout(()=>{
+                this.tipOffON = false;
+                this.importCancel();
+            },500)
+        },         
 
 
         //获取尺码

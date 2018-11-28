@@ -125,7 +125,19 @@
             </span>
         </el-dialog>
         <div class="importZhe" v-if="importZhe" v-loading="true" element-loading-text="正在上传中..." element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)"></div>
-
+        <!-- 下载错误文件 -->
+        <el-dialog title="错误提示" :visible.sync="tipOffON">
+            <ul class="srcond_menu">
+                <li>
+                    <el-alert :title="Tips" type="error"></el-alert>
+                    <span style="margin-top:5vh">是否下载错误提示文件</span>
+                </li>
+                <span slot="footer" class="dialog-footer">
+                    <el-button @click="tipOffON = importbox = false">取 消</el-button>
+                    <el-button type="primary" @click="importErr">下载</el-button>
+                </span>
+            </ul>
+        </el-dialog>      
 
         <!-- 底部页码 -->
         <div class="pageBox">
@@ -217,11 +229,16 @@ export default {
             navMenus: [], //一级导航初始数据
             hackReset: true,
 
-            //导入弹出开关
+           //导入弹出开关
             importbox: false,
             importZhe: false, //导入遮罩
+            isCover:false,      //默认导入不覆盖
+            project:"",         //错误文件名
             //上传的文件
             fileList: [],
+            Tips:"",               //错误提示
+            tipOffON: false,        //错误文件下载开关
+
             //选取的当前菜单的index
             selectMenu: ""
         };
@@ -311,13 +328,17 @@ export default {
                 this.$ajax
                     .post("/TPA/aYscm/importExcelTab", formData)
                     .then(res => {
-                        // console.log(res);
+                        console.log(res);
                         if (res.status === 200) {
                             if (res.data.code === 0) {
                                 succ(res.data.msg);
                                 this.getnavMenu();
                                 this.importCancel();
                                 this.$refs.upload.clearFiles();
+                            }else if(res.data.code === 100){
+                                this.tipOffON = true;
+                                this.project = res.data.attachment.name
+                                this.Tips = res.data.msg
                             }else{
                                 error(res.data.msg);
                             }
@@ -331,11 +352,20 @@ export default {
                         this.importZhe = false;
                     });
         },
+        //下载错误文件按钮
+        importErr() {
+            let errUrl = '/TPA/aImportExcel/exportMsg?name=' + this.project
+            // console.log(errUrl)
+            window.location.href = errUrl;
+            setTimeout(()=>{
+                this.tipOffON = false;
+                this.importCancel();
+            },500)
+        },        
         //导出
         doExports() {
-            window.location.href = "/TPA/aYscm/exportExcelTab";
+            window.location.href = "/TPA/aYscm/importExcelTab";
         },
-
         //有效按钮
         doEffectives() {
             let params = {

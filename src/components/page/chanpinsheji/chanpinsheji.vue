@@ -291,7 +291,7 @@
 
         <!-- 导入弹窗 -->
         <el-dialog class="importExport" title="导入" :visible.sync="importbox" width="30%" :showClose="false" :show-file-list="false">
-            <a class="down" href="/TPA/cStandardOper/downExcel">下载导入模板</a>
+            <a class="down" href="/TPA/cSpda/downExcel">下载导入模板</a>
             <el-upload name="file" class="upload-demo" ref="upload" action="" :file-list="fileList" :http-request="uploadFile" :auto-upload="false" accept=".xls,.xlsx,.csv">
                 <el-button slot="trigger" size="small" type="primary" plain>选取文件</el-button>
                 <div slot="tip" class="el-upload__tip">只能上传excel文件</div>
@@ -302,6 +302,19 @@
             </span>
         </el-dialog>
         <div class="importZhe" v-if="importZhe" v-loading="true" element-loading-text="正在上传中..." element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)"></div>
+        <!-- 下载错误文件 -->
+        <el-dialog title="错误提示" :visible.sync="tipOffON">
+            <ul class="srcond_menu">
+                <li>
+                    <el-alert :title="Tips" type="error"></el-alert>
+                    <span style="margin-top:5vh">是否下载错误提示文件</span>
+                </li>
+                <span slot="footer" class="dialog-footer">
+                    <el-button @click="tipOffON = importbox = false">取 消</el-button>
+                    <el-button type="primary" @click="importErr">下载</el-button>
+                </span>
+            </ul>
+        </el-dialog>      
 
     </div>
 </template>
@@ -415,11 +428,15 @@ export default {
             samplefileList:[],
             materialfileList:[],            
 
-            //导入弹出开关
+           //导入弹出开关
             importbox: false,
             importZhe: false, //导入遮罩
+            isCover:false,      //默认导入不覆盖
+            project:"",         //错误文件名
             //上传的文件
             fileList: [],
+            Tips:"",               //错误提示
+            tipOffON: false,        //错误文件下载开关
 
         };
     },
@@ -1103,7 +1120,7 @@ export default {
             let formData = new FormData();
             formData.append("file", _file);
                 this.$ajax
-                    .post("/TPA/cStandardOper/importExcel", formData)
+                    .post("/TPA/cSpda/importExcel", formData)
                     .then(res => {
                         console.log(res);
                         if (res.status === 200) {
@@ -1112,6 +1129,10 @@ export default {
                                 this.getnavMenu();
                                 this.importCancel();
                                 this.$refs.upload.clearFiles();
+                            }else if(res.data.code === 100){
+                                this.tipOffON = true;
+                                this.project = res.data.attachment.name
+                                this.Tips = res.data.msg
                             }else{
                                 error(res.data.msg);
                             }
@@ -1125,10 +1146,21 @@ export default {
                         this.importZhe = false;
                     });
         },
+        //下载错误文件按钮
+        importErr() {
+            let errUrl = '/TPA/aImportExcel/exportMsg?name=' + this.project
+            // console.log(errUrl)
+            window.location.href = errUrl;
+            setTimeout(()=>{
+                this.tipOffON = false;
+                this.importCancel();
+            },500)
+        },        
         //导出
         doExports() {
-            window.location.href = "/TPA/cStandardOper/exportExcel";
+            window.location.href = "/TPA/cSpda/exportExcel";
         },
+        
 
         //nav
         getnavMenu() {
@@ -1179,6 +1211,7 @@ export default {
             
         },
         getPageDate(name) {
+            //设计款号最小为8位
             if (name.length>7) {
                 this.$http
                     .post("/TPA/cSpda/getBy?psn=" + name)
