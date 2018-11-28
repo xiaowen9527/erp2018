@@ -5,7 +5,7 @@
             <button :disabled='doAdd' :class="{button_btn:!doAdd}" @click="doAdds">新增</button>
             <button :disabled='doCancel' :class="{button_btn:!doCancel}" @click="doCancels">取消</button>
             <button class="button_btn" @click="doSearchs">查询</button>
-            <input type="text" placeholder="请输入研发工号" class="doSearch" v-model="search">
+            <input type="text" placeholder="请选择" class="doSearch" @click="doSearchs" readonly  v-model="search">
             <button class="button_btn" @click="doOuts">退出</button>
             <button class="button_btn" @click="refresh">刷新</button>
             <div class="btn_right">
@@ -108,6 +108,18 @@
             </ul>
         </el-dialog>
 
+        <el-dialog title="请输入研发姓名" :visible.sync="oldSearch">
+            <el-input v-model="search" placeholder="请输入研发姓名"></el-input>
+            <ul class="srcond_menu">
+                <li v-if="searchList.length===0">暂无数据</li>
+                <li class="clearfix" v-for="(item,i) in searchList" :key="i">
+                    <!-- <span @click="getSearch(item)">|--{{item.sn}}&nbsp;&nbsp;-&nbsp;&nbsp;{{item.name}}&nbsp;&nbsp;-&nbsp;&nbsp;{{item.typeName}}</span> -->
+                    <span @click="getSearch(item)">|--{{item.rdSn}}</span>
+                    <span @click="getSearch(item)">{{item.rdName}}</span>
+                </li>
+            </ul>
+        </el-dialog>        
+
         <!-- 导入弹窗 -->
         <el-dialog class="importExport" title="导入" :visible.sync="importbox" width="30%" :showClose="false" :show-file-list="false">
             <a class="down" href="/TPA/cYffg/downExcel">下载导入模板</a>
@@ -166,6 +178,8 @@ export default {
 
             //bind值
             search: "", //查询
+            oldSearch:false,
+            searchList:[],
             navMenus: [], //导航数据
 
             //下拉数据
@@ -283,6 +297,7 @@ export default {
 
             this.list = [];
             this.printList = [];
+            this.search = ""
         },
         //刷新
         refresh() {
@@ -293,13 +308,21 @@ export default {
 
         //查询
         doSearchs() {
-            this.doCancels();
-            this.doCancel = false;
+            this.oldSearch = true
+            this.search = ""
+            this.searchList = []
+        },
+        //选择search模糊查询
+        getSearch(item) {
+            this.search = item.rdName
+            let searchSn = item.rdSn
+            this.oldSearch = false;
             this.$http
-                .post("/TPA/cYffg/getBy?rdSn=" + this.search)
+                .post("/TPA/cYffg/getBy?rdSn=" + searchSn)
                 .then(res => {
                     if (res.data.code === 0) {
                         this.firstForm = res.data.data[0];
+                        this.doCancel = false
                     } else {
                         error(res.data.msg);
                     }
@@ -308,6 +331,7 @@ export default {
                     error(res.data.mag);
                 });
         },
+
         //退出
         doOuts() {
             this.$emit("getOut", this.$route.name);
@@ -589,7 +613,24 @@ export default {
         page() {
             this.pageParams.page = this.page - 1
             this.getPageData();
-        }
+        },
+        //模糊查询
+        search(){
+            if(this.search){
+                let search = {
+                    rdName: 17 + "|" + this.search
+                };
+                let searchStr = JSON.stringify(search);  
+                this.$http
+                    .post("/TPA/cYffg/search?search=" + searchStr)
+                    .then(res => {
+                        this.searchList = res.data.data.list;
+                    })
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });                              
+            }
+        }        
     },
     computed: {
         ...mapState(["collapse"])
@@ -624,8 +665,16 @@ export default {
     line-height 3.5vh
     font-weight bold
     padding 1vh 2vh
+.container>>>.el-dialog__body span
+    width 50%
+    display block
+    float left    
 .el-select>>>.el-input
     display inline-block
+.srcond_menu
+    li
+        &:hover
+            background #d2d2d2    
 .order_table
     width 99%
     margin 5px auto 0

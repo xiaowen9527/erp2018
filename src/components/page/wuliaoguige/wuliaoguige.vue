@@ -2,14 +2,14 @@
     <div class="container" :class="{container_collapse:collapse}">
         <p class="page_title">物料规格</p>
         <div class="btn-box">
-            <button :disabled='doAdd' :class="{button_btn:!doAdd}" @click="doAdds">新增</button>
-            <button :disabled='doImport' :class="{button_btn:!doImport}" @click="doImports">导入</button>
-            <button :disabled='doImport' :class="{button_btn:!doImport}" @click="doExports">导出</button>            
-            <button :disabled='doCancel' :class="{button_btn:!doCancel}" @click="doCancels">取消</button>
-            <button class="button_btn" @click="doSearchs" >查询</button>
+            <button :disabled='doAdd' :class="{button_btn:!doAdd}" @click="doAdds">新增</button>           
             <input type="text"  class="doSearch" v-model="search" readonly @click="doSearchs" placeholder="请选择">
+            <button class="button_btn" @click="doSearchs" >查询</button>
             <button class="button_btn" @click="doOuts">退出</button>
+            <button :disabled='doCancel' :class="{button_btn:!doCancel}" @click="doCancels">取消</button>            
             <button class="button_btn" @click="refresh">刷新</button>
+            <button :disabled='doImport' :class="{button_btn:!doImport}" @click="doImports">导入</button>
+            <button :disabled='doImport' :class="{button_btn:!doImport}" @click="doExports">导出</button>             
         </div>
 
         <div class="set_box">
@@ -35,6 +35,13 @@
                             <label>物料规格名称</label>
                             <input type="text" :disabled="firstFormOn"   v-model="firstForm.name" placeholder="请输入">
                         </li>
+                        <li>
+                            <label>损耗率</label>
+                                <el-input placeholder="请输入内容" :disabled="firstFormOn" type="number" v-model="firstForm.loss">
+                                    <template slot="append">%</template>
+                                </el-input>
+                        </li>
+
                         <button :disabled="firstFormOn" :class="{btn:!firstFormOn}" @click="firstSave"  class="save">保存</button>
                     </ul>
                 </div>
@@ -42,9 +49,11 @@
                 <div class="secondForm">
                     <div class="order_table">
                         <el-table :data="list" height="46.5vh" border style="width: 100%">
-                            <el-table-column prop="name" label="物料规格名称" min-width="50%">
+                            <el-table-column prop="name" label="物料规格名称" min-width="33%">
                             </el-table-column>
-                            <el-table-column label="操作" min-width="50%">
+                            <el-table-column prop="loss" label="损耗率" min-width="33%">
+                            </el-table-column>
+                            <el-table-column label="操作" min-width="34%">
                                 <template slot-scope="scope">
                                     <el-button :disabled="(scope.row.status == 1)" :class="{btn:(scope.row.status == 1)}" @click="effective(scope.$index, scope.row)" type="text">有效</el-button>
                                     <el-button :disabled="(scope.row.status == 0)" :class="{btn:(scope.row.status == 0)}" @click="invalid(scope.$index, scope.row)" type="text">无效</el-button>
@@ -88,10 +97,10 @@
                     <div class="second" v-for="(items,i) in item.childs" :key="i">
                         <p>|--{{items.entity.name}}</p>
                         <div class="second" v-for="(itemss,i) in items.childs" :key="i">
-                            <p>|--{{itemss.entity.name}}</p>
-                            <div class="second" v-for="(itemsss,i) in itemss.childs" :key="i">
+                            <p @click="getOldMenu(itemss)">|--{{itemss.entity.name}}</p>
+                            <!-- <div class="second" v-for="(itemsss,i) in itemss.childs" :key="i">
                                 <p @click="getOldMenu(itemsss)">|--{{itemsss.entity.name}}</p>                                
-                            </div>
+                            </div> -->
                         </div>
                     </div>
                 </li>
@@ -181,6 +190,7 @@ export default {
                 name:"",
                 type:"",
                 typeSn:"",
+                loss:"",    //损耗率
                 addUser:"",
                 addDate:"",
                 updateUser:"",
@@ -231,6 +241,7 @@ export default {
                 name:"",
                 type:"",
                 typeSn:"",
+                loss:"",    //损耗率
                 addUser:"",
                 addDate:"",
                 updateUser:"",
@@ -319,6 +330,7 @@ export default {
                         succ(res.data.msg);
                         this.firstForm.sn = ""
                         this.firstForm.name = ""
+                        this.firstForm.loss = ""
                         let params = {
                             typeSn: this.firstForm.typeSn,
                             page: 0,
@@ -508,6 +520,10 @@ export default {
                 .then(res => {
                     if (res.data.code === 0) {
                         this.list = res.data.data.list;
+                        for(let i in this.list){
+                            this.list[i].loss = this.list[i].loss.toString()+'%'
+                        }
+                        
                         this.total = res.data.data.total;
                         if (this.total > this.pageSize) {
                             this.pageOnOff = true;
@@ -582,12 +598,14 @@ export default {
     line-height 4vh
     font-weight bold
     padding 1vh 2vh
+.container>>>.el-input__inner
+    width 100% !important
 .el-select>>>.el-input
     display inline-block
 .order_table
     width 99%
     margin 5px auto 0
-    max-height 45vh
+    max-height 45.6vh
     border 0.1vh solid #d9d9d9
     overflow hidden
     .el-button

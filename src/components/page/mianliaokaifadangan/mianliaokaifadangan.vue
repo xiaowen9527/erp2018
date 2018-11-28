@@ -6,7 +6,7 @@
             <button :disabled='doCancel' :class="{button_btn:!doCancel}" @click="doCancels">取消</button>
             <button :disabled='(firstForm.sh==1||firstForm.sh=="-1")' :class="{button_btn:firstForm.sh==0}" @click="doEdits">修改</button>
             <button @click="doSearchs" class="button_btn">查询</button>
-            <input type="text" placeholder="请输入面料档案编号" class="doSearch" v-model="search">
+            <input type="text" placeholder="请选择" class="doSearch" @click="doSearchs" readonly  v-model="search">
             <button class="button_btn" @click="doOuts">退出</button>
             <button class="button_btn" @click="refresh">刷新</button>
             <div class="btn_right">
@@ -195,6 +195,15 @@
                 </li>
             </ul>
         </el-dialog>
+        <el-dialog title="请输入面料档案编号" :visible.sync="oldSearch">
+            <el-input v-model="search" placeholder="请输入面料档案编号"></el-input>
+            <ul class="srcond_menu">
+                <li v-if="searchList.length===0">暂无数据</li>
+                <li v-for="(item,i) in searchList" :key="i">
+                    <span @click="getSearch(item)">|--{{item.sn}}&nbsp;&nbsp;-&nbsp;&nbsp;{{item.name}}&nbsp;&nbsp;-&nbsp;&nbsp;{{item.typeName}}</span>
+                </li>
+            </ul>
+        </el-dialog>
 
         <!-- 导入弹窗 -->
         <el-dialog class="importExport" title="导入" :visible.sync="importbox" width="30%" :showClose="false" :show-file-list="false">
@@ -279,7 +288,9 @@ export default {
             secondFormOn: true,
             secondFormGui: true,
             //bind值
+            oldSearch:false,
             search: "", //查询
+            searchList:[],
             navMenus: [], //导航数据
             tableList: [],
             name:"",
@@ -567,36 +578,9 @@ export default {
 
         //查询
         doSearchs() {
-            if (this.search.length === 0) {
-                error("查询条件为空");
-                this.search = "";
-            } else {
-                this.$http
-                    .post("/TPA/cWlda/getBySn?sn=" + this.search)
-                    .then(res => {
-                        if (res.data.code === 0) {
-                            this.doCancels();
-                            this.search = "";
-                            this.firstForm = res.data.data[0];
-                            //查询表格数据
-                            let params = {
-                                masterSn: this.firstForm.sn,
-                                orderBy: "gys_ys_sn asc",
-                                page: 0,
-                                count: this.pageSize
-                            };
-                            this.pageParams = params;
-                            this.getGysColorGys();
-                            this.noDisabledSecondForm();
-                        } else {
-                            error(res.data.msg);
-                            this.search = ""
-                        }
-                    })
-                    .catch(err => {
-                        NetworkAnomaly();
-                    });
-            }
+            this.oldSearch = true
+            this.search = ""
+            this.searchList = []
         },
         //退出
         doOuts() {
@@ -896,6 +880,37 @@ export default {
             this.oldMenu = false;
             console.log(this.firstForm)
         },
+        //选择search模糊查询
+        getSearch(item) {
+            this.search = item.sn
+            this.oldSearch = false;
+            this.$http
+                .post("/TPA/cWlda/getBySn?sn=" + this.search)
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.doCancels();
+                        this.search = "";
+                        this.firstForm = res.data.data[0];
+                        //查询表格数据
+                        let params = {
+                            masterSn: this.firstForm.sn,
+                            orderBy: "gys_ys_sn asc",
+                            page: 0,
+                            count: this.pageSize
+                        };
+                        this.pageParams = params;
+                        this.getGysColorGys();
+                        this.noDisabledSecondForm();
+                    } else {
+                        error(res.data.msg);
+                        this.search = ""
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
+        },
+
         //获取供应商色号
         getGysColorGys() {
             console.log(this.pageParams);
@@ -1069,6 +1084,23 @@ export default {
             }else{
                 this.name = ""
             }
+        },
+        //模糊查询
+        search(){
+            if(this.search){
+                let search = {
+                    sn: 17 + "|" + this.search
+                };
+                let searchStr = JSON.stringify(search);  
+                this.$http
+                    .post("/TPA/cWlda/search?search=" + searchStr)
+                    .then(res => {
+                        this.searchList = res.data.data.list;
+                    })
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });                              
+            }
         }
     },
     computed: {
@@ -1111,8 +1143,8 @@ export default {
 .orderList>>>.el-table__empty-block
     min-height 2.5vh
 .container>>>.el-dialog
-    width 400px
-    height 400px
+    width 500px
+    height 500px
     overflow-x hidden
     li
         &.color

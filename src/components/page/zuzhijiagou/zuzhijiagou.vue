@@ -463,7 +463,7 @@ export default {
           if (res.status === 200) {
             if (res.data.code === 0) {
               succ(res.data.msg);
-              this.getnavMenu();
+              this.getNavmenus();
               this.importCancel();
               this.$refs.upload.clearFiles();
             } else if (res.data.code === 100) {
