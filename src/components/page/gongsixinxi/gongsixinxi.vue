@@ -430,17 +430,16 @@ export default {
         },
         //导入取消
         importCancel() {
-            this.emptyBtn();
             this.importbox = false;
             this.$refs.upload.clearFiles();
         },
         //文件上传到服务器按钮
         submitUpload() {
             this.$refs.upload.submit();
-            this.importZhe = true;
         },
         //自定义上传
         uploadFile(params) {
+            this.importZhe = true;
             const _file = params.file;
             let formData = new FormData();
             formData.append("file", _file);

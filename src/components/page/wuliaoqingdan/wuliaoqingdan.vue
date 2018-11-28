@@ -18,7 +18,7 @@
             <div class="set_info">
                 <div class="firstForm">
                     <ul class="clearfix">
-                        <li class="gui clearfix">
+                        <li class="gui psn clearfix">
                             <label>设计款号</label>
                             <input type="text" placeholder="请选择(必填)" readonly :disabled="firstFormGui"  v-model="firstForm.psn" @click="handlePsn">
                             <button :class="{gui_btn:!firstFormGui}" :disabled="firstFormOn" @click="handlePsn" >。。。</button>
@@ -71,9 +71,10 @@
                             <input type="text" v-model="firstForm.dosage" :disabled="firstFormOn" placeholder="必填">
                         </li>
 
-                        <li class="explain">
+                        <li class="explain clearfix">
                             <label>说明</label>
-                            <input type="text" v-model="firstForm.explain" :disabled="firstFormOn">
+                            <input type="text" v-model="firstForm.explain" :disabled="firstFormOn" v-if="firstFormOn">
+                            <el-input type="textarea" :rows="2" placeholder="请输入内容" v-model="firstForm.explain" v-if="!firstFormOn"></el-input>
                         </li>
 
                         <button :disabled="firstFormOn" :class="{button_btn:!firstFormOn}"  class="save" @click="firstSave">保存</button>
@@ -632,10 +633,10 @@ export default {
         //文件上传到服务器按钮
         submitUpload() {
             this.$refs.upload.submit();
-            this.importZhe = true;
         },
         //自定义上传
         uploadFile(params) {
+            this.importZhe = true;
             const _file = params.file;
             let formData = new FormData();
             formData.append("file", _file);
@@ -1070,6 +1071,9 @@ export default {
 
 <style lang="stylus" scoped>
 @import './css/style.styl'
+.container>>>.el-textarea__inner
+    height 3.5vh !important
+    min-height: 3.5vh !important
 // table
 .container>>>.el-checkbox__label
     padding-left 0 !important
@@ -1077,7 +1081,7 @@ export default {
     padding 0
     font-szie 1vh
 .container>>>.el-table .cell
-    line-height 4vh
+    line-height 3.5vh
     text-align center
     font-size 12px
     word-break:normal;
