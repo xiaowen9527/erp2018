@@ -24,6 +24,9 @@
                         <ul class="clearfix">
                             <li>
                                 <label>尺码</label>
+                                    <el-select class="size" v-model="sizeGroup" :disabled="firstFormGui" placeholder="请选择">
+                                        <el-option v-for="item in sizeGroupList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                                    </el-select>
                                 <input :disabled="firstFormGui" type="text" readonly placeholder="请选择" @click="doSize" v-model="size.name">
                                 <button :disabled="firstFormGui" :class="{btn:!firstFormGui}" @click="doSize">选择</button>
                                 <button  class="btn" @click="doImports">导入</button>
@@ -263,6 +266,9 @@ export default {
             //table列表
             TableSizeList: [],
             TableColorList: [],
+
+            sizeGroup:"",
+            sizeGroupList:[],
 
             firstForm: {
                 firstFormSize: ""
@@ -550,7 +556,7 @@ export default {
 
         //获取尺码
         getSizeList(name) {
-            if (parseInt(name)) {
+            if (name.length>7) {
                 this.$http
                     .post("/TPA/cSpdaB/search?psn=" + name)
                     .then(res => {
@@ -568,7 +574,7 @@ export default {
             }
         },
         getColorList(name) {
-            if (parseInt(name)) {
+            if (name.length>7) {
                 this.$http
                     .post("/TPA/cSpdaA/search?psn=" + name)
                     .then(res => {
@@ -585,7 +591,7 @@ export default {
             }
         },
         getImages(name) {
-            if (parseInt(name)) {
+            if (name.length>7) {
                 this.$http
                     .post("/TPA/cSpdaA/getBy?psn=" + name)
                     .then(res => {
@@ -608,7 +614,7 @@ export default {
 
 
         menuSelected(index) {
-            if (parseInt(index)) {
+            if (index.length>7) {
                 //获取当前单号的尺码列表
                 this.getSizeList(index);
                 //获取当前单号的颜色列表
@@ -898,6 +904,9 @@ export default {
 .container>>> .el-date-editor.el-input
     width 60%
     font-size 1.4vh
+.container>>> .size
+    width 20% !important
+    margin-right 1vh
 .container>>> .el-input__icon
     height auto
 </style>

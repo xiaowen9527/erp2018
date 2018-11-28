@@ -147,11 +147,11 @@ const router = new Router({
         },
 
         {
-          path: '/mianliaokaifadangan',
-          name: "mianliaokaifadangan",
-          component: resolve => require(['@/components/page/mianliaokaifadangan/mianliaokaifadangan'], resolve),
+          path: '/wuliaodangan',
+          name: "wuliaodangan",
+          component: resolve => require(['@/components/page/wuliaodangan/wuliaodangan'], resolve),
           meta: {
-            title: '面料开发档案'
+            title: '物料档案'
           },
         },
         {

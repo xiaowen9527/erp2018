@@ -1,6 +1,6 @@
 <template>
     <div class="container" :class="{container_collapse:collapse}">
-        <p class="page_title">面料开发档案</p>
+        <p class="page_title">物料档案</p>
         <div class="btn-box">
             <button :disabled='doAdd' :class="{button_btn:!doAdd}" @click="doAdds">新增</button>
             <button :disabled='doCancel' :class="{button_btn:!doCancel}" @click="doCancels">取消</button>
@@ -133,17 +133,17 @@
                         </ul>
                         <div class="order_table">
                             <el-table :data="list" height="26.5vh" border style="width: 100%" @sort-change='sortChange' :default-sort="{prop: 'gysYsSn', order: 'ascending'}">
-                                <el-table-column prop="sn" label="编号" min-width="10%">
+                                <el-table-column prop="sn" label="编号" min-width="20%">
                                 </el-table-column>
-                                <el-table-column prop="yscmSn" label="色号" sortable='custom' min-width="15%">
+                                <el-table-column prop="yscmSn" label="色号" sortable='custom' min-width="20%">
                                 </el-table-column>
                                 <el-table-column prop="yscmName" label="名称" min-width="20%">
                                 </el-table-column>
                                 <el-table-column prop="gysYsSn" label="供应商色号" :sortable='true' min-width="20%">
                                 </el-table-column>
-                                <el-table-column label="操作" min-width="35%">
+                                <el-table-column label="操作" min-width="20%">
                                     <template slot-scope="scope">
-                                        <el-button :disabled='(firstForm.sh==1||firstForm.sh==-1)' @click="handleEdit(scope.$index, scope.row)" :class="{btn:firstForm.sh==0}" type="text">修改</el-button>
+                                        <!-- <el-button :disabled='(firstForm.sh==1||firstForm.sh==-1)' @click="handleEdit(scope.$index, scope.row)" :class="{btn:firstForm.sh==0}" type="text">修改</el-button> -->
                                         <el-button :disabled="(scope.row.status == 1)" :class="{btn:(scope.row.status == 0)}" @click="effective(scope.$index, scope.row)" type="text">有效</el-button>
                                         <el-button :disabled="(scope.row.status == 0)" :class="{btn:(scope.row.status == 1)}" @click="invalid(scope.$index, scope.row)" type="text">无效</el-button>
                                     </template>
@@ -233,7 +233,7 @@
         </el-dialog>     
 
         <!-- 编辑弹出框 -->
-        <el-dialog title="编辑" :visible.sync="editVisible" width="30%">
+        <!-- <el-dialog title="编辑" :visible.sync="editVisible" width="30%">
             <el-form :model="dialog" label-width="100px">
                 <el-form-item label="编号">
                     <el-input v-model="dialog.sn" disabled></el-input>
@@ -252,7 +252,7 @@
                 <el-button @click="editVisible = false">取 消</el-button>
                 <el-button type="primary" @click="saveEdit">确 定</el-button>
             </span>
-        </el-dialog>
+        </el-dialog> -->
 
     </div>
 </template>
@@ -936,44 +936,44 @@ export default {
         currentPage(val) {
             this.page = val;
         },
-        //编辑单条数据
-        handleEdit(index, row) {
-            this.idx = index;
-            const item = this.list[index];
-            (this.dialog = {
-                id: item.id, //id
-                sn: item.sn, //编号
-                yscmSn: item.yscmSn, //颜色编号
-                yscmName: item.yscmName, //颜色名称
-                gysYsSn: item.gysYsSn, //供应商色号
-                status: item.status //状态
-            }),
-                (this.editVisible = true);
-        },
-        // 保存编辑
-        saveEdit() {
-            if (this.dialog.gysYsSn.length === 0) {
-                error("供应商色号不能为空");
-                this.dialog.gysYsSn = "";
-            } else {
-                console.log(this.dialog);
-                this.$http
-                    .post("/TPA/cWldaA/update", qs.stringify(this.dialog))
-                    .then(res => {
-                        if (res.data.code === 0) {
-                            this.$set(this.list, this.idx, this.dialog);
-                            this.editVisible = false;
-                            succ(res.data.msg);
-                            this.getGysColorGys();
-                        } else {
-                            error(res.data.msg);
-                        }
-                    })
-                    .catch(err => {
-                        NetworkAnomaly();
-                    });
-            }
-        },
+        // //编辑单条数据
+        // handleEdit(index, row) {
+        //     this.idx = index;
+        //     const item = this.list[index];
+        //     (this.dialog = {
+        //         id: item.id, //id
+        //         sn: item.sn, //编号
+        //         yscmSn: item.yscmSn, //颜色编号
+        //         yscmName: item.yscmName, //颜色名称
+        //         gysYsSn: item.gysYsSn, //供应商色号
+        //         status: item.status //状态
+        //     }),
+        //         (this.editVisible = true);
+        // },
+        // // 保存编辑
+        // saveEdit() {
+        //     if (this.dialog.gysYsSn.length === 0) {
+        //         error("供应商色号不能为空");
+        //         this.dialog.gysYsSn = "";
+        //     } else {
+        //         console.log(this.dialog);
+        //         this.$http
+        //             .post("/TPA/cWldaA/update", qs.stringify(this.dialog))
+        //             .then(res => {
+        //                 if (res.data.code === 0) {
+        //                     this.$set(this.list, this.idx, this.dialog);
+        //                     this.editVisible = false;
+        //                     succ(res.data.msg);
+        //                     this.getGysColorGys();
+        //                 } else {
+        //                     error(res.data.msg);
+        //                 }
+        //             })
+        //             .catch(err => {
+        //                 NetworkAnomaly();
+        //             });
+        //     }
+        // },
         //table有效
         effective(index, row) {
             this.idx = index;

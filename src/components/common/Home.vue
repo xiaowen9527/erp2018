@@ -122,7 +122,7 @@ export default {
     keshangdangan: resolve => require(["@/components/page/keshangdangan/keshangdangan"], resolve),
       
     //第二阶段
-    mianliaokaifadangan: resolve =>require(["@/components/page/mianliaokaifadangan/mianliaokaifadangan"], resolve),
+    wuliaodangan: resolve =>require(["@/components/page/wuliaodangan/wuliaodangan"], resolve),
     mianliaoyudingjihua: resolve =>require(["@/components/page/mianliaoyudingjihua/mianliaoyudingjihua"], resolve),
     pinleikuanshidingyi: resolve =>require(["@/components/page/pinleikuanshidingyi/pinleikuanshidingyi"], resolve),
     shangpinqihua: resolve =>require(["@/components/page/shangpinqihua/shangpinqihua"], resolve),
