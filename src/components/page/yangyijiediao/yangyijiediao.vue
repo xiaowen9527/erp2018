@@ -405,16 +405,12 @@ export default {
       this.queryFun(e);
     },
 
-    // 保存单条数据
+    // 保存还衣信息
     saveEdit() {
       if (this.dialog.stillUser.length == 0) {
         error("还衣人不能为空");
       } else {
         let params = []
-        
-        // for(let i=0;i<this.dialog.id.length;i++){
-        //   console.log(this.dialog.id[i])
-        // }
         for(let i in this.dialog.id){
           let obj = {}
           obj.id = this.dialog.id[i]
@@ -425,11 +421,6 @@ export default {
         this.$http
           .post("/TPA/cYpjc/update", params)
           .then(res => {
-            // console.log(res);
-            // let stillDate = res.data.data.stillDate.slice(0, 10);
-            // this.form.stillDate = stillDate;
-            // this.form.stillUser = res.data.data.stillUser;
-            // this.bottom = res.data.data;
             let psn = localStorage.getItem("psn");
             this.queryFun(psn);
           });

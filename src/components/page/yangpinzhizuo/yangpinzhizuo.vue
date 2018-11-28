@@ -141,14 +141,6 @@ export default {
 
   methods: {
     queryFun(queryInfo) {
-      //   let searchInfo = "{psn: '17|" + queryInfo + "'}";
-      //   console.log(searchInfo);
-      // let params = {
-      //   psn: this.queryInfo,
-      //   page: 0,
-      //   count: this.pageSize
-      // };
-      // this.pageParams = params;
       this.$http
         .post("/TPA/cYpzz/getByPsn", qs.stringify(queryInfo))
         .then(res => {
