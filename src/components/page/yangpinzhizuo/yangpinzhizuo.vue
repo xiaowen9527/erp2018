@@ -146,8 +146,6 @@ export default {
         .then(res => {
           if (res.data.code == 0) {
             // console.log(res);
-            // 判断点击的导航是否为数字
-            var reg = /^[0-9]+.?[0-9]*$/;
             if (res.data.data.length != 0) {
               // succ(res.data.msg);
               this.list = res.data.data;
@@ -190,7 +188,7 @@ export default {
               } else {
                 succ(res.data.msg);
               }
-            } else if (reg.test(queryInfo.psn)) {
+            } else if (queryInfo.psn.length < 8) {
               // error("该款号暂无数据");
 
               // 点击的导航没有数据时清空表格

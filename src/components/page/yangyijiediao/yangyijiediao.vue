@@ -237,9 +237,9 @@ export default {
         if (res.data.code === 0) {
           // 判断点击的导航是否为数字
           var reg = /^[0-9]+.?[0-9]*$/;
-          if (res.data.data.length == 0 && reg.test(queryInfo)) {
-            // error("该款号暂无数据");
-          } else if (res.data.data.length != 0 && reg.test(queryInfo)) {
+          if (res.data.data.length == 0 && queryInfo.length < 8) {
+            error("该款号暂无数据");
+          } else if (res.data.data.length != 0 && queryInfo.length >= 8) {
             this.queryInfo = "";
             succ(res.data.msg);
 
