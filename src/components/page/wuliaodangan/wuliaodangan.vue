@@ -107,11 +107,11 @@
                             </li>
                             <li>
                                 <label>来源编号</label>
-                                <input disabled v-model="firstForm.contactSn" type="text" placeholder="自动生成">
+                                <input :disabled="firstFormOn" v-model="firstForm.thirdPartySn" type="text" placeholder="自动生成">
                             </li>
                             <li>
                                 <label>接出编号</label>
-                                <input disabled v-model="firstForm.thirdPartySn" type="text" placeholder="自动生成">
+                                <input disabled v-model="firstForm.contactSn" type="text" placeholder="自动生成">
                             </li>
 
                             <li>
@@ -533,7 +533,7 @@ export default {
         firstSave() {
             if (
                 this.firstForm.typeSn.length === 0 ||
-                this.firstForm.typeSn.length === 0
+                this.firstForm.typeName.length === 0
             ) {
                 error("请选择归属");
             } else if (this.firstForm.name.length === 0) {

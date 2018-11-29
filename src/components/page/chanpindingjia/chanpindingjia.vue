@@ -17,6 +17,13 @@
         </div>
 
         <div class="set_box">
+            <!-- 左侧导航栏 -->
+            <div class="menu_box">
+                <el-menu @select="menuSelected" unique-opened background-color="#f2f2f2" text-color="#303133" active-text-color="#303133">
+                    <nav-menu :navMenus="this.navMenus"></nav-menu>
+                </el-menu>
+            </div>
+
             <div class="set_info">
                 <!-- 表单内容 -->
                 <div class="info_form">
@@ -48,6 +55,7 @@
                             <input type="text" v-model="form.price" :disabled="formOff">
                         </li>
                         <button class="save" @click="doSaves" :class="{button_btn:!formOff}" :disabled="formOff">保存</button>
+                        <button class="save" @click="doCancels" :class="{button_btn:!formOff}" :disabled="formOff">取消</button>
                         <button class="save button_btn" @click="newOrderFun">新建单号</button>
                     </ul>
                 </div>
@@ -59,7 +67,7 @@
                         </el-table-column>
                         <el-table-column prop="sn" label="单据单号" min-width="12%">
                         </el-table-column>
-                        <el-table-column prop="psn" label="款号" min-width="12%">
+                        <el-table-column prop="psn" label="款号" min-width="12%" sortable='custom'>
                         </el-table-column>
                         <el-table-column prop="type" label="价格类型" min-width="12%" sortable='custom'>
                         </el-table-column>
@@ -195,6 +203,7 @@ import {
   getOut
 } from "../../../assets/js/message.js";
 import qs from "qs";
+import NavMenu from "./NavMenu";
 export default {
   name: "chanpindingjia",
   data() {
@@ -215,6 +224,7 @@ export default {
       Type: [],
       // 审核状态
       checked: true,
+      navMenus: [], //导航数据
       // 表格数据
       list: [],
       rowList: [],
@@ -262,7 +272,7 @@ export default {
       Tips: "", //错误提示
       tipOffON: false, //错误文件下载开关
 
-      // 单据单号
+      // 表单禁用/显示
       formOff: true
     };
   },
@@ -335,16 +345,16 @@ export default {
         .post("/TPA/cProductPrice/print", qs.stringify(this.printParams))
         .then(res => {
           if (res.data.code === 0) {
-            console.log(res.data.data);
+            // console.log(res.data.data);
             localStorage.setItem("printList", JSON.stringify(res.data.data));
+            if (localStorage.getItem("printList")) {
+              window.open("/erp/#/chanpindingjiaPrint");
+            }
           }
         })
         .catch(err => {
           NetworkAnomaly();
         });
-      if (localStorage.getItem("printList")) {
-        window.open("/erp/#/chanpindingjiaPrint");
-      }
     },
 
     // 退出
@@ -435,8 +445,8 @@ export default {
               this.pageParams.sn = res.data.data.sn;
               this.pageParams.page = this.page;
               this.pageParams.count = this.pageSize;
-              //   this.rowspan();
               this.getPageData();
+              this.getnavMenu();
             } else {
               error(res.data.msg);
             }
@@ -445,6 +455,19 @@ export default {
             NetworkAnomaly();
           });
       }
+    },
+
+    // 取消
+    doCancels() {
+      this.form = {
+        psn: "",
+        type: "",
+        price: "",
+        sh: "",
+        sn: "",
+        activeDate: ""
+      };
+      this.formOff = true;
     },
 
     // 新建单号
@@ -491,7 +514,6 @@ export default {
           .post("/TPA/cProductPrice/update", qs.stringify(this.dialog))
           .then(res => {
             if (res.data.code === 0) {
-              //   this.rowspan();
               this.getPageData();
               this.editVisible = false;
             } else {
@@ -512,7 +534,6 @@ export default {
         .post("/TPA/cProductPrice/delete?status=1&id=" + item.id)
         .then(res => {
           if (res.data.code === 0) {
-            // this.rowspan();
             this.getPageData();
           } else {
             error(res.data.msg);
@@ -537,6 +558,34 @@ export default {
         .catch(err => {
           NetworkAnomaly();
         });
+    },
+
+    // 获取左侧树形导航数据
+    getnavMenu() {
+      this.$http
+        .post("/TPA/cProductPrice/tree")
+        .then(res => {
+          // console.log(res);
+          if (res.data.code === 0) {
+            this.navMenus = res.data.data;
+          } else {
+            error(res.data.msg);
+          }
+        })
+        .catch(err => {
+          NetworkAnomaly();
+        });
+    },
+
+    // 点击左侧导航
+    menuSelected(e) {
+      // console.log(e);
+      this.searchForm.sn = e;
+      this.formOff = false;
+      this.doCancels();
+      this.form.sn = e;
+      this.formOff = false;
+      this.saveEdit();
     },
 
     // 款号查询
@@ -594,8 +643,14 @@ export default {
         params.count = this.pageSize;
         this.pageParams = params;
         this.searchFormShow = false;
-        // this.rowspan();
         this.getPageData();
+        // 清空查询条件
+        this.searchForm = {
+          psn: "",
+          type: "",
+          price: "",
+          activeDate: ""
+        };
       }
     },
 
@@ -606,12 +661,13 @@ export default {
           this.pageParams.orderBy = "type";
         } else if (column.prop == "activeDate" && column.order == "ascending") {
           this.pageParams.orderBy = "active_date";
+        } else if (column.prop == "psn" && column.order == "ascending") {
+          this.pageParams.orderBy = "psn";
         } else {
           this.pageParams.orderBy = "type";
         }
       }
       if (this.list.length !== 0) {
-        // this.rowspan();
         this.getPageData();
       }
     },
@@ -685,7 +741,10 @@ export default {
             this.djArr.push(1);
             this.djPosition = index;
           }
-          if (this.list[index].psn === this.list[index - 1].psn && this.list[index].sn === this.list[index - 1].sn) {
+          if (
+            this.list[index].psn === this.list[index - 1].psn &&
+            this.list[index].sn === this.list[index - 1].sn
+          ) {
             this.khArr[this.khPosition] += 1;
             this.khArr.push(0);
           } else {
@@ -718,6 +777,7 @@ export default {
   },
   mounted() {
     this.getBrand();
+    this.getnavMenu();
   },
   computed: {
     ...mapState(["collapse"])
@@ -746,163 +806,170 @@ export default {
     page() {
       this.currentPage();
     }
+  },
+
+  // 引入组件
+  components: {
+    NavMenu
   }
 };
 </script>
 
 <style lang="stylus" scoped>
 .container>>> .el-select
-    width: 70%
-    display: inline-block
-    position: relative
+  width: 70%
+  display: inline-block
+  position: relative
 .container>>>.el-select>.el-input
-    width: 100%
-    line-height: 3.5vh
-    display: inline-block
+  width: 100%
+  line-height: 3.5vh
+  display: inline-block
 .container>>> .el-input__inner
-    width: 100% !important
-    font-size: 1.6vh
-    height: 3.5vh !important
-    padding-left: 3.5vh !important
-    border-radius: 0
+  width: 100% !important
+  font-size: 1.6vh
+  height: 3.5vh !important
+  padding-left: 3.5vh !important
+  border-radius: 0
 // 日期
 .container>>> .el-date-editor.el-input
-    width: 70%
-    font-size: 1.4vh
+  width: 70%
+  font-size: 1.4vh
 .container>>> .el-input__icon
-    height: auto
-    line-height: 3.5vh
+  height: auto
+  line-height: 3.5vh
 .container>>>.el-date-editor
-    float: left
-    width: 70%
+  float: left
+  width: 70%
 .container>>>th, .order_table>>>.el-table td, .el-table th
-    padding: 0
+  padding: 0
 .container>>>.info_form ul li, .container>>>.el-table .cell
-    height: 4vh
-    line-height: 4vh
-    text-align: center
-    font-size: 1.6vh
+  height: 4vh
+  line-height: 4vh
+  text-align: center
+  font-size: 1.6vh
 .container>>>.el-table__empty-block
-    min-height: 3.5vh
+  min-height: 3.5vh
 // 弹出框
 .container>>>.el-dialog
-    width: 390px !important
-    height: 390px
-    overflow-x: hidden
+  width: 390px !important
+  height: 390px
+  overflow-x: hidden
 .container>>>.el-dialog .el-table td
-    padding: 0
+  padding: 0
 .container>>>.el-dialog__body
-    cursor: pointer !important
-    line-height: 2.5vh
-    font-weight: bold
-    padding: 1vh 2vh
-    li
-        &:hover
-            background: #d2d2d2
-        span
-            width: 50%
-            float: left
-            padding-left: 15%
-            float: left
-            dispaly: block
-            line-height: 3vh
-            &.search
-                width: 33%
-                padding-left: 5%
+  cursor: pointer !important
+  line-height: 2.5vh
+  font-weight: bold
+  padding: 1vh 2vh
+  li
+    &:hover
+      background: #d2d2d2
+    span
+      width: 50%
+      float: left
+      padding-left: 15%
+      float: left
+      dispaly: block
+      line-height: 3vh
+      &.search
+        width: 33%
+        padding-left: 5%
 .el-dialog__body .el-form-item
-    margin-bottom: 2px
+  margin-bottom: 2px
 .el-dialog__body .el-form-item .el-form-item__content .el-input
-    width: 70%
+  width: 70%
+.menu_box
+  width: 13%
 .set_info
-    width: 100%
+  width: 87%
 .info_form
+  width: 100%
+  ul
     width: 100%
-    ul
-        width: 100%
-    li
-        height: 3.5vh
-        margin: 1vh 0
-        float: left
-        width: 20%
-        label
-            float: left
-            line-height: 3.5vh
-            width: 30%
-            text-align: center
-        input
-            height: 3.5vh
-            line-height: 3.5vh
-            border: 0.1vh solid #d2d2d2
-            outline: none
-            padding-left: 1vh
-            width: 70%
-            float: left
-            overflow: hidden
-        button
-            width: 50px
-            height: 3.5vh
-            border: 0.1vh solid #d2d2d2
-            background: none
-            margin-left: 5px
-            line-height: 3.5vh
-            text-align: center
-            border-radius: 5px
-            cursor: pointer
-    li.date
-        width: 30%
-    .formQuery
-        width: 30%
-    .save
-        padding: 0 2vh
-        height: 3.5vh
-        line-height: 3.5vh
-        border: 0.1vh solid #d9d9d9
-        background: #ffffff
-        margin-top: 1.3vh
-        margin-left: 1.5vh
-        font-size: 1.2vh
-        display: block
-        float: left
-        text-align: center
-        text-decoration: underline
-        cursor: pointer
-        border-radius: 4px
-        &.button_btn
-            border: 0.1vh solid #409EFF
-            font-weight: bold
-            color: #409EFF
-.btn-box
-    min-width: 1200px
-// 审核
-.checkBox
-    width: 5%
+  li
     height: 3.5vh
     margin: 1vh 0
-    margin-left: 5px
     float: left
-    display: flex
-    align-items: center
+    width: 20%
+    label
+      float: left
+      line-height: 3.5vh
+      width: 30%
+      text-align: center
+    input
+      height: 3.5vh
+      line-height: 3.5vh
+      border: 0.1vh solid #d2d2d2
+      outline: none
+      padding-left: 1vh
+      width: 70%
+      float: left
+      overflow: hidden
+    button
+      width: 50px
+      height: 3.5vh
+      border: 0.1vh solid #d2d2d2
+      background: none
+      margin-left: 5px
+      line-height: 3.5vh
+      text-align: center
+      border-radius: 5px
+      cursor: pointer
+  li.date
+    width: 30%
+  .formQuery
+    width: 30%
+  .save
+    padding: 0 2vh
+    height: 3.5vh
+    line-height: 3.5vh
+    border: 0.1vh solid #d9d9d9
+    background: #ffffff
+    margin-top: 1.3vh
+    margin-left: 1.5vh
+    font-size: 1.2vh
+    display: block
+    float: left
+    text-align: center
+    text-decoration: underline
+    cursor: pointer
+    border-radius: 4px
+    &.button_btn
+      border: 0.1vh solid #409EFF
+      font-weight: bold
+      color: #409EFF
+.btn-box
+  min-width: 1200px
+// 审核
+.checkBox
+  width: 5%
+  height: 3.5vh
+  margin: 1vh 0
+  margin-left: 5px
+  float: left
+  display: flex
+  align-items: center
 // 表格
 .order_table
-    width: 99%
-    margin: 5px auto 0
-    max-height: 550px
-    border: 0.1vh solid #d9d9d9
-    overflow: hidden
-    .el-button
-        padding: 0.6vh 2vh
-        margin-top: 0.4vh
-        border: 0.1vh solid #409eff
-        color: #409eff
-        font-size: 1.6vh
-        &.btn
-            border: 0.1vh solid #d2d2d2
-            color: #d2d2d2
+  width: 99%
+  margin: 5px auto 0
+  max-height: 550px
+  border: 0.1vh solid #d9d9d9
+  overflow: hidden
+  .el-button
+    padding: 0.6vh 2vh
+    margin-top: 0.4vh
+    border: 0.1vh solid #409eff
+    color: #409eff
+    font-size: 1.6vh
+    &.btn
+      border: 0.1vh solid #d2d2d2
+      color: #d2d2d2
 // 底部
 .container>>>.el-pagination
-    width: 40%
+  width: 40%
 .container>>>.el-pager
-    min-width: 50px
+  min-width: 50px
 .container>>>.el-pagination
-    right: 24%
+  right: 24%
 </style>

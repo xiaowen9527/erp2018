@@ -350,7 +350,7 @@ export default {
       this.$http
         .post("/TPA/psn/tree?sp=1&year=" + this.searchYear)
         .then(res => {
-          // console.log(res);
+          console.log(res);
           if (res.data.code === 0) {
             this.navMenus = res.data.data.childs;
           } else {

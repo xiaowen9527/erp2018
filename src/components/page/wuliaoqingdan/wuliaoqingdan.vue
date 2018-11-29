@@ -49,7 +49,7 @@
   
             <li class="gui">
   
-              <label>物料编号</label>
+              <label>物料档案编号</label>
   
               <input :disabled="firstFormNo" readonly placeholder="请选择(必选)" v-model="firstForm.materialSn" class="guiNum" type="text" @click="handleMaterial">
   
@@ -357,6 +357,8 @@
         </li>
       </ul>
     </el-dialog>
+
+    <!-- 物料档案编号弹窗 -->
     <el-dialog
       title="请输入您要查询的物料名称"
       :visible.sync="oldMaterial"
@@ -383,6 +385,7 @@
         </li>
       </ul>
     </el-dialog>
+
     <el-dialog
       title="请选择物料颜色"
       :visible.sync="oldMaterialColor"
@@ -1867,11 +1870,14 @@
       //选择物料
   
       getItemMaterial(item) {
+        console.log(item)
   
         this.firstForm.materialSn = item.sn;
   
         this.firstForm.materialName = item.name;
   
+        this.firstForm.loss = item.loss;
+
         this.oldMaterial = false;
   
         this.material = "";
@@ -2128,23 +2134,25 @@
   
         if (this.material) {
   
-          let search = {
+          // let search = {
   
-            name: 17 + "|" + this.material
+          //   name: 17 + "|" + this.material
   
-          };
+          // };
   
-          let searchStr = JSON.stringify(search);
+          // let searchStr = JSON.stringify(search);
   
           this.$http
   
-            .post("/TPA/cWlda/search?sh=1&search=" + searchStr)
+            .post("/TPA/cWlda/getByName?name=" + this.material)
   
             .then(res => {
+              console.log(res)
   
               if (res.data.code === 0) {
   
-                this.oldMaterialList = res.data.data.list;
+                // this.oldMaterialList = res.data.data.list;
+                this.oldMaterialList = res.data.data;
   
               } else {
   

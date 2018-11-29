@@ -18,6 +18,8 @@
         <div class="table">
             <div class="order_table">
                 <el-table :data="item" border="1px" style="width: 100%">
+                    <el-table-column prop="sn" label="单据单号" min-width="7%">
+                    </el-table-column>
                     <el-table-column prop="psn" label="款号" min-width="7%">
                     </el-table-column>
                     <el-table-column prop="brand" label="品牌" min-width="7%">
@@ -26,23 +28,9 @@
                     </el-table-column>
                     <el-table-column prop="quarter" label="季度" min-width="7%">
                     </el-table-column>
-                    <el-table-column prop="channel" label="渠道" min-width="8%">
+                    <el-table-column prop="channel" label="渠道" min-width="7%">
                     </el-table-column>
-                    <el-table-column prop="wcj" label="外采价" min-width="8%">
-                    </el-table-column>
-                    <el-table-column prop="sccbj" label="生产成本价" min-width="8%">
-                    </el-table-column>
-                    <el-table-column prop="ccj" label="出厂价" min-width="8%">
-                    </el-table-column>
-                    <el-table-column prop="txj" label="体系价" min-width="8%">
-                    </el-table-column>
-                    <el-table-column prop="dlj" label="代理价" min-width="8%">
-                    </el-table-column>
-                    <el-table-column prop="dslsj" label="电商零售价" min-width="8%">
-                    </el-table-column>
-                    <el-table-column prop="dpj" label="吊牌价" min-width="8%">
-                    </el-table-column>
-                    <el-table-column prop="lsj" label="零售价" min-width="8%">
+                    <el-table-column prop="price" label="价格" min-width="58">
                     </el-table-column>
                 </el-table>
             </div>
@@ -64,13 +52,14 @@ export default {
   name: "changpindingjiaPrint",
   data() {
     return {
-        pageTableArr:[],
+      pageTableArr: [],
       mianliaoFristForm: {
-        pageTitle: "产品价格表",
+        pageTitle: "产品定价表",
         pageTit: {},
         pageTable: [],
         pageTableArr: []
-      }
+      },
+      Type: [] // 价格类型
     };
   },
 
@@ -88,97 +77,67 @@ export default {
   },
 
   created() {
-    // this.mianliaoFristForm.pageTit = JSON.parse(
-    //   localStorage.getItem("pageTit")
-    // );
-    this.mianliaoFristForm.pageTable = JSON.parse(
-      localStorage.getItem("printList")
-    );
+    this.mianliaoFristForm.pageTable = JSON.parse(localStorage.getItem("printList"));
     if (this.mianliaoFristForm) {
       window.print();
       localStorage.clear();
     }
 
-    this.pageTableArr = this.sliceArray(this.mianliaoFristForm.pageTable, 17);
+    this.pageTableArr = this.sliceArray(this.mianliaoFristForm.pageTable, 10);
     document.getElementsByTagName("html")[0].style.overflow = "auto";
-  },
-  mounted() {
-    let Arr = this.mianliaoFristForm.pageTable;
-    for (var i in Arr) {
-      for (var j in Arr[i].attachment) {
-        if (j == "外采价") {
-          Arr[i].wcj = Arr[i].attachment[j];
-        }
-        if (j == "生产成本价") {
-          Arr[i].sccbj = Arr[i].attachment[j];
-        }
-        if (j == "出厂价") {
-          Arr[i].ccj = Arr[i].attachment[j];
-        }
-        if (j == "体系价") {
-          Arr[i].txj = Arr[i].attachment[j];
-        }
-        if (j == "代理价") {
-          Arr[i].dlj = Arr[i].attachment[j];
-        }
-        if (j == "电商零售价") {
-          Arr[i].dsxsj = Arr[i].attachment[j];
-        }
-        if (j == "吊牌价") {
-          Arr[i].dpj = Arr[i].attachment[j];
-        }
-        if (j == "销售价") {
-          Arr[i].xsj = Arr[i].attachment[j];
-        }
-      }
-    }
-    this.mianliaoFristForm.pageTable = Arr;
-    console.log(this.pageTableArr)
   }
 };
 </script>
 
 <style lang="stylus" scoped>
 @page
-    size: A4 landscape
+  size: A4 landscape
 // @page { size: A4 portrait; }
 .page>>>.el-table .cell
-    height: 18px
-    line-height: 18px
-    text-align: center
-    font-size: 14px
+    line-height 18px
+    text-align center
+    font-size 14px
 .page
-    width: 1500px
-    height: 1010px
-    margin: 0 auto
+    width 1500px
+    height 1010px
+    margin 0 auto
 /* 标题 */
 .pageTitle
-    text-align: center
-    font-weight: bold
-    font-size: 30px
-    margin-bottom: 40px
+    text-align center
+    font-weight bold
+    font-size 30px
+    margin-bottom 40px
 /* 页面小标题 */
 .pageTit
-    max-width: 90%
+    max-width 90%
     height 20px
-    margin-left: 50px
-    margin-top: 40px
-    margin-bottom: 30px
-    position: relative
+    margin-left 50px
+    margin-top 40px
+    margin-bottom 30px
+    position relative
 .pageTit div
-    font-size: 20px
-    margin-right: 30px
-    float: left
+    font-size 20px
+    margin-right 30px
+    float left
 .pageNum
-    position: absolute
-    right: 0
-    top: 0
+    position absolute
+    right 0
+    top 0
 /* 页面表格 */
 .table
-    box-sizing: border-box
-    padding: 0 50px
-    text-align: center
-    min-height: 790px
+    box-sizing border-box
+    padding 0 50px
+    text-align center
+    min-height 790px
 .page>>>.el-table th>.cell
-    text-align: center
+    text-align center
+.page>>>.is-leaf, .page>>>.el-table__row td
+    padding 6px 0
+.page>>>.is-leaf .cell, .page>>>.el-table__row td .cell
+    font-size 8px
+    line-height 14px
+.page>>>.el-table .cell, .el-table th div
+    overflow visible
+.page>>>.el-table__row
+    height 70px
 </style>
