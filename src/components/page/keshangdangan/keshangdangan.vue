@@ -7,7 +7,7 @@
             <button :disabled='doEdit' :class="{button_btn:!doEdit}" @click="doEdits">修改</button>
             <button :disabled='doDelete' :class="{button_btn:!doDelete}" @click="doDeletes">删除</button>
             <button :disabled='doCancel' :class="{button_btn:!doCancel}" @click="doCancels">取消</button>
-            <button  class="button_btn" @click="refresh">刷新</button>
+            <button class="button_btn" @click="refresh">刷新</button>
             <div class="btn_right">
                 <button :disabled="doOut" :class="{button_btn:!doOut}" @click="doOuts">退出</button>
                 <button :disabled="doExamine" :class="{button_btn:!doExamine}" @click="doExamines">审核</button>
@@ -56,7 +56,10 @@
                     </li>
                     <li>
                         <label>价格类型</label>
-                        <input type="text" v-model="form.jglx" :disabled="doSave">
+                        <!-- <input type="text" v-model="form.jglx" :disabled="doSave"> -->
+                        <el-select v-model="form.jglx" placeholder="请选择" :disabled="doSave">
+                            <el-option v-for="item in jglxList" :key="item.name" :label="item.name" :value="item.name"> </el-option>
+                        </el-select>
                     </li>
                     <li>
                         <label>授信额度</label>
@@ -132,10 +135,10 @@
             <ul class="srcond_menu">
                 <li v-if="guiCompany.length===0">暂无数据</li>
                 <li v-for="(item,i) in guiCompany" :key="i">
-                   <span @click="getDepartmentName(item)">|--{{item.name}}</span>
+                    <span @click="getDepartmentName(item)">|--{{item.name}}</span>
                 </li>
             </ul>
-        </el-dialog>   
+        </el-dialog>
         <el-dialog title="性质" :visible.sync="typeStatus">
             <ul class="srcond_menu">
                 <li v-if="typeList.length===0">暂无数据</li>
@@ -151,8 +154,8 @@
                     <span @click="getNature(item)">{{item.name}}</span>
                 </li>
             </ul>
-        </el-dialog> 
-
+        </el-dialog>
+    
         <!-- 导入弹窗 -->
         <el-dialog class="importExport" title="导入" :visible.sync="importbox" width="30%" :showClose="false" :show-file-list="false">
             <a class="down" href="/TPA/aKsDa/downExcel">下载导入模板</a>
@@ -161,9 +164,9 @@
                 <div slot="tip" class="el-upload__tip">只能上传excel文件</div>
             </el-upload>
             <span slot="footer" class="dialog-footer">
-                <el-button @click="importCancel">取 消</el-button>
-                <el-button type="primary" @click="submitUpload" plain>确 定</el-button>
-            </span>
+                        				<el-button @click="importCancel">取 消</el-button>
+                        				<el-button type="primary" @click="submitUpload" plain>确 定</el-button>
+                        			</span>
         </el-dialog>
         <div class="importZhe" v-if="importZhe" v-loading="true" element-loading-text="正在上传中..." element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)"></div>
         <!-- 下载错误文件 -->
@@ -174,126 +177,129 @@
                     <span style="margin-top:5vh">是否下载错误提示文件</span>
                 </li>
                 <span slot="footer" class="dialog-footer">
-                    <el-button @click="tipOffON = importbox = false">取 消</el-button>
-                    <el-button type="primary" @click="importErr">下载</el-button>
-                </span>
+                        					<el-button @click="tipOffON = importbox = false">取 消</el-button>
+                        					<el-button type="primary" @click="importErr">下载</el-button>
+                        				</span>
             </ul>
-        </el-dialog>      
+        </el-dialog>
     </div>
 </template>
 
 <script>
-import { mapState } from "vuex";
-import '@/assets/js/import.js' //导入请求超时拦截
-import NavMenu from "./NavMenu";
-import qs from "qs";
-import {
-  NetworkAnomaly,
-  succ,
-  error,
-  getOut
-} from "../../../assets/js/message.js";
-export default {
-  name: "keshangdangan",
-  data() {
-    return {
-        //导入弹出开关
-        importbox: false,
-        importZhe: false, //导入遮罩
-        isCover:false,      //默认导入不覆盖
-        project:"",         //错误文件名
-        //上传的文件
-        fileList: [],
-        Tips:"",               //错误提示
-        tipOffON: false,        //错误文件下载开关
-
-      //选取的当前菜单的index
-      selectMenu: "",
-
-      //操作按钮开关
-      doAdd: false,
-      doEdit: true,
-      doDelete: true,
-      doSave: true,
-      doCancel: true,
-
-      doOut: false,
-      doExamine: true,
-      doExamineAgain: true,
-      doImport: false,
-      doExport: false,
-      doEffective: true,
-      doInvalid: true,
-      formZt: true,
-
-      gui:true,
-      formNo:true,
-
-      //焦点状态和数组
-      typeStatus: false,
-      natureStatus: false,
-
-      typeList: [],
-      NatureList:[],
+    import {
+        mapState
+    } from "vuex";
+    import '@/assets/js/import.js' //导入请求超时拦截
+    import NavMenu from "./NavMenu";
+    import qs from "qs";
+    import {
+        NetworkAnomaly,
+        succ,
+        error,
+        getOut
+    } from "../../../assets/js/message.js";
+    export default {
+        name: "keshangdangan",
+        data() {
+            return {
+                //导入弹出开关
+                importbox: false,
+                importZhe: false, //导入遮罩
+                isCover: false, //默认导入不覆盖
+                project: "", //错误文件名
+                //上传的文件
+                fileList: [],
+                Tips: "", //错误提示
+                tipOffON: false, //错误文件下载开关
     
-
-      //保存新增状态开关  新增true/修改false
-      addEdit: true,
-
-      navMenus: [],
-      oldMenu: false,
-      form: {
-        type: "", //客户性质
-        hzfw: "", //合作范围
-        gsSn: "", //归属公司编号
-        gsName: "", //归属公司名称
-        sn: "", //编号
-        name: "", //名称
-        jc: "", //简称
-        cywl: "", //承运物流
-        shdz: "", //收货地址
-        jglx: "", //价格类型
-        sxed: "", //授信额度
-        dz: "", //地址
-        email: "", //eamil
-        tel: "", //电话
-        fax: "", //传真
-        wz: "", //网址
-        lxr: "", //联系人
-        nsh: "", //纳税号
-        nature: "", //公司性质
-        status: "3",
-        addDate: "",
-        addUser: "",
-        updateDate: "",
-        updateUser: ""
-      },
-      guiCompany:[],
-      //弹出框公司列表
-      list: []
-    };
-  },
-  methods: {
-        //导入按纽
-        doImports() {
-            this.importbox = true;
+                //选取的当前菜单的index
+                selectMenu: "",
+    
+                //操作按钮开关
+                doAdd: false,
+                doEdit: true,
+                doDelete: true,
+                doSave: true,
+                doCancel: true,
+    
+                doOut: false,
+                doExamine: true,
+                doExamineAgain: true,
+                doImport: false,
+                doExport: false,
+                doEffective: true,
+                doInvalid: true,
+                formZt: true,
+    
+                gui: true,
+                formNo: true,
+    
+                //焦点状态和数组
+                typeStatus: false,
+                natureStatus: false,
+    
+                typeList: [],
+                NatureList: [],
+    
+    
+                //保存新增状态开关  新增true/修改false
+                addEdit: true,
+    
+                navMenus: [],
+                oldMenu: false,
+                form: {
+                    type: "", //客户性质
+                    hzfw: "", //合作范围
+                    gsSn: "", //归属公司编号
+                    gsName: "", //归属公司名称
+                    sn: "", //编号
+                    name: "", //名称
+                    jc: "", //简称
+                    cywl: "", //承运物流
+                    shdz: "", //收货地址
+                    jglx: "", //价格类型
+                    sxed: "", //授信额度
+                    dz: "", //地址
+                    email: "", //eamil
+                    tel: "", //电话
+                    fax: "", //传真
+                    wz: "", //网址
+                    lxr: "", //联系人
+                    nsh: "", //纳税号
+                    nature: "", //公司性质
+                    status: "3",
+                    addDate: "",
+                    addUser: "",
+                    updateDate: "",
+                    updateUser: ""
+                },
+                jglxList:[],
+                guiCompany: [],
+                //弹出框公司列表
+                list: []
+            };
         },
-        //导入取消
-        importCancel() {
-            this.emptyBtn();
-            this.importbox = false;
-            this.$refs.upload.clearFiles();
-        },
-        //文件上传到服务器按钮
-        submitUpload() {
-            this.$refs.upload.submit();
-        },
-        //自定义上传
-        uploadFile(params) {
-             this.importZhe = true;
-            const _file = params.file;
-            let formData = new FormData();
-            formData.append("file", _file);
+        methods: {
+            //导入按纽
+            doImports() {
+                this.importbox = true;
+            },
+            //导入取消
+            importCancel() {
+                this.emptyBtn();
+                this.importbox = false;
+                this.$refs.upload.clearFiles();
+            },
+            //文件上传到服务器按钮
+            submitUpload() {
+                this.$refs.upload.submit();
+            },
+            //自定义上传
+            uploadFile(params) {
+                this.importZhe = true;
+                const _file = params.file;
+                let formData = new FormData();
+                formData.append("file", _file);
                 this.$ajax
                     .post("/TPA/aKsDa/importExcel", formData)
                     .then(res => {
@@ -304,11 +310,11 @@ export default {
                                 this.getnavMenu();
                                 this.importCancel();
                                 this.$refs.upload.clearFiles();
-                            }else if(res.data.code === 100){
+                            } else if (res.data.code === 100) {
                                 this.tipOffON = true;
                                 this.project = res.data.attachment.name
                                 this.Tips = res.data.msg
-                            }else{
+                            } else {
                                 error(res.data.msg);
                             }
                         } else {
@@ -320,399 +326,416 @@ export default {
                         NetworkAnomaly();
                         this.importZhe = false;
                     });
-        },
-        //下载错误文件按钮
-        importErr() {
-            let errUrl = '/TPA/aImportExcel/exportMsg?name=' + this.project
-            // console.log(errUrl)
-            window.location.href = errUrl;
-            setTimeout(()=>{
-                this.tipOffON = false;
-                this.importCancel();
-            },500)
-        },        
-        //导出
-        doExports() {
-            window.location.href = "/TPA/aKsDa/exportExcel";
-        },
-
-     
-    //刷新
-    refresh(){
-        
-        this.emptyBtn()
-        this.emptyform()
-        this.getnavMenu()
-        this.guiCompany = []
-        succ('刷新成功')
-    },      
-    //新增
-    doAdds() {
-      this.emptyBtnTo();
-      this.doSave = false;
-      this.addEdit = true;
-      this.gui = false
-      this.formNo = false
-    },
-    //保存
-    doSaves() {
-        this.oldMenu = false
-      if (this.form.gsName.length === 0) {
-        error("请选择归属公司");
-      } else if (this.form.type.length === 0) {
-        error("客户性质不能为空");
-      } else if (this.form.sn.length === 0) {
-        error("编号不能为空");
-      } else if (this.form.name.length === 0) {
-        error("名称不能为空！");
-      } else {
-        if (this.addEdit) {
-          //新增
-          this.$http
-            .post("/TPA/aKsDa/insert", qs.stringify(this.form))
-            .then(res => {
-              if (res.data.code === 0) {
-                succ(res.data.msg);
-                let gsSn = this.form.gsSn
-                let gsName = this.form.gsName
-                this.form = {}
-                this.form.gsSn = gsSn
-                this.form.gsName = gsName
-                this.form.status = "3"
-                this.gui = true
-                this.doAdd = false
-                this.getnavMenu();
-              } else {
-                error(res.data.msg);
-              }
-            })
-            .catch(err => {
-              NetworkAnomaly();
-            });
-        } else {
-          //修改
-          this.$http
-            .post("/TPA/aKsDa/update", qs.stringify(this.form))
-            .then(res => {
-              if (res.data.code === 0) {
-                succ(res.data.msg);
-                let status = this.form.status;
-                let addUser = this.form.addUser
-                let addDate = this.form.addDate
-                let sn = this.form.sn
-                let name = this.form.name
-                this.form = res.data.data;
-                this.form.status = status;
-                this.form.addUser = addUser
-                this.form.addDate = addDate
-                this.form.sn = sn
-                this.form.name = name
-                this.emptyBtnTo();
-                this.doEdit = false;
-                this.doExamine = false;
-                this.doExamineAgain = false;
-                this.doDelete = false;
-                this.getnavMenu();
-                
-              } else {
-                error(res.data.msg);
-              }
-            })
-            .catch(err => {
-              NetworkAnomaly();
-            });
-        }
-      }
-    },
-    //修改
-    doEdits() {
-      this.emptyBtnTo();
-      this.doSave = false;
-      this.doCancel = false;
-      this.addEdit = false;
-    },
-    //取消
-    doCancels() {
-      this.emptyBtn();
-      this.emptyform();
-      this.doSave = true;
-      
-    },
-    //退出
-    doOuts() {
-      this.$emit("getOut", this.$route.name);
-    },
-    //审核
-    doExamines() {},
-    //反审
-    doExamineAgains() {},
-    //有效按钮
-    doEffectives() {
-      let params = {
-        id: this.form.id,
-        status: "1"
-      };
-      this.$http
-        .post("/TPA/aKsDa/status", qs.stringify(params))
-        .then(res => {
-          if (res.data.code === 0) {
-            this.form.status = params.status;
-            succ(res.data.msg);
-            this.doAdd = false
-          } else {
-            error(res.data.msg);
-          }
-        })
-        .catch(err => {
-          NetworkAnomaly();
-        });
-    },
-    //无效按钮
-    doInvalids() {
-      let params = {
-        id: this.form.id,
-        status: "0"
-      };
-      this.$http
-        .post("/TPA/aKsDa/status", qs.stringify(params))
-        .then(res => {
-          if (res.data.code === 0) {
-            this.form.status = params.status;
-            succ(res.data.msg);
-            this.doAdd = false
-          } else {
-            error(res.data.msg);
-          }
-        })
-        .catch(err => {
-          NetworkAnomaly();
-        });
-
-    },
-    //删除按钮
-    doDeletes() {
-      this.$http
-        .post("/TPA/aKsDa/delete?id="+this.form.id)
-        .then(res => {
-          if (res.data.code === 0) {
-            succ(res.data.msg);    
-            this.getnavMenu()
-            this.emptyBtn()
-            this.emptyform()
-            this.doSave = true
-            this.form.status = "3"
-          } else {
-            error(res.data.msg);
-          }
-        })
-        .catch(err => {
-          NetworkAnomaly();
-        });
-      
-    },
-    //获取性质
-    handleType() {
-      this.$http
-        .post("/TPA/aLbJb/getBySn?sn=015")
-        .then(res => {
-          if (res.data.code === 0) {
-            console.log(res);
-            this.typeList = res.data.data;
-            this.typeStatus = true;
-          } else {
-            error(res.data.msg);
-          }
-        })
-        .catch(err => {
-          error(res.msg);
-        });
-    },
-    //选择性质
-    getType(item) {
-      this.form.type = item.name;
-      this.typeStatus = false;
-    },
-    //获取公司类别
-    handleNature(){
-      this.$http
-        .post("/TPA/aLbJb/getBySn?sn=024")
-        .then(res => {
-          if (res.data.code === 0) {
-            console.log(res);
-            this.NatureList = res.data.data;
-            this.natureStatus = true;
-          } else {
-            error(res.data.msg);
-          }
-        })
-        .catch(err => {
-          error(res.msg);
-        });        
-    },
-    //选择类别
-    getNature(item) {
-      this.form.nature = item.name;
-      this.natureStatus = false;
-    },    
-
-    //获取导航
-    getnavMenu() {
-      this.$http
-        .post("/TPA/aKsDa/tree")
-        .then(res => {
-          if (res.data.code === 0) {
-              console.log(res);
-              
-            this.navMenus = res.data.data.childs;
-          } else {
-            error(res.data.msg);
-          }
-        })
-        .catch(err => {
-          console.log(0);
-          
-        });
-    },
-    //导航点击获取当前公司信息
-    menuSelected(index) {
-      if (index.length < 10) {
-        this.$http("/TPA/aKsDa/get?id=" + index)
-          .then(res => {
-            if (res.data.code === 0) {
-              this.form = res.data.data;
-              this.emptyBtnTo();
-              this.doEdit = false;
-              this.doDelete = false
-              this.doExamine = false;
-              this.doExamineAgain = false;
-              this.doAdd = false
-            } else {
-              error(res.data.msg);
-            }
-          })
-          .catch(err => {
-            NetworkAnomaly();
-          });
-      }
-    },
-    //打开弹出框
-    open_box() {
-      this.oldMenu = true;
-      this.$http.post('/TPA/aGsJbxx/search?status=1&delStatus=0')
-        .then(res=>{
-           if(res.status===200&&res.data.code===0){
-               this.guiCompany = res.data.data.list
-           }else{
-               error(res.data.msg)
-           }
-        })
-        .catch(err=>{
-            NetworkAnomaly()
-        })
-    },
-    //关闭弹出框
-    close_box() {
-      this.oldMenu = false;
-    },
-    //点击归属部门列表item获取归属部门的编号和名称
-    getDepartmentName(item) {
-      this.form.gsName = item.name;
-      this.form.gsSn = item.sn;
-      this.oldMenu = false;
-    },
-    //按钮初始状态
-    emptyBtn() {
-      this.doAdd = false;
-      this.doEdit = true;
-      this.doDelete = true;
-      this.doSave = true;
-      this.doCancel = true;
-
-      this.doExamine = true;
-      this.doExamineAgain = true;
-      this.doImport = false;
-      this.doExport = false;
-      this.doEffective = true;
-      this.doInvalid = true;
-
-      this.gui = true
-      this.formNo = true
-
-      this.oldMenu = false
-    },
-    //btn按钮按下之后按钮的状态
-    emptyBtnTo() {
-      this.doAdd = true;
-      this.doEdit = true;
-      this.doDelete = true;
-      this.doSave = true;
-      this.doCancel = false;
-      this.formNo = true
-
-      this.doExamine = true;
-      this.doExamineAgain = true;
-      this.doImport = true;
-      this.doExport = true;
-      this.doEffective = true;
-      this.doInvalid = true;
-
-      this.gui = true
-      this.formNo = true
-      this.oldMenu = false
-    },
-    //表单清空
-    emptyform() {
-      this.form = {
-        type: "", //客户性质
-        hzfw: "", //合作范围
-        gsSn: "", //归属公司编号
-        gsName: "", //归属公司名称
-        sn: "", //编号
-        name: "", //名称
-        jc: "", //简称
-        cywl: "", //承运物流
-        shdz: "", //收货地址
-        jglx: "", //价格类型
-        sxed: "", //授信额度
-        dz: "", //地址
-        email: "", //eamil
-        tel: "", //电话
-        fax: "", //传真
-        wz: "", //网址
-        lxr: "", //联系人
-        nsh: "", //纳税号
-        nature: "", //公司性质
-        status: "3",
-        addDate: "",
-        addUser: "",
-        updateDate: "",
-        updateUser: ""
-      };
-    }
-  },
-  mounted() {
-    this.getnavMenu();
+            },
+            //下载错误文件按钮
+            importErr() {
+                let errUrl = '/TPA/aImportExcel/exportMsg?name=' + this.project
+                // console.log(errUrl)
+                window.location.href = errUrl;
+                setTimeout(() => {
+                    this.tipOffON = false;
+                    this.importCancel();
+                }, 500)
+            },
+            //导出
+            doExports() {
+                window.location.href = "/TPA/aKsDa/exportExcel";
+            },
     
-  },
-  watch: {
-    tipOffON(){
-        if(this.tipOffON === false){
-            console.log(0);
+    
+            //刷新
+            refresh() {
+    
+                this.emptyBtn()
+                this.emptyform()
+                this.getnavMenu()
+                this.guiCompany = []
+                succ('刷新成功')
+            },
+            //新增
+            doAdds() {
+                this.emptyBtnTo();
+                this.doSave = false;
+                this.addEdit = true;
+                this.gui = false
+                this.formNo = false
+                
+                this.jglxList = []
+                this.getjglxList()
+            },
+            //保存
+            doSaves() {
+                this.oldMenu = false
+                if (this.form.gsName.length === 0) {
+                    error("请选择归属公司");
+                } else if (this.form.type.length === 0) {
+                    error("客户性质不能为空");
+                } else if (this.form.sn.length === 0) {
+                    error("编号不能为空");
+                } else if (this.form.name.length === 0) {
+                    error("名称不能为空！");
+                } else {
+                    if (this.addEdit) {
+                        //新增
+                        this.$http
+                            .post("/TPA/aKsDa/insert", qs.stringify(this.form))
+                            .then(res => {
+                                if (res.data.code === 0) {
+                                    succ(res.data.msg);
+                                    let gsSn = this.form.gsSn
+                                    let gsName = this.form.gsName
+                                    this.form = {}
+                                    this.form.gsSn = gsSn
+                                    this.form.gsName = gsName
+                                    this.form.status = "3"
+                                    this.gui = true
+                                    this.doAdd = false
+                                    this.getnavMenu();
+                                } else {
+                                    error(res.data.msg);
+                                }
+                            })
+                            .catch(err => {
+                                NetworkAnomaly();
+                            });
+                    } else {
+                        //修改
+                        this.$http
+                            .post("/TPA/aKsDa/update", qs.stringify(this.form))
+                            .then(res => {
+                                if (res.data.code === 0) {
+                                    succ(res.data.msg);
+                                    let status = this.form.status;
+                                    let addUser = this.form.addUser
+                                    let addDate = this.form.addDate
+                                    let sn = this.form.sn
+                                    let name = this.form.name
+                                    this.form = res.data.data;
+                                    this.form.status = status;
+                                    this.form.addUser = addUser
+                                    this.form.addDate = addDate
+                                    this.form.sn = sn
+                                    this.form.name = name
+                                    this.emptyBtnTo();
+                                    this.doEdit = false;
+                                    this.doExamine = false;
+                                    this.doExamineAgain = false;
+                                    this.doDelete = false;
+                                    this.getnavMenu();
+    
+                                } else {
+                                    error(res.data.msg);
+                                }
+                            })
+                            .catch(err => {
+                                NetworkAnomaly();
+                            });
+                    }
+                }
+            },
+            //修改
+            doEdits() {
+                this.emptyBtnTo();
+                this.doSave = false;
+                this.doCancel = false;
+                this.addEdit = false;
+            },
+            //取消
+            doCancels() {
+                this.emptyBtn();
+                this.emptyform();
+                this.doSave = true;
+    
+            },
+            //退出
+            doOuts() {
+                this.$emit("getOut", this.$route.name);
+            },
+            //审核
+            doExamines() {},
+            //反审
+            doExamineAgains() {},
+            //有效按钮
+            doEffectives() {
+                let params = {
+                    id: this.form.id,
+                    status: "1"
+                };
+                this.$http
+                    .post("/TPA/aKsDa/status", qs.stringify(params))
+                    .then(res => {
+                        if (res.data.code === 0) {
+                            this.form.status = params.status;
+                            succ(res.data.msg);
+                            this.doAdd = false
+                        } else {
+                            error(res.data.msg);
+                        }
+                    })
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });
+            },
+            //无效按钮
+            doInvalids() {
+                let params = {
+                    id: this.form.id,
+                    status: "0"
+                };
+                this.$http
+                    .post("/TPA/aKsDa/status", qs.stringify(params))
+                    .then(res => {
+                        if (res.data.code === 0) {
+                            this.form.status = params.status;
+                            succ(res.data.msg);
+                            this.doAdd = false
+                        } else {
+                            error(res.data.msg);
+                        }
+                    })
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });
+    
+            },
+            //删除按钮
+            doDeletes() {
+                this.$http
+                    .post("/TPA/aKsDa/delete?id=" + this.form.id)
+                    .then(res => {
+                        if (res.data.code === 0) {
+                            succ(res.data.msg);
+                            this.getnavMenu()
+                            this.emptyBtn()
+                            this.emptyform()
+                            this.doSave = true
+                            this.form.status = "3"
+                        } else {
+                            error(res.data.msg);
+                        }
+                    })
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });
+    
+            },
+            //获取性质
+            handleType() {
+                this.$http
+                    .post("/TPA/aLbJb/getBySn?sn=015")
+                    .then(res => {
+                        if (res.data.code === 0) {
+                            console.log(res);
+                            this.typeList = res.data.data;
+                            this.typeStatus = true;
+                        } else {
+                            error(res.data.msg);
+                        }
+                    })
+                    .catch(err => {
+                        error(res.msg);
+                    });
+            },
+            //选择性质
+            getType(item) {
+                this.form.type = item.name;
+                this.typeStatus = false;
+            },
+            //获取公司类别
+            handleNature() {
+                this.$http
+                    .post("/TPA/aLbJb/getBySn?sn=024")
+                    .then(res => {
+                        if (res.data.code === 0) {
+                            console.log(res);
+                            this.NatureList = res.data.data;
+                            this.natureStatus = true;
+                        } else {
+                            error(res.data.msg);
+                        }
+                    })
+                    .catch(err => {
+                        error(res.msg);
+                    });
+            },
+            //选择类别
+            getNature(item) {
+                this.form.nature = item.name;
+                this.natureStatus = false;
+            },
+            //获取价格类型
+            getjglxList(){
+                this.$http.post('/TPA/aLbJb/getBySn?sn=005')
+                    .then(res=>{
+                        if(res.data.code===0){
+                            this.jglxList = res.data.data
+                        }else{
+                            error(res.data.msg)
+                        }
+                    })
+                    .catch(err=>{
+                        NetworkAnomaly()
+                    })
+            },
+    
+
+            //获取导航
+            getnavMenu() {
+                this.$http
+                    .post("/TPA/aKsDa/tree")
+                    .then(res => {
+                        if (res.data.code === 0) {
+                            console.log(res);
+    
+                            this.navMenus = res.data.data.childs;
+                        } else {
+                            error(res.data.msg);
+                        }
+                    })
+                    .catch(err => {
+                        console.log(0);
+    
+                    });
+            },
+            //导航点击获取当前公司信息
+            menuSelected(index) {
+                if (index.length < 10) {
+                    this.$http("/TPA/aKsDa/get?id=" + index)
+                        .then(res => {
+                            if (res.data.code === 0) {
+                                this.form = res.data.data;
+                                this.emptyBtnTo();
+                                this.doEdit = false;
+                                this.doDelete = false
+                                this.doExamine = false;
+                                this.doExamineAgain = false;
+                                this.doAdd = false
+                            } else {
+                                error(res.data.msg);
+                            }
+                        })
+                        .catch(err => {
+                            NetworkAnomaly();
+                        });
+                }
+            },
+            //打开弹出框
+            open_box() {
+                this.oldMenu = true;
+                this.$http.post('/TPA/aGsJbxx/search?status=1&delStatus=0')
+                    .then(res => {
+                        if (res.status === 200 && res.data.code === 0) {
+                            this.guiCompany = res.data.data.list
+                        } else {
+                            error(res.data.msg)
+                        }
+                    })
+                    .catch(err => {
+                        NetworkAnomaly()
+                    })
+            },
+            //关闭弹出框
+            close_box() {
+                this.oldMenu = false;
+            },
+            //点击归属部门列表item获取归属部门的编号和名称
+            getDepartmentName(item) {
+                this.form.gsName = item.name;
+                this.form.gsSn = item.sn;
+                this.oldMenu = false;
+            },
+            //按钮初始状态
+            emptyBtn() {
+                this.doAdd = false;
+                this.doEdit = true;
+                this.doDelete = true;
+                this.doSave = true;
+                this.doCancel = true;
+    
+                this.doExamine = true;
+                this.doExamineAgain = true;
+                this.doImport = false;
+                this.doExport = false;
+                this.doEffective = true;
+                this.doInvalid = true;
+    
+                this.gui = true
+                this.formNo = true
+    
+                this.oldMenu = false
+            },
+            //btn按钮按下之后按钮的状态
+            emptyBtnTo() {
+                this.doAdd = true;
+                this.doEdit = true;
+                this.doDelete = true;
+                this.doSave = true;
+                this.doCancel = false;
+                this.formNo = true
+    
+                this.doExamine = true;
+                this.doExamineAgain = true;
+                this.doImport = true;
+                this.doExport = true;
+                this.doEffective = true;
+                this.doInvalid = true;
+    
+                this.gui = true
+                this.formNo = true
+                this.oldMenu = false
+            },
+            //表单清空
+            emptyform() {
+                this.form = {
+                    type: "", //客户性质
+                    hzfw: "", //合作范围
+                    gsSn: "", //归属公司编号
+                    gsName: "", //归属公司名称
+                    sn: "", //编号
+                    name: "", //名称
+                    jc: "", //简称
+                    cywl: "", //承运物流
+                    shdz: "", //收货地址
+                    jglx: "", //价格类型
+                    sxed: "", //授信额度
+                    dz: "", //地址
+                    email: "", //eamil
+                    tel: "", //电话
+                    fax: "", //传真
+                    wz: "", //网址
+                    lxr: "", //联系人
+                    nsh: "", //纳税号
+                    nature: "", //公司性质
+                    status: "3",
+                    addDate: "",
+                    addUser: "",
+                    updateDate: "",
+                    updateUser: ""
+                };
+            }
+        },
+        mounted() {
+            this.getnavMenu();
+        },
+        watch: {
+            tipOffON() {
+                if (this.tipOffON === false) {
+                    console.log(0);
+                }
+            },
+            importbox() {
+                if (this.importbox === false) {
+                    this.$refs.upload.clearFiles();
+                }
+            }
+        },
+        computed: {
+            ...mapState(["collapse"])
+        },
+        components: {
+            NavMenu
         }
-    },
-    importbox(){
-        if(this.importbox===false){
-            this.$refs.upload.clearFiles();
-        }
-    }     
-  },  
-  computed: {
-    ...mapState(["collapse"])
-  },
-  components: {
-    NavMenu
-  }
-};
+    };
 </script>
 
 <style lang="stylus" scoped>
@@ -731,6 +754,9 @@ export default {
     padding 1vh 2vh
 .container>>>.el-radio__label
     font-size 1.6vh 
+.container>>>.el-select,.container>>>.el-input__inner
+    height 3.5vh !important
+    line-height 3.5vh
 .menu_box
     width 20%
 .set_info

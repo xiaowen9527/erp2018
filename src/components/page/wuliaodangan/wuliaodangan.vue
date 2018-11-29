@@ -1,48 +1,90 @@
 <template>
     <div class="container" :class="{container_collapse:collapse}">
+    
         <p class="page_title">物料档案</p>
+    
         <div class="btn-box">
+    
             <button :disabled='doAdd' :class="{button_btn:!doAdd}" @click="doAdds">新增</button>
+    
             <button :disabled='doCancel' :class="{button_btn:!doCancel}" @click="doCancels">取消</button>
+    
             <button :disabled='(firstForm.sh==1||firstForm.sh=="-1")' :class="{button_btn:firstForm.sh==0}" @click="doEdits">修改</button>
+    
             <button @click="doSearchs" class="button_btn">查询</button>
-            <input type="text" placeholder="请选择" class="doSearch" @click="doSearchs" readonly  v-model="search">
+    
+            <input type="text" placeholder="请选择" class="doSearch" @click="doSearchs" readonly v-model="search">
+    
             <button class="button_btn" @click="doOuts">退出</button>
+    
             <button class="button_btn" @click="refresh">刷新</button>
+    
             <div class="btn_right">
+    
                 <button :disabled='doImport' :class="{button_btn:!doImport}" @click="doImports">导入</button>
+    
                 <button :disabled='doExport' :class="{button_btn:!doExport}" @click="doExports">导出</button>
+    
                 <button :disabled='(firstForm.sh==1||firstForm.sh==-1)' :class="{button_btn:(firstForm.sh==0)}" @click="doExamines">审核</button>
+    
                 <button :disabled='(firstForm.sh==0||firstForm.sh==-1)' :class="{button_btn:(firstForm.sh==1)}" @click="doExamineAgains">反审</button>
+    
             </div>
+    
         </div>
+    
         <div class="set_box">
+    
             <div class="menu_box">
+    
                 <el-menu @select="menuSelected" unique-opened background-color="#f2f2f2" text-color="#303133" active-text-color="#303133">
+    
                     <nav-menu :navMenus="this.navMenus"></nav-menu>
+    
                 </el-menu>
+    
             </div>
+    
             <div class="set_info">
-
+    
+    
+    
                 <div class="left">
+    
                     <div class="orderList">
+    
                         <el-table :data="tableList" border style="width: 100%" height="18vh">
+    
                             <el-table-column prop="sn" label="编号" min-width="15%">
+    
                             </el-table-column>
+    
                             <el-table-column prop="name" label="名称" min-width="15%">
+    
                             </el-table-column>
+    
                             <el-table-column prop="pattern" label="花形或说明" min-width="15%" class="explain">
+    
                             </el-table-column>
+    
                             <el-table-column prop="typeName" label="一级" min-width="15%" class="explain">
+    
                             </el-table-column>
+    
                             <el-table-column prop="fatherName" label="二级" min-width="15%" class="explain">
+    
                             </el-table-column>
+    
                             <el-table-column prop="grandFather" label="三级" min-width="15%" class="explain">
+    
                             </el-table-column>
+    
                             <el-table-column label="操作" min-width="10%">
+    
                                 <template slot-scope="scope">
-                                    <el-button @click="checkChilds(scope.$index, scope.row)" class="btn" type="text">查看</el-button>
-                                </template>
+    
+                                        <el-button @click="checkChilds(scope.$index, scope.row)" class="btn" type="text">查看</el-button>
+</template>
                             </el-table-column>
                         </el-table>
                     </div>
@@ -144,7 +186,9 @@
                                 <el-table-column label="操作" min-width="20%">
                                     <template slot-scope="scope">
                                         <!-- <el-button :disabled='(firstForm.sh==1||firstForm.sh==-1)' @click="handleEdit(scope.$index, scope.row)" :class="{btn:firstForm.sh==0}" type="text">修改</el-button> -->
+                                        
                                         <el-button :disabled="(scope.row.status == 1)" :class="{btn:(scope.row.status == 0)}" @click="effective(scope.$index, scope.row)" type="text">有效</el-button>
+                                        
                                         <el-button :disabled="(scope.row.status == 0)" :class="{btn:(scope.row.status == 1)}" @click="invalid(scope.$index, scope.row)" type="text">无效</el-button>
                                     </template>
                                 </el-table-column>
@@ -288,13 +332,13 @@ export default {
             secondFormOn: true,
             secondFormGui: true,
             //bind值
-            oldSearch:false,
+            oldSearch: false,
             search: "", //查询
-            searchList:[],
+            searchList: [],
             navMenus: [], //导航数据
             tableList: [],
-            name:"",
-            nameList:[],         //名称规格材质  弹出数组
+            name: "",
+            nameList: [], //名称规格材质  弹出数组
             firstForm: {
                 typeSn: "", //归属编号
                 typeName: "", //归属名称
@@ -302,7 +346,7 @@ export default {
                 contactSn: "", //编号
                 thirdPartySn: "", //编号
                 name: "", //名称
-                nameSn:"",
+                nameSn: "",
                 ylUnit: "", //用量单位
                 ylUnitSn: "", //用量单位编号
                 cgUnit: "", //采购单位
@@ -339,15 +383,15 @@ export default {
             //表格数据
             list: [],
 
-           //导入弹出开关
+            //导入弹出开关
             importbox: false,
             importZhe: false, //导入遮罩
-            isCover:false,      //默认导入不覆盖
-            project:"",         //错误文件名
+            isCover: false, //默认导入不覆盖
+            project: "", //错误文件名
             //上传的文件
             fileList: [],
-            Tips:"",               //错误提示
-            tipOffON: false,        //错误文件下载开关
+            Tips: "", //错误提示
+            tipOffON: false, //错误文件下载开关
 
 
             //编辑弹窗开关
@@ -393,7 +437,7 @@ export default {
                 contactSn: "", //编号
                 thirdPartySn: "", //编号
                 name: "", //名称
-                nameSn:"",
+                nameSn: "",
                 ylUnit: "", //用量单位
                 cgUnit: "", //采购单位
                 size: "", //布宽
@@ -658,43 +702,43 @@ export default {
             const _file = params.file;
             let formData = new FormData();
             formData.append("file", _file);
-                this.$ajax
-                    .post("/TPA/cWlda/importExcel", formData)
-                    .then(res => {
-                        console.log(res);
-                        if (res.status === 200) {
-                            if (res.data.code === 0) {
-                                succ(res.data.msg);
-                                this.getnavMenu();
-                                this.importCancel();
-                                this.$refs.upload.clearFiles();
-                            }else if(res.data.code === 100){
-                                this.tipOffON = true;
-                                this.project = res.data.attachment.name
-                                this.Tips = res.data.msg
-                            }else{
-                                error(res.data.msg);
-                            }
+            this.$ajax
+                .post("/TPA/cWlda/importExcel", formData)
+                .then(res => {
+                    console.log(res);
+                    if (res.status === 200) {
+                        if (res.data.code === 0) {
+                            succ(res.data.msg);
+                            this.getnavMenu();
+                            this.importCancel();
+                            this.$refs.upload.clearFiles();
+                        } else if (res.data.code === 100) {
+                            this.tipOffON = true;
+                            this.project = res.data.attachment.name
+                            this.Tips = res.data.msg
                         } else {
-                            NetworkAnomaly();
+                            error(res.data.msg);
                         }
-                        this.importZhe = false;
-                    })
-                    .catch(err => {
+                    } else {
                         NetworkAnomaly();
-                        this.importZhe = false;
-                    });
+                    }
+                    this.importZhe = false;
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                    this.importZhe = false;
+                });
         },
         //下载错误文件按钮
         importErr() {
             let errUrl = '/TPA/aImportExcel/exportMsg?name=' + this.project
             // console.log(errUrl)
             window.location.href = errUrl;
-            setTimeout(()=>{
+            setTimeout(() => {
                 this.tipOffON = false;
                 this.importCancel();
-            },500)
-        },        
+            }, 500)
+        },
         //导出
         doExports() {
             window.location.href = "/TPA/cWlda/exportExcel";
@@ -853,20 +897,20 @@ export default {
             this.nameList = ""
         },
         //获取 材质+名称+规格
-        getOld(name){
+        getOld(name) {
             let search = {
                 name: 17 + "|" + name
             };
-            let searchStr = JSON.stringify(search);            
-            this.$http.post('/TPA/cSpecification/search?status=1&search='+searchStr)
-                .then(res=>{
-                    if(res.data.code===0){
+            let searchStr = JSON.stringify(search);
+            this.$http.post('/TPA/cSpecification/search?status=1&search=' + searchStr)
+                .then(res => {
+                    if (res.data.code === 0) {
                         this.nameList = res.data.data.list
-                    }else{
+                    } else {
                         error(res.data.msg)
                     }
                 })
-                .catch(err=>{
+                .catch(err => {
                     NetworkAnomaly()
                 })
         },
@@ -979,8 +1023,8 @@ export default {
             this.idx = index;
             const item = this.list[index];
             let params = {
-                id:item.id,
-                status:1
+                id: item.id,
+                status: 1
             }
             this.$http
                 .post("/TPA/cWldaA/status", qs.stringify(params))
@@ -988,7 +1032,7 @@ export default {
                     if (res.data.code === 0) {
                         succ(res.data.msg);
                         item.status = params.status
-                        this.$set(this.list, this.idx,item);
+                        this.$set(this.list, this.idx, item);
                     } else {
                         error(res.data.msg);
                     }
@@ -1002,8 +1046,8 @@ export default {
             this.idx = index;
             const item = this.list[index];
             let params = {
-                id:item.id,
-                status:0
+                id: item.id,
+                status: 0
             }
             this.$http
                 .post("/TPA/cWldaA/status", qs.stringify(params))
@@ -1078,20 +1122,20 @@ export default {
                 this.list[i].sn = this.firstForm.sn;
             }
         },
-        name(){
-            if(this.name.length!==0){
+        name() {
+            if (this.name.length !== 0) {
                 this.getOld(this.name)
-            }else{
+            } else {
                 this.name = ""
             }
         },
         //模糊查询
-        search(){
-            if(this.search){
+        search() {
+            if (this.search) {
                 let search = {
                     sn: 17 + "|" + this.search
                 };
-                let searchStr = JSON.stringify(search);  
+                let searchStr = JSON.stringify(search);
                 this.$http
                     .post("/TPA/cWlda/search?search=" + searchStr)
                     .then(res => {
@@ -1099,7 +1143,7 @@ export default {
                     })
                     .catch(err => {
                         NetworkAnomaly();
-                    });                              
+                    });
             }
         }
     },

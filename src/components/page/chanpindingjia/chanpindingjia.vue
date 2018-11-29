@@ -218,8 +218,10 @@ export default {
       // 表格数据
       list: [],
       rowList: [],
-      spanArr: [],
-      position: 0,
+      djArr: [],
+      khArr: [],
+      djPosition: 0,
+      khPosition: 0,
       // 输入查询弹出框开关
       psnSearch: false,
       // 模糊查询的值
@@ -287,7 +289,7 @@ export default {
       this.$ajax
         .post("/TPA/cProductPrice/importExcel", formData)
         .then(res => {
-          console.log(res);
+          // console.log(res);
           if (res.status === 200) {
             if (res.data.code === 0) {
               succ(res.data.msg);
@@ -629,8 +631,10 @@ export default {
 
             // 重置表格合并
             this.rowList = [];
-            this.spanArr = [];
-            this.position = 0;
+            this.djArr = [];
+            this.djPosition = 0;
+            this.khArr = [];
+            this.khPosition = 0;
             this.rowspan();
 
             if (this.list.length === 0) {
@@ -668,19 +672,25 @@ export default {
 
     rowspan() {
       this.list.forEach((item, index) => {
-        // this.rowList = [];
-        // this.spanArr = [];
-        // this.position = 0;
         if (index === 0) {
-          this.spanArr.push(1);
-          this.position = 0;
+          this.djArr.push(1);
+          this.djPosition = 0;
+          this.khArr.push(1);
+          this.khPosition = 0;
         } else {
           if (this.list[index].sn === this.list[index - 1].sn) {
-            this.spanArr[this.position] += 1;
-            this.spanArr.push(0);
+            this.djArr[this.djPosition] += 1;
+            this.djArr.push(0);
           } else {
-            this.spanArr.push(1);
-            this.position = index;
+            this.djArr.push(1);
+            this.djPosition = index;
+          }
+          if (this.list[index].psn === this.list[index - 1].psn && this.list[index].sn === this.list[index - 1].sn) {
+            this.khArr[this.khPosition] += 1;
+            this.khArr.push(0);
+          } else {
+            this.khArr.push(1);
+            this.khPosition = index;
           }
         }
       });
@@ -688,19 +698,20 @@ export default {
     objectSpanMethod({ row, column, rowIndex, columnIndex }) {
       //表格合并行
       if (columnIndex === 1) {
-        const _row = this.spanArr[rowIndex];
-        const _col = _row > 0 ? 1 : 0;
+        // 第一列合并单号
+        const _row_1 = this.djArr[rowIndex];
+        const _col_1 = _row_1 > 0 ? 1 : 0;
         return {
-          rowspan: _row,
-          colspan: _col
+          rowspan: _row_1,
+          colspan: _col_1
         };
       }
       if (columnIndex === 2) {
-        const _row = this.spanArr[rowIndex];
-        const _col = _row > 0 ? 1 : 0;
+        const _row_2 = this.khArr[rowIndex];
+        const _col_2 = _row_2 > 0 ? 1 : 0;
         return {
-          rowspan: _row,
-          colspan: _col
+          rowspan: _row_2,
+          colspan: _col_2
         };
       }
     }
