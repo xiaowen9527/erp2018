@@ -18,6 +18,7 @@
       <button @click="doSearchs" :class="{button_btn:!doSearch}" :disabled="doSearch">查询</button>
   
       <button class="button_btn" @click="doOuts">退出</button>
+
   
       <div class="btn_right">
   
@@ -80,20 +81,14 @@
               </el-select>
   
             </li>
-  
             <li>
   
-              <label>性质</label>
+              <label>生产损耗</label>
   
-              <el-select :disabled="firstFormOn" v-model="firstForm.nature" placeholder="请选择(必选)">
-  
-                <el-option v-for="item in this.natureList" :key="item.name" :label="item.name" :value="item.name">
-  
-                </el-option>
-  
-              </el-select>
+              <input type="text" v-model="firstForm.loss" :disabled="firstFormOn" placeholder="必填">%
   
             </li>
+  
   
             <li>
   
@@ -125,14 +120,20 @@
   
             </li>
   
+  
             <li>
   
-              <label>生产损耗</label>
+              <label>性质</label>
   
-              <input type="text" v-model="firstForm.loss" :disabled="firstFormOn" placeholder="必填">
+              <el-select :disabled="firstFormOn" v-model="firstForm.nature" placeholder="请选择(必选)">
+  
+                <el-option v-for="item in this.natureList" :key="item.name" :label="item.name" :value="item.name">
+  
+                </el-option>
+  
+              </el-select>
   
             </li>
-  
             <li>
   
               <label>大量货用量</label>
@@ -249,6 +250,7 @@
               </el-table>
             </div>
           </div>
+
           <div class="fr">
             <ul class="clearfix titleColor">
               <li
@@ -620,6 +622,8 @@
     data() {
   
       return {
+
+          listColor:[],
   
         //按钮disabled
   
@@ -793,7 +797,10 @@
   
         //分页排序查询条件
   
-        pageParams: {}
+        pageParams: {},
+
+        // 表头colorName数组
+        tableTit: []
   
       };
   
@@ -1014,8 +1021,8 @@
           !this.firstForm.func ||
   
           !this.firstForm.part ||
-  
-          !this.firstForm.loss ||
+
+          !this.firstForm.loss.toString() ||
   
           !this.firstForm.dosage ||
   
@@ -1119,11 +1126,12 @@
   
         this.pageParams = params;
   
-        this.getPageData(this.pageParams);
-  
-  
-  
         this.getDesignColor(this.search);
+        // this.getPageData(this.pageParams);
+  
+  
+  
+        
   
       },
   
@@ -1158,6 +1166,8 @@
         this.$emit("getOut", this.$route.name);
   
       },
+
+
   
       //打印
   
@@ -1768,8 +1778,14 @@
             if (res.data.code === 0) {
   
               this.DesignColor = res.data.data;
+
+              // 循环表头拿到colorName
+              for(var i = 0; i < this.DesignColor.length; i++) {
+                  this.tableTit.push(this.DesignColor[i].colorName)
+              }
   
-  
+              // 获取到表头后再调用分页  
+              this.getPageData(this.pageParams);
   
               for (let i = 0; i < this.list.length; i++) {
   
@@ -1782,6 +1798,9 @@
                     if (res.data.code === 0) {
   
                       this.materialColor = res.data.data;
+
+
+
   
                     } else {
   
@@ -1811,45 +1830,28 @@
   
       //选择查询的设计编号
   
-      getItemSearch(item) {
+      // getItemSearch(item) {
   
-        this.firstForm.psn = this.search;
+      //   this.firstForm.psn = this.search;
   
-        this.doCancels();
+      //   this.doCancels();
   
-        this.emptyBtnTo();
-  
-  
-  
-        this.firstForm = item;
+      //   this.emptyBtnTo();
   
   
   
-        this.oldSearch = false;
-  
-        this.search = "";
+      //   this.firstForm = item;
   
   
   
-        let params = {
+      //   this.oldSearch = false;
   
-          psn: this.firstForm.psn,
+      //   this.search = "";
+
   
-          page: 0,
+      //   this.getDesignColor(this.firstForm.psn);
   
-          count: this.pageSize
-  
-        };
-  
-        this.pageParams = params;
-  
-        this.getPageData(this.pageParams);
-  
-  
-  
-        this.getDesignColor(this.firstForm.psn);
-  
-      },
+      // },
   
       //选择设计编号
   
@@ -1862,8 +1864,25 @@
         this.emptyBtnTo();
   
         this.oldPsn = false;
+
+        let params = {
   
+          psn: item.pSn,
+  
+          count: this.pageSize,
+  
+          page: 0
+  
+        };
+  
+        this.pageParams = params;
+  
+        this.getPageData(this.pageParams);
+
+        
+
         this.psn = "";
+        this.search = item.pSn;
   
       },
   
@@ -1953,48 +1972,79 @@
       //分页
   
       getPageData(params) {
-  
+
         this.list = [];
+
+            // this.getDesignColor(params.psn);
+            this.$http.post("/TPA/cMatBill/search", qs.stringify(params))
+                .then(res => {
+    
+                if (res.data.code === 0) {
+    
+                this.doPrint = false;
+    
+                let list = res.data.data.list;        
+                
+                // 循环表格数据
+                for (var i = 0; i < list.length; i++) {
+                    // 声明变量装重新排序的每一个list
+                    let Arr = [];
+                     
+                    for (var j = 0; j < this.tableTit.length; j++) {
+
+                        for (var k = 0; k < list[i].attachment.color.length; k++) {
+                            
+                            
+                            // 循环每一个this.list[i].attachment.color，拿每一个表头按顺序进行对比，如果相同
+                            if(this.tableTit[j] == list[i].attachment.color[k].psnColor) {
+                                Arr.push(list[i].attachment.color[k]);
+                            }
+                        }
+                    }
+           
+                    if(Arr.length<list[i].attachment.color.length){
+                        list[i].attachment.color = Arr;
+                    }else{
+                        Arr = []
+                    }
+                    
+                    
+                }
+                
+                this.list = list;
+                
+
+                this.total = res.data.data.total;
+    
+                if (this.total > this.pageSize) {
+    
+                    this.pageOnOff = true;
+    
+                } else {
+    
+                    this.pageOnOff = false;
+    
+                }
+    
+                } else {
+    
+                error(res.data.msg);
+    
+                }
+    
+            })
+            .catch(err => {
+    
+                NetworkAnomaly();
+    
+            });       
+            
+            // console.log(this.DesignColor, this.materialColor)
+        
   
-        this.$http
+
   
-          .post("/TPA/cMatBill/search", qs.stringify(params))
-  
-          .then(res => {
-  
-            if (res.data.code === 0) {
-  
-              this.doPrint = false;
-  
-              this.list = res.data.data.list;
-  
-  
-  
-              this.total = res.data.data.total;
-  
-              if (this.total > this.pageSize) {
-  
-                this.pageOnOff = true;
-  
-              } else {
-  
-                this.pageOnOff = false;
-  
-              }
-  
-            } else {
-  
-              error(res.data.msg);
-  
-            }
-  
-          })
-  
-          .catch(err => {
-  
-            NetworkAnomaly();
-  
-          });
+
   
       },
   

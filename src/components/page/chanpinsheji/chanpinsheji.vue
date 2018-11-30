@@ -94,23 +94,27 @@
                             <input type="text" disabled class="leibie_num" v-model="firstForm.lbch2Sn">
                             <input type="text" disabled v-model="firstForm.lbch2Name">
                         </li>
+                        <!-- <li class="wide">
+                            <label>来源款号</label>
+                            <input class="wideinp" v-model="firstForm.originPsn" type="text" :disabled="secondFormOn" placeholder="自动生成">
+                        </li> -->
                     </ul>
                     <ul class="clearfix">
                         <li class="open">
                             <label>款式</label>
-                            <input type="text" :disabled="secondFormOn" class="open_num" readonly v-model="firstForm.plksSn" @click="getStyleBtn">
+                            <input type="text" placeholder="必填" :disabled="secondFormOn" class="open_num" readonly v-model="firstForm.plksSn" @click="getStyleBtn">
                             <input type="text" readonly :disabled="secondFormOn" v-model="firstForm.plksName" @click="getStyleBtn">
                             <button :disabled="secondFormOn" :class="{button_btn:!secondFormOn,button:true}" @click="getStyleBtn">。。。</button>
                         </li>
                         <li class="open">
                             <label>颜色</label>
-                            <input type="text" readonly :disabled="secondFormOn" class="open_num" v-model="firstForm.colorSn" @click="getColorBtn">
+                            <input type="text" placeholder="必填" readonly :disabled="secondFormOn" class="open_num" v-model="firstForm.colorSn" @click="getColorBtn">
                             <input type="text" readonly :disabled="secondFormOn" v-model="firstForm.colorName" @click="getColorBtn">
                             <button :disabled="secondFormOn" :class="{button_btn:!secondFormOn,button:true}" @click="getColorBtn">。。。</button>
                         </li>
                         <li class="open">
                             <label>尺码</label>
-                            <input type="text" readonly :disabled="secondFormOn" class="open_num" v-model="firstForm.sizeSn" @click="getSizeBtn">
+                            <input type="text" placeholder="必填" readonly :disabled="secondFormOn" class="open_num" v-model="firstForm.sizeSn" @click="getSizeBtn">
                             <input type="text" readonly :disabled="secondFormOn" v-model="firstForm.sizeName" @click="getSizeBtn">
                             <button :disabled="secondFormOn" :class="{button_btn:!secondFormOn,button:true}" @click="getSizeBtn">。。。</button>
                         </li>
@@ -227,10 +231,10 @@
             <ul class="srcond_menu">
                 <li v-if="style.length===0">暂无数据</li>
                 <li v-for="(item,i) in style" :key="i">
-                    <span>|--{{item.entity.name}}</span>
-                    <div class="second" v-for="(items,i) in item.childs" :key="i">
+                    <span @click="getStyleItem(item)">|--{{item.name}}</span>
+                    <!-- <div class="second" v-for="(items,i) in item.childs" :key="i">
                         <p @click="getStyleItem(items)">|--{{items.entity.name}}</p>
-                    </div>
+                    </div> -->
                 </li>
             </ul>
         </el-dialog>
@@ -398,7 +402,8 @@ export default {
                 sizePidName: "",
                 designer: "", //设计师
                 designerSn: "", //设计师工号
-                qr: false //大货
+                qr: false, //大货
+                // originPsn: "" // 来源款号
             },
             oldMenu: false,
             oldColor: false,
@@ -584,13 +589,11 @@ export default {
             );
             this.firstForm.psnXz = this.elCheckboxs(this.firstForm.psnXz);
             this.firstForm.qr = this.elCheckboxs(this.firstForm.qr);
-            let terms =
-                this.firstForm.plksSn.length === 0 
-
-            // if (terms) {
-            //     error("表单项不能为空");
-            // } else {
-            //     console.log(this.firstForm);
+            // console.log(typeof(this.firstForm.plksSn),typeof(this.firstForm.colorSn),typeof(this.firstForm.sizeSn),typeof(this.firstForm.designer))
+            // let terms =
+            //     this.firstForm.plksSn.length === 0 
+            
+            if (typeof(this.firstForm.plksSn) != "undefined" && typeof(this.firstForm.colorSn) != "undefined" && typeof(this.firstForm.sizeSn) != "undefined" && typeof(this.firstForm.designer) != "undefined") {
                 if (this.addEdit) {
                     this.$http
                         .post("/TPA/cSpda/insert", qs.stringify(this.firstForm))
@@ -643,6 +646,13 @@ export default {
                             NetworkAnomaly();
                         });
                 }
+            } else {
+                error("请填写完所有必填项")
+            }
+            // if (terms) {
+            //     error("表单项不能为空");
+            // } else {
+            //     console.log(this.firstForm);
             // }
         },
         //有效按钮
@@ -1310,15 +1320,16 @@ export default {
                 });
         },
         //获取款式
-        getStyle() {
+        getStyle(name) {
             this.$http
-                .post("/TPA/cPlks/tree")
+                .post("/TPA/cPlks/getChildBySn?name=" + name)
                 .then(res => {
                     if (res.data.code === 0) {
-                        this.style = res.data.data.childs;
+                        this.style = res.data.data;
                     } else {
                         error(res.data.msg);
                     }
+                    console.log(res)
                 })
                 .catch(err => {
                     NetworkAnomaly();
@@ -1391,7 +1402,8 @@ export default {
 
                         this.oldMenu = false;
                         this.noDisabledSecondForm();
-                        this.getStyle();
+                        console.log(this.firstForm.lbch2Name)
+                        this.getStyle(this.firstForm.lbch2Name);
                         this.getDesigner();
                     } else {
                         error(res.data.msg);
@@ -1434,8 +1446,8 @@ export default {
         },
         //选择款式
         getStyleItem(item) {
-            this.firstForm.plksSn = item.entity.sn;
-            this.firstForm.plksName = item.entity.name;
+            this.firstForm.plksSn = item.sn;
+            this.firstForm.plksName = item.name;
             this.oldStyle = false;
         },
 

@@ -202,5 +202,5 @@ export default {
 .page>>>.el-table .cell, .el-table th div
     overflow visible
 .page>>>.el-table__row
-    height 84px
+    height 70px
 </style>
