@@ -174,50 +174,102 @@
   
               <el-table :data="list" height="52vh" border style="width: 100%">
   
-                <el-table-column prop="materialSn" label="物料编码" min-width="8.2%">
+                <!-- <el-table-column prop="materialSn" label="物料编码" min-width="8.2%">
   
-                </el-table-column>
+                </el-table-column> -->
+                <el-table-column prop="materialSn" label="性质"  min-width="8.2%">
+                  <template slot-scope="scope">
+                    <el-tooltip :content="scope.row.materialSn" placement="top" :enterable="false">
+                      <p>{{ scope.row.materialSn }}</p>
+                    </el-tooltip>        
+                  </template>
+                </el-table-column>                
   
                 <el-table-column prop="materialName" label="名称" min-width="8.2%">
-  
+                  <template slot-scope="scope">
+                    <el-tooltip :content="scope.row.materialName" placement="top" :enterable="false">
+                      <p>{{ scope.row.materialName }}</p>
+                    </el-tooltip>        
+                  </template>  
                 </el-table-column>
   
                 <el-table-column prop="kz" label="克重" min-width="8.2%">
-  
+                  <template slot-scope="scope">
+                    <el-tooltip :content="scope.row.kz" placement="top" :enterable="false">
+                      <p>{{ scope.row.kz }}</p>
+                    </el-tooltip>        
+                  </template>    
                 </el-table-column>
   
                 <el-table-column prop="size" label="布宽" min-width="8.2%">
-  
+                  <template slot-scope="scope">
+                    <el-tooltip :content="scope.row.size" placement="top" :enterable="false">
+                      <p>{{ scope.row.size }}</p>
+                    </el-tooltip>        
+                  </template>      
                 </el-table-column>
   
                 <el-table-column prop="dosageUnit" label="用量单位" min-width="8.2%">
+                  <template slot-scope="scope">
+                    <el-tooltip :content="scope.row.dosageUnit" placement="top" :enterable="false">
+                      <p>{{ scope.row.dosageUnit }}</p>
+                    </el-tooltip>        
+                  </template>      
   
                 </el-table-column>
   
                 <el-table-column prop="dosage" label="用量" min-width="8.2%">
+                  <template slot-scope="scope">
+                    <el-tooltip :content="scope.row.dosage" placement="top" :enterable="false">
+                      <p>{{ scope.row.dosage }}</p>
+                    </el-tooltip>        
+                  </template>      
   
                 </el-table-column>
   
                 <el-table-column prop="purchaseUnit" label="采购单位" min-width="8.2%">
+                  <template slot-scope="scope">
+                    <el-tooltip :content="scope.row.purchaseUnit" placement="top" :enterable="false">
+                      <p>{{ scope.row.purchaseUnit }}</p>
+                    </el-tooltip>        
+                  </template>      
   
                 </el-table-column>
   
                 <el-table-column prop="func" label="领用部门" min-width="8.2%">
+                  <template slot-scope="scope">
+                    <el-tooltip :content="scope.row.func" placement="top" :enterable="false">
+                      <p>{{ scope.row.func }}</p>
+                    </el-tooltip>        
+                  </template>      
   
                 </el-table-column>
   
                 <el-table-column prop="part" label="应用部位" min-width="8.2%">
-  
+                  <template slot-scope="scope">
+                    <el-tooltip :content="scope.row.part" placement="top" :enterable="false">
+                      <p>{{ scope.row.part }}</p>
+                    </el-tooltip>        
+                  </template>        
                 </el-table-column>
   
                 <el-table-column prop="explain" label="规格说明" min-width="8.2%">
+                  <template slot-scope="scope">
+                    <el-tooltip :content="scope.row.explain" placement="top" :enterable="false">
+                      <p>{{ scope.row.explain }}</p>
+                    </el-tooltip>        
+                  </template>      
   
                 </el-table-column>
   
                 <el-table-column prop="nature" label="性质" min-width="8.2%">
-  
+                  <template slot-scope="scope">
+                    <el-tooltip :content="scope.row.nature" placement="top" :enterable="false">
+                      <p>{{ scope.row.nature }}</p>
+                    </el-tooltip>        
+                  </template>      
                 </el-table-column>
-  
+
                 <el-table-column label="操作" min-width="9.8%">
   
                   <template slot-scope="scope">
@@ -2054,6 +2106,10 @@
   
         this.page = val;
   
+      },
+
+      foor(row, column, cell, event){
+        console.log(row, column, cell, event)
       }
   
     },
@@ -2247,8 +2303,20 @@
   text-align center
   font-size 12px
   word-break normal
+  white-space: nowrap!important;
+  text-overflow: ellipsis!important;
+  overflow: hidden!important;  
   // white-space pre-wrap
   padding 0 5px
+.container>>>.el-table .cell p
+  width 100%
+  height 3.5vh
+  line-height 3.5vh
+  word-break normal
+  white-space: nowrap!important;
+  text-overflow: ellipsis!important;
+  overflow: hidden!important;  
+  cursor:pointer    
 .container>>>.fl_table .el-table th .cell
   line-height 8vh
   text-align center

@@ -276,6 +276,54 @@ const router = new Router({
         },
 
 
+        {
+          path: '/xiaoshoukuanhao',
+          name: "xiaoshoukuanhao",
+          component: resolve => require(['@/components/page/xiaoshoukuanhao/xiaoshoukuanhao'], resolve),
+          meta: {
+            title: '销售款号'
+          },
+        },
+        {
+          path: '/dingdanjindu',
+          name: "dingdanjindu",
+          component: resolve => require(['@/components/page/dingdanjindu/dingdanjindu'], resolve),
+          meta: {
+            title: '订单进度'
+          },
+        },
+        {
+          path: '/shengchandingdan',
+          name: "shengchandingdan",
+          component: resolve => require(['@/components/page/shengchandingdan/shengchandingdan'], resolve),
+          meta: {
+            title: '生产订单'
+          },
+        },
+        {
+          path: '/shengchanpici',
+          name: "shengchanpici",
+          component: resolve => require(['@/components/page/shengchanpici/shengchanpici'], resolve),
+          meta: {
+            title: '生产批次'
+          },
+        },
+        {
+          path: '/cangkushezhi',
+          name: "cangkushezhi",
+          component: resolve => require(['@/components/page/cangkushezhi/cangkushezhi'], resolve),
+          meta: {
+            title: '仓库设置'
+          },
+        },
+        {
+          path: '/xiaoshoudingdan',
+          name: "xiaoshoudingdan",
+          component: resolve => require(['@/components/page/xiaoshoudingdan/xiaoshoudingdan'], resolve),
+          meta: {
+            title: '销售订单'
+          },
+        }
       ]
     }
   ]

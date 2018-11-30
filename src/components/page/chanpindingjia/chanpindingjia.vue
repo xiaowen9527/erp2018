@@ -345,7 +345,7 @@ export default {
         .post("/TPA/cProductPrice/print", qs.stringify(this.printParams))
         .then(res => {
           if (res.data.code === 0) {
-            // console.log(res.data.data);
+            console.log(res.data.data);
             localStorage.setItem("printList", JSON.stringify(res.data.data));
             if (localStorage.getItem("printList")) {
               window.open("/erp/#/chanpindingjiaPrint");

@@ -139,6 +139,13 @@ export default {
     chanpinchaxun: resolve =>require(["@/components/page/chanpinchaxun/chanpinchaxun"], resolve),
     shengchangongxu: resolve =>require(["@/components/page/shengchangongxu/shengchangongxu"], resolve),
 
+    //第三阶段
+    xiaoshoukuanhao: resolve =>require(["@/components/page/xiaoshoukuanhao/xiaoshoukuanhao"], resolve),
+    dingdanjindu: resolve =>require(["@/components/page/dingdanjindu/dingdanjindu"], resolve),
+    shengchandingdan: resolve =>require(["@/components/page/shengchandingdan/shengchandingdan"], resolve),
+    shengchanpici: resolve =>require(["@/components/page/shengchanpici/shengchanpici"], resolve),
+    cangkushezhi: resolve =>require(["@/components/page/cangkushezhi/cangkushezhi"], resolve),
+    xiaoshoudingdan: resolve =>require(["@/components/page/xiaoshoudingdan/xiaoshoudingdan"], resolve),
   }
 };
 </script>
