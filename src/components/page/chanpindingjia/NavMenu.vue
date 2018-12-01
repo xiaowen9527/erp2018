@@ -5,7 +5,7 @@
             <!--只有一级菜单-->
             <el-menu-item :key="navMenu" :index="String(navMenu)">
                 <!--标题-->
-                <span slot="title">|--{{navMenu}}</span>
+                <span slot="title">{{navMenu}}</span>
             </el-menu-item>
         </label>
 

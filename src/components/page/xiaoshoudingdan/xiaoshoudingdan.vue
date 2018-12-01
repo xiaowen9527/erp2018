@@ -127,6 +127,14 @@
                         <button class="save" disabled="disabled">查询</button>
                     </ul>
                 </div>
+
+                <!-- 表格内容 -->
+                <div class="order_table">
+                    <div class="changeTable">
+                        <button class="changeTable_btn">主要信息</button>
+                        <button class="changeTable_btn">附加信息</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

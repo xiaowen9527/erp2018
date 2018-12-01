@@ -1,55 +1,91 @@
-.btn-box   
-    min-width 800px 
+.btn-box
+    min-width 800px
 .set_box
-    height 76vh    
+    height 76vh
     .menu_box
-        width 15%
+        width 18%
+        height 75.4vh
     .set_info
-        width 84%
+        width 81.2%
         overflow hidden
-        margin-right: 1vh
+        margin-right 1vh
         .firstForm
-            min-width: 1050px
+            min-width 1050px
             ul
                 li
-                    width: 23%
+                    width 23%
                     &.gui
                         width 50%
-                        label 
-                            width: 20%
+                        label
+                            width 20%
                         .gui_num
-                            width: 20%
-                        input 
-                            width: 40%
-                .save
-                    padding: 0 1vh
-                    height: 3.5vh;
-                    border: 0.1vh solid #d2d2d2;
-                    background: none;
-                    line-height: 3.5vh;
-                    text-align: center;
-                    border-radius: 0.5vh;
-                    cursor: pointer; 
-                    margin 1vh     
-                .btn
-                    border: 0.1vh solid #409eff !important
-                    font-weight: bold;
-                    color: #409eff;      
+                            width 20%
+                        input
+                            width 40%
+                    &.date
+                        .el-date-editor
+                            width: 60%
 
+                .save
+                    padding 0 1vh
+                    height 3.5vh
+                    border 0.1vh solid #d2d2d2
+                    background none
+                    line-height 3.5vh
+                    text-align center
+                    border-radius 0.5vh
+                    cursor pointer
+                    margin 1vh
+                .btn
+                    border 0.1vh solid #409eff !important
+                    font-weight bold
+                    color #409eff
+
+//表单日期选择器
+.container>>>.el-input__inner
+     width: 100% !important  
+     padding-right: 1vh    
+.container>>>.el-input__icon      
+    display: none       
+// 导航
+.container>>>.el-submenu__title, .container>>>.el-menu-item
+    height 3vh
+    line-height 3vh
+    font-size 1.6vh !important
+// 弹出框
+.container>>>.el-dialog
+    width 400px
+    height 400px
+.container>>>.el-dialog__body
+    cursor pointer !important
+    line-height 2.5vh
+    font-weight bold
+    padding 1vh 2vh
+    height 340px
+    overflow-y: auto
+    li  
+        :hover
+            background: #d2d2d2
 
 // 表格
 .order_table
-  width: 100%
+  width: 99%
   margin: 5px auto 0
-  max-height: 550px
   overflow: hidden
   .el-button
-    padding: 0.6vh 2vh
+    padding: 0.6vh 1vh
     margin-top: 0.4vh
-    color: #409eff
-    font-size: 1.6vh
+    border: 1px solid #d2d2d2
     &.btn
-      color: #d2d2d2
+        // font-size: 1.6vh
+        border: 1px solid #409eff
+      
+
+// 修改弹窗input样式
+.el-dialog__body .el-form-item
+  margin-bottom: 5px
+.el-dialog__body .el-form-item .el-form-item__content .el-input
+  width: 70%
 
 .container>>>th, .order_table>>>.el-table td, .el-table th
   padding: 0
@@ -58,8 +94,22 @@
   line-height: 4vh
   text-align: center
   font-size: 1.6vh
+  word-break normal
+  white-space: nowrap!important;
+  text-overflow: ellipsis!important;
+  overflow: hidden!important;
+//鼠标覆盖显示全部内容
+.container>>>.el-table .cell p
+  width 100%
+  height 3.5vh
+  line-height 3.5vh
+  word-break normal
+  white-space: nowrap!important;
+  text-overflow: ellipsis!important;
+  overflow: hidden!important;  
+  cursor:pointer
 .container>>>.el-table__empty-block
-  min-height: 3.5vh      
+  min-height: 3.5vh
 
 // 修改表格边框和表头背景色
 .container>>>.el-table th

@@ -9,6 +9,8 @@
             <button :disabled='doOut' :class="{button_btn:!doOut}" @click="doOuts">退出</button>
             <button :disabled='doDelete' :class="{button_btn:!doDelete}" @click="doDeletes">删除</button>
             <button :disabled='doCancel' :class="{button_btn:!doCancel}" @click="doCancels">取消</button>
+            <input type="text" class="doSearch" v-model="search"  placeholder="请输入颜色编号" >
+            <button  class="button_btn" @click="dosearchs">查询</button>
             <button class="button_btn" @click="refresh">刷新</button>
             <button :disabled='doImport' :class="{button_btn:!doImport}" @click="doImports">导入</button>
             <button :disabled='doExport' :class="{button_btn:!doExport}" @click="doExports">导出</button>
@@ -181,6 +183,8 @@ export default {
             doInvalid: false,
             doOut: false,
             doCancel: true,
+
+            search:"",  //查询
 
             //归属的表单状态
             gui: true,
@@ -491,7 +495,28 @@ export default {
             this.gui = true;
             this.formNo = true;
         },
-        
+        //查询颜色
+        dosearchs(){
+            if(this.search){
+                console.log(this.search)
+                console.log(0)
+
+                this.$http.post("/TPA/aYscm/searchColor?sn="+this.search)
+                    .then(res=>{
+                        if(res.data.code===0){
+                            this.form =  res.data.data.list[0]
+                            
+                        }else{
+                            error(res.data.msg)
+                        }
+                    })
+                    .catch(err=>{
+                        NetworkAnomaly()
+                    })
+            }else{
+                error('请输入颜色编号')
+            }
+        },
         //获取nav
         getnavMenu() {
             this.$http

@@ -12,6 +12,7 @@
       <button :disabled='doPrint' :class="{button_btn:!doPrint}" @click="doPrints">打印</button>
   
       <button :disabled='doImport' :class="{button_btn:!doImport}" @click="doImports">导入</button>
+      <button :disabled='doImport' :class="{button_btn:!doImport}" @click="doExports">导出</button>
   
       <input type="text" placeholder="请输入产品的设计款号" class="doSearch" v-model="search">
   
