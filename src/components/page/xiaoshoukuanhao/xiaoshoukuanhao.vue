@@ -10,7 +10,7 @@
             <button class="button_btn" @click="doImports">导入</button>
             <button class="button_btn" @click="doExports">导出</button>
             <button @click="doSearchs" class="button_btn">查询</button>
-            <input class="queryInfo" placeholder="客户编号 / 名称 / 性质" type="text" v-model="queryInfo" />
+            <input class="queryInfo" placeholder="客户编号 / 客户名称" type="text" v-model="queryInfo" />
             <button class="button_btn" @click="doOuts">退出</button>
         </div>
 
@@ -96,14 +96,14 @@
             
             <!-- 底部页码 -->
             <div class="pageBox">
-                <!-- <el-pagination @current-change="currentPage" :current-page='page' v-if="pageOnOff" background :page-size="pageSize" :pager-count="5" :total="total">
-                </el-pagination> -->
+                <el-pagination @current-change="currentPage" :current-page='page' v-if="pageOnOff" background :page-size="pageSize" :pager-count="5" :total="total">
+                </el-pagination>
             </div>
         </div>
 
         <!-- 获取客户信息弹窗 -->
         <el-dialog title="客户信息" :visible.sync="customerOff">
-            <el-input v-model="customerInfo" placeholder="客户编号 / 名称 / 性质"></el-input>
+            <el-input v-model="customerInfo" placeholder="客户编号 / 客户名称"></el-input>
             <ul class="srcond_menu">
                 <li v-if="customerList.length===0">暂无数据</li>
                 <li class="clearfix" v-for="(item,i) in customerList" :key="i">
@@ -206,6 +206,11 @@ export default {
       fileList: [],
       Tips: "", //错误提示
       tipOffON: false, //错误文件下载开关
+      //分页：当前页码/总数量/每页显示条数
+      page: 0,
+      total: "",
+      pageSize: 2,
+      pageOnOff: false,
     };
   },
 
@@ -293,14 +298,27 @@ export default {
       window.location.href = "/TPA/dSellPsn/exportExcel";
     },
 
-    // 查询
-    doSearchs() {
-        this.$http.post("/TPA/dSellPsn/search?clientSn=" + this.queryInfo).then(res => {
-            this.list = res.data.data.list;
+    searchFun(val) {
+        let params = {
+            page: this.page,
+            total: this.total,
+            pageSize: this.pageSize,
+            name: val
+        }
+        this.$http.post("/TPA/dSellPsn/search", qs.stringify(params)).then(res => {
+            if(res.data.code === 0) {
+                succ(res.data.msg);
+                this.list = res.data.data.list;
+            }
         })
         .catch(err => {
-
+          NetworkAnomaly();
         })
+    },
+
+    // 查询
+    doSearchs() {
+        this.searchFun(this.queryInfo);
     },
 
     // 退出
@@ -322,7 +340,7 @@ export default {
 
     // 点击左侧导航
     menuSelected(index) {
-        // console.log(index)
+        this.searchFun(index)
     },
 
     // 点击弹出客户弹窗
@@ -344,6 +362,7 @@ export default {
         this.$http.post("/TPA/dSellPsn/insert", qs.stringify(this.form)).then(res => {
             console.log(res)
             this.form.spdaPsn = "";
+            this.searchFun(res.data.data.clientSn);
         })
         .catch(err => {
           NetworkAnomaly();
@@ -361,6 +380,7 @@ export default {
         this.dialog = {
             id: item.id,
             activeDate: item.activeDate,
+            clientSn: item.clientSn,
             clientName: item.clientName,
             spdaPsn: item.spdaPsn,
             psn: item.psn,
@@ -375,15 +395,24 @@ export default {
     saveEdit() {
         this.$http.post("/TPA/dSellPsn/update", qs.stringify(this.dialog)).then(res => {
             if(res.data.code === 0) {
-                this.doSearchs()
+                this.searchFun(this.dialog.clientSn)
             }
         })
         this.handleEditOff = false;
     },
 
     // 删除按钮
-    tableDelete() {
-
+    tableDelete(index, row) {
+        this.idx = index;
+        const item = this.list[index];
+        this.$http.post("/TPA/dSellPsn/delete?id=" + item.id).then(res => {
+            if(res.data.code === 0) {
+                this.searchFun(item.clientSn)
+            }
+        })
+        .catch(err => {
+            NetworkAnomaly();
+        })
     },
 
     // 审核按钮
@@ -391,7 +420,12 @@ export default {
         this.idx = index;
         const item = this.list[index];
         this.$http.post("/TPA/dSellPsn/auditing?status=1&id=" + item.id).then(res => {
-            this.doSearchs();
+            if(res.data.code === 0) {
+                this.searchFun(item.clientSn)
+            }
+        })
+        .catch(err => {
+            NetworkAnomaly();
         })
     },
 
@@ -400,9 +434,20 @@ export default {
         this.idx = index;
         const item = this.list[index];
         this.$http.post("/TPA/dSellPsn/auditing?status=0&id=" + item.id).then(res => {
-            this.doSearchs();
+            if(res.data.code === 0) {
+                this.searchFun(item.clientSn)
+            }
+        })
+        .catch(err => {
+            NetworkAnomaly();
         })
     },
+
+    // 获取当前页码
+    currentPage(val) {
+        this.page = val - 1;
+        this.searchFun();
+    }
   },
 
   mounted() {

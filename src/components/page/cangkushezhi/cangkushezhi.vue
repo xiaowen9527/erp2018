@@ -429,7 +429,6 @@ export default {
             this.search = "";
             this.oldSearch = true;
             this.oldSearchList = [];
-            this.getSearch();
         },
         //刷新
         refresh() {
@@ -527,13 +526,16 @@ export default {
         //选择公司
         getItemGsName(item) {
             this.oldGsName = false;
-            this.firstForm.gsName = item.name;
-            this.firstForm.gsSn = item.sn;
+
         },
-        //获取查询列表
-        getSearch() {},
         //选择查询
-        getItemSearch(item) {},
+        getItemSearch(item) {
+            this.oldSearch = false
+            console.log(item);
+            
+            this.getPageData(item.gsName)
+            this.doCancels()           
+        },
 
         //获取导航
         getnavMenus() {
@@ -552,6 +554,7 @@ export default {
         },
         //导航展开查询table
         menuSelected(index) {
+            this.doCancels()
             this.getPageData(index);
             this.emptyBtnTo();
             this.doAdd = false;

@@ -9,6 +9,7 @@
             <button class="button_btn" @click="doCancels">取消</button>
             <button class="button_btn" @click="doChanges">修改</button>
             <button class="button_btn" @click="doImports">导入</button>
+            <button class="button_btn" @click="doPrints">打印</button>
             <button class="button_btn" @click="doExports">导出</button>
             <button @click="doSearchs" class="button_btn">查询</button>
             <input class="queryInfo" type="text" v-model="queryInfo" />
@@ -18,7 +19,7 @@
                 <button class="button_btn" @click="doExamines">审核</button>
                 <button class="button_btn" @click="doExamineAgains">反审核</button>
                 <button class="button_btn" @click="doStops">终止</button>
-                <button class="button_btn" @click="NotStops">反终止</button>
+                <button class="button_btn" @click="NotStops">启用</button>
                 <button class="button_btn" @click="closeOrders">关单</button>
                 <button class="button_btn" @click="doOrders">开单</button>
             </div>
@@ -49,16 +50,16 @@
                         </li>
                         <li>
                             <label>属性</label>
-                            <el-select v-model="form.type" placeholder="请选择" :disabled="formOff">
-                                <!-- <el-option v-for="item in this.Type" :key="item.name" :label="item.name" :value="item.name">
-                                </el-option> -->
+                            <el-select v-model="form.property" placeholder="请选择" :disabled="formOff">
+                                <el-option v-for="item in this.property" :key="item.name" :label="item.name" :value="item.name">
+                                </el-option>
                             </el-select>
                         </li>
                         <li>
                             <label>仓库</label>
-                            <el-select v-model="form.type" placeholder="请选择" :disabled="formOff">
-                                <!-- <el-option v-for="item in this.Type" :key="item.name" :label="item.name" :value="item.name">
-                                </el-option> -->
+                            <el-select v-model="form.repertory" placeholder="请选择" :disabled="formOff">
+                                <el-option v-for="item in this.repertory" :key="item.name" :label="item.name" :value="item.name">
+                                </el-option>
                             </el-select>
                         </li>
                     </ul>
@@ -74,7 +75,7 @@
                         </li>
                         <li>
                             <label>订单号</label>
-                            <input type="text" :disabled="formOff">
+                            <input type="text" disabled placeholder="自动生成">
                         </li>
                         <li>
                             <label>来源号</label>
@@ -82,40 +83,44 @@
                         </li>
                         <li>
                             <label>品牌</label>
-                            <el-select v-model="form.type" placeholder="请选择" :disabled="formOff">
-                                <!-- <el-option v-for="item in this.Type" :key="item.name" :label="item.name" :value="item.name">
-                                </el-option> -->
+                            <el-select v-model="form.brand" placeholder="请选择" :disabled="formOff">
+                                <el-option v-for="item in this.brand" :key="item.name" :label="item.name" :value="item.name">
+                                </el-option>
                             </el-select>
                         </li>
                     </ul>
                     <ul class="clearfix">
                         <li>
                             <label>价格性质</label>
-                            <el-select v-model="form.type" placeholder="请选择" :disabled="formOff">
-                                <!-- <el-option v-for="item in this.Type" :key="item.name" :label="item.name" :value="item.name">
-                                </el-option> -->
+                            <el-select v-model="form.priceNature" placeholder="请选择" :disabled="formOff">
+                                <el-option v-for="item in this.priceNature" :key="item.name" :label="item.name" :value="item.name">
+                                </el-option>
                             </el-select>
                         </li>
                         <li>
                             <label>价格类型</label>
-                            <el-select v-model="form.type" placeholder="请选择" :disabled="formOff">
-                                <!-- <el-option v-for="item in this.Type" :key="item.name" :label="item.name" :value="item.name">
-                                </el-option> -->
+                            <el-select v-model="form.priceType" placeholder="请选择" :disabled="formOff">
+                                <el-option v-for="item in this.priceType" :key="item.name" :label="item.name" :value="item.name">
+                                </el-option>
                             </el-select>
                         </li>
                         <li>
                             <label>币别</label>
-                            <el-select v-model="form.type" placeholder="请选择" :disabled="formOff">
-                                <!-- <el-option v-for="item in this.Type" :key="item.name" :label="item.name" :value="item.name">
-                                </el-option> -->
+                            <el-select v-model="form.currency" placeholder="请选择" :disabled="formOff">
+                                <el-option v-for="item in this.currency" :key="item.name" :label="item.name" :value="item.name">
+                                </el-option>
                             </el-select>
                         </li>
                         <li>
                             <label>结算方式</label>
-                            <el-select v-model="form.type" placeholder="请选择" :disabled="formOff">
-                                <!-- <el-option v-for="item in this.Type" :key="item.name" :label="item.name" :value="item.name">
-                                </el-option> -->
+                            <el-select v-model="form.balanceMode" placeholder="请选择" :disabled="formOff">
+                                <el-option v-for="item in this.balanceMode" :key="item.name" :label="item.name" :value="item.name">
+                                </el-option>
                             </el-select>
+                        </li>
+                        <li>
+                            <label>备注</label>
+                            <input type="text" :disabled="formOff">
                         </li>
                         <button class="save" @click="doSaves" :class="{button_btn:!formOff}" :disabled="formOff">保存</button>
                     </ul>
@@ -130,10 +135,42 @@
 
                 <!-- 表格内容 -->
                 <div class="order_table">
-                    <div class="changeTable">
+                    <!-- <div class="changeTable clearfix">
                         <button class="changeTable_btn">主要信息</button>
                         <button class="changeTable_btn">附加信息</button>
-                    </div>
+                    </div> -->
+                    <el-table :data="list" stripe style="width: 100%" index @row-dblclick="chooseRow">
+                        <el-table-column prop="activeDate" label="品类" min-width="7.5%">
+                        </el-table-column>
+                        <el-table-column prop="clientName" label="名称" min-width="7.5%">
+                        </el-table-column>
+                        <el-table-column prop="spdaPsn" label="款号" min-width="7.5%">
+                        </el-table-column>
+                        <el-table-column prop="psn" label="颜色" min-width="7.5%">
+                        </el-table-column>
+                        <el-table-column prop="msg1" label="尺码" min-width="10%">
+                            <template slot-scope="scope">
+                                <el-button :disabled="(scope.row.sh == 1)" :class="{btn:scope.row.sh == 1}" @click="handleEdit(scope.$index, scope.row)">查看/修改</el-button>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="msg2" label="数量" min-width="7.5%">
+                        </el-table-column>
+                        <el-table-column prop="msg3" label="标准价" min-width="7.5%">
+                        </el-table-column>
+                        <el-table-column prop="msg3" label="结算价" min-width="7.5%">
+                        </el-table-column>
+                        <el-table-column prop="msg3" label="结算金额" min-width="7.5%">
+                        </el-table-column>
+                        <el-table-column fixed="right" label="操作" min-width="24%">
+                            <template slot-scope="scope">
+                                <el-button :disabled="(scope.row.sh == 1)" :class="{btn:scope.row.sh == 1}" @click="handleEdit(scope.$index, scope.row)">修改</el-button>
+                                <el-button :disabled="(scope.row.sh == 1)" :class="{btn:scope.row.sh == 1}" @click="tableDelete(scope.$index, scope.row)">删除</el-button>
+                                <el-button :disabled="(scope.row.sh == 1)" :class="{btn:scope.row.sh == 1}" @click="doExamines(scope.$index, scope.row)">终止</el-button>
+                                <!-- <el-button :disabled="(scope.row.sh == 0)" :class="{btn:scope.row.sh == 0}" @click="doExamineAgains(scope.$index, scope.row)">反审</el-button> -->
+                                <el-button :disabled="(scope.row.sh == 0)" :class="{btn:scope.row.sh == 0}" @click="doExamineAgains(scope.$index, scope.row)">关款</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
                 </div>
             </div>
         </div>
@@ -159,12 +196,40 @@ export default {
       queryInfo: "", // 顶部查询内容
       navMenus: [], // 左侧导航栏数据
       form: {
-          activeDate: "",
-          customer: "",
-          psn: ""
+          activeDate: "", // 订单日期
+          clientSn: "", // 客户编号
+          clientName: "", // 客户名称
+          property: "", // 属性
+          repertory: "", // 仓库
+          address: "", // 交货地址
+          deliveryDate: "", // 交货日期
+          sn: "", // 订单号
+          originSn: "", // 来源号
+          brand: "", // 品牌
+          priceNature: "", // 价格性质
+          priceType: "", // 价格类型
+          currency: "", // 币别
+          balanceMode: "", // 结算方式
+          remark: "" // 备注
       },
       formOff: true, // 表单禁用、开启
-      list: [], // 表格内容
+      // 属性选择
+      property: [
+          {name: "销售"},
+          {name: "退货"}
+      ],
+      repertory: [], // 仓库选择
+      brand: [], // 品牌选择
+      priceNature: [], // 价格性质选择
+      priceType: [], // 价格类型选择
+      currency: [], // 币别选择
+      balanceMode: [], // 结算方式选择
+      list: [
+          {activeDate: "2018-12-1"},
+          {activeDate: "2018-12-1"},
+          {activeDate: "2018-12-1"},
+          {activeDate: "2018-12-1"}          
+      ], // 表格内容
     };
   },
 
@@ -187,6 +252,9 @@ export default {
 
     // 导出
     doExports() {},
+
+    // 打印
+    doPrints() {},
 
     // 查询
     doSearchs() {},
@@ -219,17 +287,87 @@ export default {
         // })
     },
 
+    // 获取所有下拉选择的数据
+    getChoose() {
+        // 仓库选择
+        this.$http.post("/TPA/aRepertory/option").then(res => {
+            console.log(res)
+            if(res.data.code === 0) {
+                this.repertory = res.data.data;
+            }
+        })
+        .catch(err => {
+          NetworkAnomaly();
+        });
+
+        // 品牌选择
+        this.$http.post("/TPA/aLbJb/getBySn?sn=003").then(res => {
+            if(res.data.code === 0) {
+                this.brand = res.data.data;
+            }
+        })
+        .catch(err => {
+          NetworkAnomaly();
+        });
+
+        // 价格性质选择
+        this.$http.post("/TPA/aLbJb/getBySn?sn=027").then(res => {
+            if(res.data.code === 0) {
+                this.priceNature = res.data.data;
+            }
+        })
+        .catch(err => {
+          NetworkAnomaly();
+        });
+
+        // 价格类型选择
+        this.$http.post("/TPA/aLbJb/getBySn?sn=005").then(res => {
+            if(res.data.code === 0) {
+                this.priceType = res.data.data;
+            }
+        })
+        .catch(err => {
+          NetworkAnomaly();
+        });
+
+        // 币别选择
+        this.$http.post("/TPA/aLbJb/getBySn?sn=029").then(res => {
+            if(res.data.code === 0) {
+                this.currency = res.data.data;
+            }
+        })
+        .catch(err => {
+          NetworkAnomaly();
+        });
+
+        // 结算方式选择
+        this.$http.post("/TPA/aLbJb/getBySn?sn=028").then(res => {
+            if(res.data.code === 0) {
+                this.balanceMode = res.data.data;
+            }
+        })
+        .catch(err => {
+          NetworkAnomaly();
+        });
+    },
+
     // 点击左侧导航
     menuSelected() {},
 
     // 表单保存
     doSaves() {
         this.formOff = true;
+    },
+
+    // 双击当前行
+    chooseRow(e) {
+        console.log(e)
     }
   },
 
   mounted() {
     this.getnavMenu();
+    this.getChoose();
   },
 
   computed: {

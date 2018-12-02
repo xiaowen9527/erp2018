@@ -16,6 +16,10 @@
             <div class="btn_right">
                 <button class="button_btn" @click="doExamines">审核</button>
                 <button class="button_btn" @click="doExamineAgains">反审</button>
+                <button class="button_btn" @click="doExamineAgains">终止</button>
+                <button class="button_btn" @click="doExamineAgains">反终止</button>
+                <button class="button_btn" @click="doExamineAgains">关单</button>
+                <button class="button_btn" @click="doExamineAgains">反关单</button>
             </div>
         </div>
 
@@ -30,47 +34,47 @@
                 <div class="firstForm">
                     <ul class="clearfix">
                         <li class="gui">
-                            <label>公司</label>
-                            <input type="text" placeholder="必选" v-model="firstForm.gsSn" readonly :disabled="firstFormGui">
+                            <label>销售单号</label>
+                            <input type="text" placeholder="必选" v-model="firstForm.sellSn" readonly :disabled="firstFormGui">
                             <button :disabled="firstFormGui" :class="{btn:!firstFormGui}" @click="handleGsName">查询</button>
                         </li>
                         <li class="gui">
                             <label>客户</label>
-                            <input type="text" v-model="firstForm.gsSn" readonly :disabled="firstFormGui" class="gui_num">
-                            <input type="text" v-model="firstForm.gsSn" readonly :disabled="firstFormGui" class="gui_input">
+                            <input type="text" v-model="firstForm.clientSn" readonly :disabled="firstFormGui" class="gui_num">
+                            <input type="text" v-model="firstForm.clientName" readonly :disabled="firstFormGui" class="gui_input">
                         </li>
 
                         <li class="date">
                             <label>交货日期</label>
-                            <input type="text" v-model="firstForm.gsSn" readonly :disabled="firstFormGui" class="gui_input">
+                            <input type="text" v-model="firstForm.deliveryDate" readonly :disabled="firstFormGui" class="gui_input">
                         </li>
                         <li>
                             <label>生产单号</label>
-                            <input type="text" v-model="firstForm.gsSn" readonly :disabled="firstFormGui">
+                            <input type="text" v-model="firstForm.sn" readonly :disabled="firstFormGui">
                         </li>
                         <li class="date">
                             <label>订单日期</label>
-                            <el-date-picker :disabled="firstFormOn" v-model="firstForm.activeDate" type="date" placeholder="选择日期" format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd"> </el-date-picker>
-                        </li>
+                            <el-date-picker :disabled="firstFormOn" v-model="firstForm.date" type="date" placeholder="选择日期" format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd"> </el-date-picker>
+                        </li>                      
                         <li class="date">
                             <label>入库日期</label>
-                            <el-date-picker :disabled="firstFormOn" v-model="firstForm.activeDate" type="date" placeholder="选择日期" format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd"> </el-date-picker>
+                            <el-date-picker :disabled="firstFormOn" v-model="firstForm.inDate" type="date" placeholder="选择日期" format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd"> </el-date-picker>
                         </li>
                         <li>
                             <label>品牌</label>
-                            <el-select class="size" v-model="sizeGroup" :disabled="firstFormOn" placeholder="必选">
-                                <el-option v-for="item in sizeGroupList" :key="item.name" :label="item.name" :value="item.name"> </el-option>
+                            <el-select class="size" v-model="firstForm.brand" :disabled="firstFormOn" placeholder="必选">
+                                <el-option v-for="item in brand" :key="item.name" :label="item.name" :value="item.name"> </el-option>
                             </el-select>
                         </li>
                         <li>
                             <label>生产单位</label>
-                            <el-select class="size" v-model="sizeGroup" :disabled="firstFormOn" placeholder="必选">
-                                <el-option v-for="item in sizeGroupList" :key="item.name" :label="item.name" :value="item.name"> </el-option>
+                            <el-select class="size" v-model="firstForm.productUnit" :disabled="firstFormOn" placeholder="必选">
+                                <el-option v-for="item in productUnit" :key="item.name" :label="item.name" :value="item.name"> </el-option>
                             </el-select>
                         </li>
                         <li>
                             <label>来源单号</label>
-                            <input type="text" v-model="firstForm.gsSn" readonly :disabled="firstFormOn" class="gui_input">
+                            <input type="text" v-model="firstForm.originSn" readonly :disabled="firstFormOn" class="gui_input">
                         </li>
 
                         <button :disabled="firstFormOn" :class="{btn:!firstFormOn}" class="save" @click="dosave">保存</button>
@@ -78,58 +82,49 @@
                     <div class="psn">
                         <ul class="clearfix">
                             <li>
-                                <label>来源单号</label>
-                                <input type="text" v-model="firstForm.gsSn" readonly  class="gui_input">
-                           </li>
-                        <button :disabled="firstFormOn" :class="{btn:!firstFormOn}" class="save" @click="dosave">查询</button>
-                        <button :disabled="firstFormOn" :class="{btn:!firstFormOn}" class="save" @click="dosave">导入</button>
-                           
+                                <label>款号</label>
+                                <input type="text" v-model="firstForm.psn" readonly class="gui_input">
+                            </li>
+                            <button :disabled="firstFormOn" :class="{btn:!firstFormOn}" class="save" @click="dosave">查询</button>
+                            <button :disabled="firstFormOn" :class="{btn:!firstFormOn}" class="save" @click="dosave">导入</button>
+
                         </ul>
                     </div>
                 </div>
 
-
                 <!-- 表格内容 -->
                 <div class="order_table">
-                    <el-table :data="list" stripe height="50vh" style="width: 100%">
-                        <el-table-column prop="name" label="仓库" min-width="12%">
+                    <!-- <div class="changeTable clearfix">
+                        <button class="changeTable_btn">主要信息</button>
+                        <button class="changeTable_btn">附加信息</button>
+                    </div> -->
+                    <el-table :data="list" stripe style="width: 100%" index @row-dblclick="chooseRow">
+                        <el-table-column prop="activeDate" label="品类" min-width="12.5%">
+                        </el-table-column>
+                        <el-table-column prop="clientName" label="名称" min-width="12.5%">
+                        </el-table-column>
+                        <el-table-column prop="spdaPsn" label="款号" min-width="12.5%">
+                        </el-table-column>
+                        <el-table-column prop="psn" label="颜色" min-width="12.5%">
+                        </el-table-column>
+                        <el-table-column prop="msg1" label="尺码" min-width="12.5%">
                             <template slot-scope="scope">
-                                <el-tooltip :content="scope.row.name" placement="top" :enterable="false">
-                                    <p>{{ scope.row.name }}</p>
-                                </el-tooltip>
+                                <el-button :disabled="(scope.row.sh == 1)" :class="{btn:scope.row.sh == 0}" @click="handleEdit(scope.$index, scope.row)">查看/修改</el-button>
                             </template>
                         </el-table-column>
-                        <el-table-column prop="areaName" label="库区" min-width="12%">
+                        <el-table-column prop="msg2" label="数量" min-width="12.5%">
+                        </el-table-column>
+                        <el-table-column fixed="right" label="操作" min-width="22%">
                             <template slot-scope="scope">
-                                <el-tooltip :content="scope.row.areaName" placement="top" :enterable="false">
-                                    <p>{{ scope.row.areaName }}</p>
-                                </el-tooltip>
-                            </template>
-                        </el-table-column>
-                        <el-table-column prop="jc" label="简称" min-width="8%">
-                        </el-table-column>
-                        <el-table-column prop="rowStart" label="列起数" min-width="8%">
-                        </el-table-column>
-                        <el-table-column prop="rowEnd" label="列止数" min-width="8%">
-                        </el-table-column>
-                        <el-table-column prop="columnStart" label="排起数" min-width="8%">
-                        </el-table-column>
-                        <el-table-column prop="columnEnd" label="排止数" min-width="8%">
-                        </el-table-column>
-                        <el-table-column prop="layerStart" label="层起数" min-width="8%">
-                        </el-table-column>
-                        <el-table-column prop="layerEnd" label="层止数" min-width="8%">
-                        </el-table-column>
-                        <el-table-column fixed="right" label="操作" min-width="20%">
-                            <template slot-scope="scope">
-                                <el-button :disabled='(scope.row.sh==1)' :class="{btn:(scope.row.sh==0)}" @click="handleEdit(scope.$index, scope.row)" type="text">修改</el-button>
-                                <el-button :disabled="(scope.row.status == 1||scope.row.sh == 1)" :class="{btn:(scope.row.status == 0&&scope.row.sh == 0)}" @click="effective(scope.$index, scope.row)" type="text">有效</el-button>
-                                <el-button :disabled="(scope.row.status == 0||scope.row.sh == 1)" :class="{btn:(scope.row.status == 1&&scope.row.sh == 0)}" @click="invalid(scope.$index, scope.row)" type="text">无效</el-button>
-
+                                <el-button :disabled="(scope.row.sh == 1)" :class="{btn:(scope.row.sh==0)}" @click="handleEdit(scope.$index, scope.row)">修改</el-button>
+                                <el-button :disabled="(scope.row.sh == 1)" :class="{btn:scope.row.sh == 0}" @click="tableDelete(scope.$index, scope.row)">删除</el-button>
+                                <el-button :disabled="(scope.row.stopStatus == 1)" :class="{btn:scope.row.stopStatus == 0}" @click="doExamines(scope.$index, scope.row)">终止</el-button>
+                                <el-button :disabled="(scope.row.closeStatus == 1)" :class="{btn:scope.row.closeStatus == 0}" @click="doExamineAgains(scope.$index, scope.row)">关款</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
                 </div>
+
             </div>
         </div>
 
@@ -251,8 +246,29 @@ export default {
 
             navMenus: [], //导航数据
 
-            firstForm: {},
-            list: [],
+            firstForm: {
+                sellSn:"",              //销售订单号
+                clientSn:"",            //客户编号
+                clientName:"",          //客户名称
+                deliveryDate:"",        //交货日期
+                date:"",                //订单日期
+                brand:"",               //品牌
+                sn:"",                  //生产订单号
+                inDate:"",              //入库日期
+                productUnitSn:"",       //生产单位编码
+                productUnit:"",         //生产单位
+                originSn:"",           //来源单号
+                psn:"",                 //款号
+                sh:"-1",                //审核
+                stopStatus:"-1",         //终止
+                closeStatus:"-1"        //关单
+            },
+            list: [
+                { activeDate: "2018-12-1" },
+                { activeDate: "2018-12-1" },
+                { activeDate: "2018-12-1" },
+                { activeDate: "2018-12-1" }
+            ], // 表格内容
 
             //编辑弹窗开关
             editVisible: false,
