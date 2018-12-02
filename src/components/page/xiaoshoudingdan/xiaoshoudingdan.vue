@@ -39,18 +39,18 @@
                     <ul class="clearfix">
                         <li>
                             <label>订单日期</label>
-                            <el-date-picker format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd" v-model="form.activeDate" type="date" placeholder="选择日期" :disabled="formOff">
+                            <el-date-picker format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd" v-model="form.activeDate" type="date" placeholder="必填" :disabled="formOff">
                             </el-date-picker>
                         </li>
                         <li class="menuLi">
                             <label>客户</label>
-                            <input type="text" class="first" v-model="form.customer" :disabled="formOff">
-                            <input type="text" v-model="form.customer" :disabled="formOff">
-                            <button :disabled="formOff">。。。</button>
+                            <input type="text" class="first" placeholder="必填" v-model="form.clientSn" :disabled="formOff" @click="customerFun">
+                            <input type="text" v-model="form.clientName" :disabled="formOff" @click="customerFun">
+                            <button :disabled="formOff" @click="customerFun">。。。</button>
                         </li>
                         <li>
                             <label>属性</label>
-                            <el-select v-model="form.property" placeholder="请选择" :disabled="formOff">
+                            <el-select v-model="form.property" placeholder="必选" :disabled="formOff">
                                 <el-option v-for="item in this.property" :key="item.name" :label="item.name" :value="item.name">
                                 </el-option>
                             </el-select>
@@ -66,11 +66,11 @@
                     <ul class="clearfix">
                         <li>
                             <label>交货地址</label>
-                            <input type="text" v-model="form.psn" :disabled="formOff">
+                            <input type="text" placeholder="必填" v-model="form.address" :disabled="formOff">
                         </li>
                         <li>
                             <label>交货日期</label>
-                            <el-date-picker format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd" v-model="form.activeDate" type="date" placeholder="选择日期" :disabled="formOff">
+                            <el-date-picker format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd" v-model="form.deliveryDate" type="date" placeholder="必填" :disabled="formOff">
                             </el-date-picker>
                         </li>
                         <li>
@@ -79,11 +79,11 @@
                         </li>
                         <li>
                             <label>来源号</label>
-                            <input type="text" :disabled="formOff">
+                            <input type="text" :disabled="formOff" v-model="form.originSn">
                         </li>
                         <li>
                             <label>品牌</label>
-                            <el-select v-model="form.brand" placeholder="请选择" :disabled="formOff">
+                            <el-select v-model="form.brand" placeholder="必选" :disabled="formOff">
                                 <el-option v-for="item in this.brand" :key="item.name" :label="item.name" :value="item.name">
                                 </el-option>
                             </el-select>
@@ -92,35 +92,35 @@
                     <ul class="clearfix">
                         <li>
                             <label>价格性质</label>
-                            <el-select v-model="form.priceNature" placeholder="请选择" :disabled="formOff">
+                            <el-select v-model="form.priceNature" placeholder="必选" :disabled="formOff">
                                 <el-option v-for="item in this.priceNature" :key="item.name" :label="item.name" :value="item.name">
                                 </el-option>
                             </el-select>
                         </li>
                         <li>
                             <label>价格类型</label>
-                            <el-select v-model="form.priceType" placeholder="请选择" :disabled="formOff">
+                            <el-select v-model="form.priceType" placeholder="必选" :disabled="formOff">
                                 <el-option v-for="item in this.priceType" :key="item.name" :label="item.name" :value="item.name">
                                 </el-option>
                             </el-select>
                         </li>
                         <li>
                             <label>币别</label>
-                            <el-select v-model="form.currency" placeholder="请选择" :disabled="formOff">
+                            <el-select v-model="form.currency" placeholder="必选" :disabled="formOff">
                                 <el-option v-for="item in this.currency" :key="item.name" :label="item.name" :value="item.name">
                                 </el-option>
                             </el-select>
                         </li>
                         <li>
                             <label>结算方式</label>
-                            <el-select v-model="form.balanceMode" placeholder="请选择" :disabled="formOff">
+                            <el-select v-model="form.balanceMode" placeholder="必选" :disabled="formOff">
                                 <el-option v-for="item in this.balanceMode" :key="item.name" :label="item.name" :value="item.name">
                                 </el-option>
                             </el-select>
                         </li>
                         <li>
                             <label>备注</label>
-                            <input type="text" :disabled="formOff">
+                            <input type="text" :disabled="formOff" v-model="form.remark">
                         </li>
                         <button class="save" @click="doSaves" :class="{button_btn:!formOff}" :disabled="formOff">保存</button>
                     </ul>
@@ -174,6 +174,17 @@
                 </div>
             </div>
         </div>
+
+        <!-- 获取客户信息弹窗 -->
+        <el-dialog title="客户信息" :visible.sync="customerOff">
+            <el-input v-model="customerInfo" placeholder="客户编号 / 客户名称"></el-input>
+            <ul class="srcond_menu">
+                <li v-if="customerList.length===0">暂无数据</li>
+                <li class="clearfix" v-for="(item,i) in customerList" :key="i">
+                    <span class="search" @click="getSearchItem(item)">|--{{item.sn}}-{{item.name}}</span>
+                </li>
+            </ul>
+        </el-dialog>
     </div>
 </template>
 
@@ -224,12 +235,10 @@ export default {
       priceType: [], // 价格类型选择
       currency: [], // 币别选择
       balanceMode: [], // 结算方式选择
-      list: [
-          {activeDate: "2018-12-1"},
-          {activeDate: "2018-12-1"},
-          {activeDate: "2018-12-1"},
-          {activeDate: "2018-12-1"}          
-      ], // 表格内容
+      list: [], // 表格内容
+      customerInfo: "", // 客户弹窗查询内容
+      customerOff: false, // 客户弹窗开关
+      customerList: [], // 客户弹窗列表 
     };
   },
 
@@ -242,6 +251,23 @@ export default {
     // 取消
     doCancels() {
         this.formOff = true;
+        this.form = {
+            activeDate: "", // 订单日期
+            clientSn: "", // 客户编号
+            clientName: "", // 客户名称
+            property: "", // 属性
+            repertory: "", // 仓库
+            address: "", // 交货地址
+            deliveryDate: "", // 交货日期
+            sn: "", // 订单号
+            originSn: "", // 来源号
+            brand: "", // 品牌
+            priceNature: "", // 价格性质
+            priceType: "", // 价格类型
+            currency: "", // 币别
+            balanceMode: "", // 结算方式
+            remark: "" // 备注
+        }
     },
 
     // 修改
@@ -282,9 +308,9 @@ export default {
 
     // 获取左侧树形导航数据
     getnavMenu() {
-        // this.$http.post("/TPA/dSellPsn/list").then(res => {
-        //     console.log(res)
-        // })
+        this.$http.post("/TPA/dSellOrder/tree").then(res => {
+            console.log(res)
+        })
     },
 
     // 获取所有下拉选择的数据
@@ -354,8 +380,31 @@ export default {
     // 点击左侧导航
     menuSelected() {},
 
+    // 点击弹出客户弹窗
+    customerFun() {
+        this.customerOff = true;
+    },
+
+     // 客户弹窗选择
+    getSearchItem(item) {
+      this.customerInfo = "";
+      this.customerOff = false;
+      this.form.clientSn = item.sn;
+      this.form.clientName = item.name;
+    },
+
     // 表单保存
     doSaves() {
+        let terms = this.form.activeDate && this.form.clientSn && this.form.priceType && this.form.address 
+        && this.form.deliveryDate && this.form.brand && this.form.priceNature && this.form.priceType
+        && this.form.currency && this.form.balanceMode;
+        if(terms) {
+            this.$http.post("/TPA/dSellOrder/insert", qs.stringify(this.form)).then(res => {
+                console.log(res)
+            })
+        } else {
+            error("请填写所有必填项");
+        }
         this.formOff = true;
     },
 
@@ -368,6 +417,21 @@ export default {
   mounted() {
     this.getnavMenu();
     this.getChoose();
+  },
+
+  watch: {
+    customerInfo() {
+      if (this.customerInfo.length !== 0) {
+        this.$http.post("/TPA/aKsDa/option?nature=客户&name=" + this.customerInfo).then(res => {
+            this.customerList = res.data.data;
+          })
+          .catch(err => {
+            NetworkAnomaly();
+          });
+      } else {
+        this.customerList = [];
+      }
+    }
   },
 
   computed: {

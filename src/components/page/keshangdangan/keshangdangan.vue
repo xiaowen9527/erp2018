@@ -28,7 +28,7 @@
                 <ul>
                     <li>
                         <label>性质</label>
-                        <input type="text" v-model="form.type" :disabled="doSave" @click="handleType" readonly placeholder="请选择">
+                        <input type="text" v-model="form.nature" :disabled="doSave" @click="handleType" readonly placeholder="请选择">
                     </li>
                     <li>
                         <label>合作范围</label>
@@ -94,8 +94,8 @@
                         <input type="text" v-model="form.nsh" :disabled="doSave">
                     </li>
                     <li>
-                        <label>公司类别</label>
-                        <input type="text" v-model="form.nature" :disabled="doSave" @click="handleNature" readonly placeholder="请选择">
+                        <label>客商类别</label>
+                        <input type="text" v-model="form.type" :disabled="doSave" @click="handleNature" readonly placeholder="请选择">
                     </li>
                     <li class="company">
                         <label>归属公司</label>
@@ -147,7 +147,7 @@
                 </li>
             </ul>
         </el-dialog>
-        <el-dialog title="公司类别" :visible.sync="natureStatus">
+        <el-dialog title="客商类别" :visible.sync="natureStatus">
             <ul class="srcond_menu">
                 <li v-if="NatureList.length===0">暂无数据</li>
                 <li v-for="(item,i) in NatureList" :key="i">
@@ -538,10 +538,10 @@
             },
             //选择性质
             getType(item) {
-                this.form.type = item.name;
+                this.form.nature = item.name;
                 this.typeStatus = false;
             },
-            //获取公司类别
+            //获取客商类别
             handleNature() {
                 this.$http
                     .post("/TPA/aLbJb/getBySn?sn=024")
@@ -560,7 +560,7 @@
             },
             //选择类别
             getNature(item) {
-                this.form.nature = item.name;
+                this.form.type = item.name;
                 this.natureStatus = false;
             },
             //获取价格类型

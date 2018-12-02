@@ -98,7 +98,7 @@
                         <button class="changeTable_btn">主要信息</button>
                         <button class="changeTable_btn">附加信息</button>
                     </div> -->
-                    <el-table :data="list" stripe style="width: 100%" index @row-dblclick="chooseRow">
+                    <el-table :data="list" stripe style="width: 100%" index >
                         <el-table-column prop="activeDate" label="品类" min-width="12.5%">
                         </el-table-column>
                         <el-table-column prop="clientName" label="名称" min-width="12.5%">
@@ -245,6 +245,9 @@ export default {
             oldSearchList: [], //查询框列表
 
             navMenus: [], //导航数据
+
+            brand:[],
+            productUnit:[],
 
             firstForm: {
                 sellSn:"",              //销售订单号

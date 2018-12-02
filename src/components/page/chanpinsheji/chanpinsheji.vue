@@ -126,6 +126,13 @@
                             </el-select>
                         </li>
                         <li class="wide">
+                            <label>单位</label>
+                            <el-select :disabled="secondFormOn" v-model="firstForm.unit" placeholder="请选择">
+                                <el-option v-for="item in this.unit" :key="item.name" :label="item.name" :value="item.name">
+                                </el-option>
+                            </el-select>
+                        </li>
+                        <li class="wide">
                             <label>设计款号</label>
                             <input class="wideinp" v-model="firstForm.pSn" type="text" disabled placeholder="自动生成">
                         </li>
@@ -402,6 +409,7 @@ export default {
                 sizePidName: "",
                 designer: "", //设计师
                 designerSn: "", //设计师工号
+                unit:"",
                 qr: false, //大货
                 // originPsn: "" // 来源款号
             },
@@ -415,6 +423,7 @@ export default {
             color: [],
             style: [],
             size: [],
+            unit:[],
 
             printList: [],
             imgArr:[],
@@ -563,6 +572,7 @@ export default {
             this.addEdit = false;
             this.getStyle();
             this.getDesigner();
+            this.getUnit()
         },
         //删除
         doDeletes() {
@@ -1319,6 +1329,20 @@ export default {
                     NetworkAnomaly();
                 });
         },
+        //获取单位
+        getUnit(){
+            this.$http.post('/TPA/aLbJb/getBySn?sn=006')
+                .then(res=>{
+                    if(res.data.code===0){
+                        this.unit = res.data.data
+                    }else{
+                        error(res.data.msg)
+                    }
+                })
+                .catch(err=>{
+                    NetworkAnomaly()
+                })
+        },
         //获取款式
         getStyle(name) {
             this.$http
@@ -1405,6 +1429,7 @@ export default {
                         console.log(this.firstForm.lbch2Name)
                         this.getStyle(this.firstForm.lbch2Name);
                         this.getDesigner();
+                        this.getUnit()
                     } else {
                         error(res.data.msg);
                     }

@@ -209,8 +209,9 @@ export default {
         page: 0,
         count: this.pageSize
       };
-      localStorage.setItem("psn", this.queryInfo);
-      this.queryFun(queryInfo);
+      this.pageParams = queryInfo;
+      // localStorage.setItem("psn", this.queryInfo);
+      this.queryFun(this.pageParams);
     },
 
     // 退出按钮
@@ -233,7 +234,8 @@ export default {
               page: 0,
               count: this.pageSize
             };
-            this.queryFun(queryInfo);
+            this.pageParams = queryInfo;
+            this.queryFun(this.pageParams);
           } else {
             error(res.data.msg);
           }
@@ -288,7 +290,8 @@ export default {
         count: this.pageSize,
         msg: "NULL"
       };
-      this.queryFun(queryInfo);
+      this.pageParams = queryInfo;
+      this.queryFun(this.pageParams);
     },
 
     // 审核按钮
@@ -338,10 +341,11 @@ export default {
         count: this.pageSize,
         msg: "NULL"
       };
+      this.pageParams = queryInfo;
       // console.log(queryInfo);
       // 因为数据请求返回的速度有延迟，所以更新列表需要设置一下延迟
       setTimeout(() => {
-        this.queryFun(queryInfo);
+        this.queryFun(this.pageParams);
       }, 500);
     },
 
@@ -395,20 +399,22 @@ export default {
         page: this.page,
         count: this.pageSize
       };
-      localStorage.setItem("psn", e);
+      // localStorage.setItem("psn", e);
+      this.pageParams = queryInfo;
       // console.log(e);
-      this.queryFun(queryInfo);
+      this.queryFun(this.pageParams);
     },
 
     //点击页码
     currentPage(val) {
-      let psn = localStorage.getItem("psn");
-      var queryInfo = {
-        psn: psn,
-        page: val - 1,
-        count: this.pageSize
-      };
-      this.queryFun(queryInfo);
+      // let psn = localStorage.getItem("psn");
+      // var queryInfo = {
+      //   psn: psn,
+      //   page: val - 1,
+      //   count: this.pageSize
+      // };
+      this.pageParams.page = val - 1;
+      this.queryFun(this.pageParams);
     }
   },
 

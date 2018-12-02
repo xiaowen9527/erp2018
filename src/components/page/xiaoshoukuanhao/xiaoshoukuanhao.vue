@@ -209,8 +209,9 @@ export default {
       //分页：当前页码/总数量/每页显示条数
       page: 0,
       total: "",
-      pageSize: 2,
+      pageSize: 10,
       pageOnOff: false,
+      pageParams: {}
     };
   },
 
@@ -298,17 +299,20 @@ export default {
       window.location.href = "/TPA/dSellPsn/exportExcel";
     },
 
-    searchFun(val) {
-        let params = {
-            page: this.page,
-            total: this.total,
-            pageSize: this.pageSize,
-            name: val
-        }
-        this.$http.post("/TPA/dSellPsn/search", qs.stringify(params)).then(res => {
+    searchFun(params) {
+        
+        this.$http.post("/TPA/dSellPsn/search?delStatus=0", qs.stringify(params)).then(res => {
             if(res.data.code === 0) {
                 succ(res.data.msg);
                 this.list = res.data.data.list;
+
+                this.total = res.data.data.total;
+                console.log(this.total)
+                if (this.total > this.pageSize) {
+                    this.pageOnOff = true;
+                } else {
+                    this.pageOnOff = false;
+                }
             }
         })
         .catch(err => {
@@ -340,7 +344,13 @@ export default {
 
     // 点击左侧导航
     menuSelected(index) {
-        this.searchFun(index)
+        let params = {
+            page: this.page,
+            count: this.pageSize,
+            name: index
+        }
+        this.pageParams = params;
+        this.searchFun(this.pageParams)
     },
 
     // 点击弹出客户弹窗
@@ -362,7 +372,13 @@ export default {
         this.$http.post("/TPA/dSellPsn/insert", qs.stringify(this.form)).then(res => {
             console.log(res)
             this.form.spdaPsn = "";
-            this.searchFun(res.data.data.clientSn);
+            let params = {
+                page: this.page,
+                count: this.pageSize,
+                name: res.data.data.clientSn
+            }
+            this.pageParams = params;
+            this.searchFun(this.pageParams)
         })
         .catch(err => {
           NetworkAnomaly();
@@ -395,7 +411,8 @@ export default {
     saveEdit() {
         this.$http.post("/TPA/dSellPsn/update", qs.stringify(this.dialog)).then(res => {
             if(res.data.code === 0) {
-                this.searchFun(this.dialog.clientSn)
+                this.pageParams.name = this.dialog.clientSn;
+                this.searchFun(this.pageParams)
             }
         })
         this.handleEditOff = false;
@@ -407,7 +424,8 @@ export default {
         const item = this.list[index];
         this.$http.post("/TPA/dSellPsn/delete?id=" + item.id).then(res => {
             if(res.data.code === 0) {
-                this.searchFun(item.clientSn)
+                this.pageParams.name = item.clientSn;
+                this.searchFun(this.pageParams)
             }
         })
         .catch(err => {
@@ -421,7 +439,8 @@ export default {
         const item = this.list[index];
         this.$http.post("/TPA/dSellPsn/auditing?status=1&id=" + item.id).then(res => {
             if(res.data.code === 0) {
-                this.searchFun(item.clientSn)
+                this.pageParams.name = item.clientSn;
+                this.searchFun(this.pageParams)
             }
         })
         .catch(err => {
@@ -435,7 +454,8 @@ export default {
         const item = this.list[index];
         this.$http.post("/TPA/dSellPsn/auditing?status=0&id=" + item.id).then(res => {
             if(res.data.code === 0) {
-                this.searchFun(item.clientSn)
+                this.pageParams.name = item.clientSn;
+                this.searchFun(this.pageParams)
             }
         })
         .catch(err => {
@@ -445,8 +465,8 @@ export default {
 
     // 获取当前页码
     currentPage(val) {
-        this.page = val - 1;
-        this.searchFun();
+        this.pageParams.page = val - 1;
+        this.searchFun(this.pageParams);
     }
   },
 
