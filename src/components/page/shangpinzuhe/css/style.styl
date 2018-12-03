@@ -1,34 +1,37 @@
 .btn-box
-    min-width 1200px
+    min-width 800px
 .set_box
     height 76vh
     .menu_box
-        width 18%
+        width 15%
         height 75.4vh
     .set_info
-        width 81.2%
+        width 84%
         overflow hidden
         margin-right 1vh
+        .secondForm
+            height 68vh
         .firstForm
             min-width 1050px
             ul
                 li
-                    width 30%
+                    width 23%
                     &.gui
-                        width 35%
+                        width 50%
                         label
                             width 20%
                         .gui_num
-                            width 25%
-                        .gui_input
-                            width: 45%
+                            width 20%
                         input
-                            width 60%
+                            width 40%
                     &.date
                         .el-date-editor
                             width: 60%
-
-
+                    &.input
+                        width: 15%
+                        .size 
+                            width: 95%
+                            margin-left 5%
                 .save
                     padding 0 1vh
                     height 3.5vh
@@ -44,25 +47,19 @@
                     font-weight bold
                     color #409eff
 
-.container>>>.el-textarea
-        height: 3.5vh
-        width: 60%
-        .el-textarea__inner
-            height: 3.5vh !important
 //下拉
 .container>>>.el-select>.el-input 
   display: inline-block;
 .container>>> .el-date-editor.el-input 
-  width: 60%;
+  width: 100%;
   font-size: 1.4vh;
 .container>>> .size 
-  width: 55% !important;
-  margin-right: 1vh;
+  width: 95% !important;
   input 
     padding: 0
 .container>>> .el-input__icon 
-  height: auto;
-        
+  height: auto;                    
+
 //表单日期选择器
 .container>>>.el-input__inner
      width: 100% !important  
@@ -77,31 +74,33 @@
 // 弹出框
 .container>>>.el-dialog
     width 400px
-    height 400px
+    height 500px
 .container>>>.el-dialog__body
     cursor pointer !important
     line-height 2.5vh
     font-weight bold
     padding 1vh 2vh
-    height 340px
     overflow-y: auto
+    .el-dialog__headerbtn
+        border none
+    .el-input
+        width 80%
+        float left
+    button
+        height 40px 
+        width 60px
+        background #ffffff
+        margin-left 10px 
+        border 1px solid #409EFF
+        color #409EFF       
     li  
         :hover
             background: #d2d2d2
-        span 
-            padding-left: 2vh
-// 修改弹窗input样式
-.el-dialog__body .el-form-item
-  margin-bottom: 5px
-.el-dialog__body .el-form-item .el-form-item__content .el-input
-  width: 70%
 
- 
 // 表格
 .order_table
   width: 99%
-  min-width 1080px
-  margin: 5px auto 0
+  margin: 5px auto 10px
   overflow: hidden
   .el-button
     padding: 0.6vh 1vh
@@ -112,6 +111,11 @@
         border: 1px solid #409eff
       
 
+// 修改弹窗input样式
+.el-dialog__body .el-form-item
+  margin-bottom: 5px
+.el-dialog__body .el-form-item .el-form-item__content .el-input
+  width: 70%
 
 .container>>>th, .order_table>>>.el-table td, .el-table th
   padding: 0

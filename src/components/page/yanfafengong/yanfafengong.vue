@@ -110,6 +110,7 @@
 
         <el-dialog title="请输入研发姓名" :visible.sync="oldSearch">
             <el-input v-model="search" placeholder="请输入研发姓名"></el-input>
+            <button class="button_btn" @click="vagueSearch">查询</button>
             <ul class="srcond_menu">
                 <li v-if="searchList.length===0">暂无数据</li>
                 <li class="clearfix" v-for="(item,i) in searchList" :key="i">
@@ -604,7 +605,36 @@ export default {
         //获取当前页码
         currentPage(val) {
             this.page = val;
-        }
+        },
+        //模糊查询
+        vagueSearch(){
+            this.searchList = []
+            if (this.search) {
+                let search = {
+                    rdName: 17 + "|" + this.search
+                };
+                let searchStr = JSON.stringify(search);
+                this.$http
+                    .post("/TPA/cYffg/search?search=" + searchStr)
+                    .then(res => {
+                        if(res.data.code===0){
+                            if(res.data.data.list.length){
+                                this.searchList = res.data.data.list;
+                            }else{
+                                error('暂无数据')
+                                this.searchList = []
+                            }
+                        }else{
+                            error(res.data.msg)
+                        }
+                    })
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });
+            }else{
+                error('请输入搜索条件！')              
+            }
+        },
     },
     mounted() {
         this.getnavMenu();
@@ -613,24 +643,7 @@ export default {
         page() {
             this.pageParams.page = this.page - 1
             this.getPageData();
-        },
-        //模糊查询
-        search(){
-            if(this.search){
-                let search = {
-                    rdName: 17 + "|" + this.search
-                };
-                let searchStr = JSON.stringify(search);  
-                this.$http
-                    .post("/TPA/cYffg/search?search=" + searchStr)
-                    .then(res => {
-                        this.searchList = res.data.data.list;
-                    })
-                    .catch(err => {
-                        NetworkAnomaly();
-                    });                              
-            }
-        }        
+        },   
     },
     computed: {
         ...mapState(["collapse"])
@@ -665,12 +678,22 @@ export default {
     line-height 3.5vh
     font-weight bold
     padding 1vh 2vh
+    .el-input
+        width 80%
+        float left
+    button
+        height 40px 
+        width 60px
+        background #ffffff
+        margin-left 10px  
+        border 1px solid #409EFF
+        color #409EFF    
 .container>>>.el-dialog__body span
     width 50%
     display block
     float left    
 .el-select>>>.el-input
-    display inline-block
+    display inline-block    
 .srcond_menu
     li
         &:hover

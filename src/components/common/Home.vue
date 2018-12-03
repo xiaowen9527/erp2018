@@ -146,6 +146,7 @@ export default {
     shengchanpici: resolve =>require(["@/components/page/shengchanpici/shengchanpici"], resolve),
     cangkushezhi: resolve =>require(["@/components/page/cangkushezhi/cangkushezhi"], resolve),
     xiaoshoudingdan: resolve =>require(["@/components/page/xiaoshoudingdan/xiaoshoudingdan"], resolve),
+    shangpinzuhe: resolve =>require(["@/components/page/shangpinzuhe/shangpinzuhe"], resolve),
   }
 };
 </script>

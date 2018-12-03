@@ -35,30 +35,34 @@
                     <ul class="clearfix">
                         <li class="gui">
                             <label>销售单号</label>
-                            <input type="text" placeholder="必选" v-model="firstForm.sellSn" readonly :disabled="firstFormGui">
-                            <button :disabled="firstFormGui" :class="{btn:!firstFormGui}" @click="handleGsName">查询</button>
+                            <input type="text" placeholder="必选" v-model="firstForm.sellSn" readonly :disabled="firstFormGui" @click="handleSellSn">
+                            <button :disabled="firstFormGui" :class="{btn:!firstFormGui}" @click="handleSellSn">查询</button>
                         </li>
                         <li class="gui">
                             <label>客户</label>
-                            <input type="text" v-model="firstForm.clientSn" readonly :disabled="firstFormGui" class="gui_num">
-                            <input type="text" v-model="firstForm.clientName" readonly :disabled="firstFormGui" class="gui_input">
+                            <input type="text" v-model="firstForm.clientSn" readonly disabled class="gui_num">
+                            <input type="text" v-model="firstForm.clientName" readonly disabled class="gui_input">
                         </li>
 
                         <li class="date">
                             <label>交货日期</label>
-                            <input type="text" v-model="firstForm.deliveryDate" readonly :disabled="firstFormGui" class="gui_input">
+                            <input type="text" v-model="firstForm.deliveryDate" readonly disabled class="gui_input">
+                        </li>
+                        <li>
+                            <label>仓库</label>
+                            <input type="text" v-model="firstForm.repertory" readonly disabled class="gui_input">
                         </li>
                         <li>
                             <label>生产单号</label>
-                            <input type="text" v-model="firstForm.sn" readonly :disabled="firstFormGui">
+                            <input type="text" v-model="firstForm.sn" readonly disabled placeholder="自动生成">
                         </li>
                         <li class="date">
                             <label>订单日期</label>
-                            <el-date-picker :disabled="firstFormOn" v-model="firstForm.date" type="date" placeholder="选择日期" format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd"> </el-date-picker>
+                            <el-date-picker :disabled="firstFormOn" v-model="firstForm.date" type="date" placeholder="必选" format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd"> </el-date-picker>
                         </li>                      
                         <li class="date">
                             <label>入库日期</label>
-                            <el-date-picker :disabled="firstFormOn" v-model="firstForm.inDate" type="date" placeholder="选择日期" format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd"> </el-date-picker>
+                            <el-date-picker :disabled="firstFormOn" v-model="firstForm.inDate" type="date" placeholder="必选" format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd"> </el-date-picker>
                         </li>
                         <li>
                             <label>品牌</label>
@@ -73,10 +77,13 @@
                             </el-select>
                         </li>
                         <li>
-                            <label>来源单号</label>
-                            <input type="text" v-model="firstForm.originSn" readonly :disabled="firstFormOn" class="gui_input">
+                            <label>备注</label>
+                            <el-input type="textarea" v-model="firstForm.remark" placeholder="最大200字符" maxlength="200" :disabled="firstFormOn" class="gui_input"></el-input>
                         </li>
-
+                        <li>
+                            <label>来源单号</label>
+                            <input type="text" v-model="firstForm.originSn" :disabled="firstFormOn" class="gui_input">
+                        </li>
                         <button :disabled="firstFormOn" :class="{btn:!firstFormOn}" class="save" @click="dosave">保存</button>
                     </ul>
                     <div class="psn">
@@ -87,17 +94,12 @@
                             </li>
                             <button :disabled="firstFormOn" :class="{btn:!firstFormOn}" class="save" @click="dosave">查询</button>
                             <button :disabled="firstFormOn" :class="{btn:!firstFormOn}" class="save" @click="dosave">导入</button>
-
                         </ul>
                     </div>
                 </div>
 
                 <!-- 表格内容 -->
                 <div class="order_table">
-                    <!-- <div class="changeTable clearfix">
-                        <button class="changeTable_btn">主要信息</button>
-                        <button class="changeTable_btn">附加信息</button>
-                    </div> -->
                     <el-table :data="list" stripe style="width: 100%" index >
                         <el-table-column prop="activeDate" label="品类" min-width="12.5%">
                         </el-table-column>
@@ -134,14 +136,15 @@
         </div>
 
         <!-- 销售单号 -->
-        <!-- <el-dialog title="销售单号" :visible.sync="oldGsName">
+        <el-dialog title="销售单号" :visible.sync="oldSellSn">
+            <el-input v-model="sellSn" placeholder="销售单号"></el-input>
             <ul class="srcond_menu">
-                <li v-if="oldGsNameList.length===0">暂无数据</li>
-                <li v-for="(item,i) in oldGsNameList" :key="i">
-                    <span @click="getItemGsName(item)">|--{{item.name}}</span>
+                <li v-if="sellSnList.length===0">暂无数据</li>
+                <li class="clearfix" v-for="(item,i) in sellSnList" :key="i">
+                    <span @click="getItemSellSn(item)">|--{{item.sn}}</span>
                 </li>
             </ul>
-        </el-dialog> -->
+        </el-dialog>
 
         <!-- 查询框 -->
         <el-dialog title="查询公司" :visible.sync="oldSearch">
@@ -149,7 +152,7 @@
             <ul class="srcond_menu">
                 <p v-if="oldSearchList.length===0">暂无数据</p>
                 <li v-for="(item,i) in oldSearchList" :key="i" class="clearfix">
-                    <span @click="getItemSearch(item)">{{item.name}}</span>
+                    <span @click="getItemSearch(item)">{{item.sn}}</span>
                 </li>
             </ul>
         </el-dialog>
@@ -243,6 +246,9 @@ export default {
             search: "",
             oldSearch: false, //查询框开关
             oldSearchList: [], //查询框列表
+            sellSn:"",          //销售单号查询
+            oldSellSn:false,
+            sellSnList:[],
 
             navMenus: [], //导航数据
 
@@ -260,7 +266,9 @@ export default {
                 inDate:"",              //入库日期
                 productUnitSn:"",       //生产单位编码
                 productUnit:"",         //生产单位
+                repertory:"",           //仓库
                 originSn:"",           //来源单号
+                remark:"",              //备注
                 psn:"",                 //款号
                 sh:"-1",                //审核
                 stopStatus:"-1",         //终止
@@ -356,52 +364,55 @@ export default {
             this.emptyBtnTo();
             this.noDisabledFirstForm();
 
-            this.getGsName(); //获取公司列表
+            this.getBrand()
+            this.getProductUnit()
         },
         // 保存
-        dosave() {
-            let terms =
-                this.firstForm.gsSn ||
-                this.firstForm.gsName ||
-                this.firstForm.sn ||
-                this.firstForm.name ||
-                this.firstForm.areaName ||
-                this.firstForm.jc ||
-                this.firstForm.rowStart ||
-                this.firstForm.rowEnd ||
-                this.firstForm.columnStart ||
-                this.firstForm.columnEnd ||
-                this.firstForm.layerStart ||
-                this.firstForm.layerEnd ||
-                this.firstForm.activeDate;
-
+        dosave() {      
+            for(let i in this.productUnit){
+                if(this.firstForm.productUnit == this.productUnit[i].name){
+                    this.firstForm.productUnitSn = this.productUnit[i].sn
+                }
+            }
             console.log(this.firstForm);
+            
+            let terms =
+                this.firstForm.sellSn ||
+                this.firstForm.clientSn ||
+                this.firstForm.clientName ||
+                this.firstForm.deliveryDate ||
+                this.firstForm.date ||
+                this.firstForm.brand ||
+                this.firstForm.sn ||
+                this.firstForm.inDate ||
+                this.firstForm.productUnitSn ||
+                this.firstForm.productUnit
 
             if (!terms) {
                 error("请完善表单必填项！");
             } else {
                 this.$http
                     .post(
-                        "/TPA/aRepertory/insert",
+                        "/TPA/dProductOrder/insert",
                         qs.stringify(this.firstForm)
                     )
                     .then(res => {
                         if (res.data.code === 0) {
                             succ(res.data.msg);
-                            this.getnavMenus();
-                            let gsSn = this.firstForm.gsSn;
-                            let gsName = this.firstForm.gsName;
-                            let sn = this.firstForm.sn;
-                            let name = this.firstForm.name;
+                            // this.getnavMenus();
+                            // let gsSn = this.firstForm.gsSn;
+                            // let gsName = this.firstForm.gsName;
+                            // let sn = this.firstForm.sn;
+                            // let name = this.firstForm.name;
 
-                            this.emptyFirstForm();
-                            this.firstForm.gsSn = gsSn;
-                            this.firstForm.gsName = gsName;
-                            this.firstForm.sn = sn;
-                            this.firstForm.name = name;
-                            this.firstFormGui = true;
+                            // this.emptyFirstForm();
+                            // this.firstForm.gsSn = gsSn;
+                            // this.firstForm.gsName = gsName;
+                            // this.firstForm.sn = sn;
+                            // this.firstForm.name = name;
+                            // this.firstFormGui = true;
 
-                            this.getPageData(this.firstForm.gsName);
+                            // this.getPageData(this.firstForm.gsName);
                         } else {
                             error(res.data.msg);
                         }
@@ -508,41 +519,58 @@ export default {
             window.location.href = "/TPA/aRepertory/exportExcel";
         },
 
-        //点击公司开关
-        handleGsName() {
-            this.oldGsName = true;
-            this.gsName = "";
+        //点击查询销售单号
+        handleSellSn() {
+            this.oldSellSn = true;
+            this.sellSnList = [];
+            this.sellSn = ''
         },
-        //获取公司列表
-        getGsName() {
-            this.$http
-                .post("/TPA/aRepertory/getBy")
-                .then(res => {
-                    if (res.data.code === 0) {
-                        this.oldGsNameList = res.data.data;
-                    } else {
-                        error(res.data.msg);
-                    }
-                })
-                .catch(err => {
-                    NetworkAnomaly();
-                });
+
+        //选择销售单号
+        getItemSellSn(item) {
+            this.oldSellSn = false
+            this.firstForm.sellSn = item.sn
+            this.firstForm.clientName = item.clientName
+            this.firstForm.clientSn = item.clientSn
+            this.firstForm.deliveryDate = item.date
+            this.firstForm.repertory = item.repertory
+            
         },
-        //选择公司
-        getItemGsName(item) {
-            this.oldGsName = false;
-            this.firstForm.gsName = item.name;
-            this.firstForm.gsSn = item.sn;
-        },
-        //获取查询列表
-        getSearch() {},
         //选择查询
         getItemSearch(item) {},
 
+        //获取品牌
+        getBrand(){
+            this.$http.post('/TPA/aLbJb/getBySn?sn=003')
+                .then(res=>{
+                    if(res.data.code===0){
+                        this.brand = res.data.data
+                    }else{
+                        error(res.data.msg)
+                    }
+                })
+                .catch(error=>{
+                    NetworkAnomaly()
+                })
+        },
+        //获取生产单位
+        getProductUnit(){
+            this.$http.post('/TPA/aGsZzjg/search?sczz=1')
+                .then(res=>{
+                    if(res.data.code===0){
+                        this.productUnit = res.data.data.list
+                    }else{
+                        error(res.data.msg)
+                    }                 
+                })
+                .catch(error=>{
+                    NetworkAnomaly()
+                })            
+        },
         //获取导航
         getnavMenus() {
             this.$http
-                .post("/TPA/aRepertory/tree")
+                .post("/TPA/dProductOrder/list")
                 .then(res => {
                     if (res.data.code === 0) {
                         this.navMenus = res.data.data;
@@ -694,6 +722,26 @@ export default {
         importbox() {
             if (!this.importbox) {
                 this.$refs.upload.clearFiles();
+            }
+        },
+        //模糊搜索销售单号
+        sellSn(){
+            if(this.sellSn){
+                let search = {
+                    sn: 17 + "|" + this.sellSn
+                }
+                let searchStr = JSON.stringify(search);  
+                this.$http.post('/TPA/dSellOrder/search?search='+searchStr)
+                    .then(res=>{
+                        if(res.data.code===0){
+                            this.sellSnList = res.data.data.list
+                        }else{
+                            error(res.data.msg)
+                        }
+                    })
+                    .catch(err=>{
+                        NetworkAnomaly()
+                    })
             }
         }
     },

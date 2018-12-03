@@ -169,7 +169,7 @@
                                 <!-- <el-table-column prop="materialSn" label="物料编码" min-width="8.2%">
   
                 </el-table-column> -->
-                                <el-table-column prop="materialSn" label="性质" min-width="8.2%">
+                                <el-table-column prop="materialSn" label="物料编号" min-width="8.2%">
                                     <template slot-scope="scope">
                                         <el-tooltip :content="scope.row.materialSn" placement="top" :enterable="false">
                                             <p>{{ scope.row.materialSn }}</p>
@@ -270,53 +270,37 @@
 
                                         <el-button :disabled='(scope.row.sh==1)' :class="{btn:(scope.row.sh==0)}" type="text" @click="tableDelete(scope.$index, scope.row)">删除</el-button>
                                     </template>
-                </el-table-column>
-              </el-table>
+                                </el-table-column>
+                            </el-table>
+                        </div>
+                    </div>
+
+                    <div class="fr">
+                        <ul class="clearfix titleColor">
+                            <li v-for="(item,i) in DesignColor" :key="i">
+                                <P>{{item.colorSn}}-{{item.colorName}}</P>
+                                <span>编号名称</span>
+                                <span>操作</span>
+                            </li>
+                        </ul>
+                        <ul class="clearfix mainColor" v-for="(item,i) in list" :key="i">
+                            <li v-for="(items,j) in item.attachment.color" :key="j">
+                                <P>
+                                    <span>{{items.colorSn}}-{{items.color}}</span>
+                                    <span>
+                                        <el-button type="text" @click="addItem(item,items)">添加</el-button>
+                                        <el-button type="text" @click="deleteItem(items)">删除</el-button>
+                                    </span>
+                                </P>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
-          </div>
-
-          <div class="fr">
-            <ul class="clearfix titleColor">
-              <li
-                v-for="(item,i) in DesignColor"
-                :key="i"
-              >
-                <P>{{item.colorSn}}-{{item.colorName}}</P>
-                <span>编号名称</span>
-                <span>操作</span>
-              </li>
-            </ul>
-            <ul
-              class="clearfix mainColor"
-              v-for="(item,i) in list"
-              :key="i"
-            >
-              <li
-                v-for="(items,j) in item.attachment.color"
-                :key="j"
-              >
-                <P>
-                  <span>{{items.colorSn}}-{{items.color}}</span>
-                  <span>
-                    <el-button
-                      type="text"
-                      @click="addItem(item,items)"
-                    >添加</el-button>
-                    <el-button
-                      type="text"
-                      @click="deleteItem(items)"
-                    >删除</el-button>
-                  </span>
-                </P>
-              </li>
-            </ul>
-          </div>
         </div>
-      </div>
-    </div>
 
-    <div class="pageBox">
-      <!-- <ul class="pageData">
+        <div class="pageBox">
+            <!-- <ul class="pageData">
                 <li>
                     <span>编制人：</span>
                     <span>{{this.firstForm.addUser}}</span>
@@ -343,19 +327,12 @@
                 </li>
 
             </ul> -->
-      <el-pagination
-        v-if="pageOnOff"
-        background
-        :page-size="pageSize"
-        :pager-count="5"
-        :total="total"
-        @current-change="currentPage"
-      >
-      </el-pagination>
-    </div>
+            <el-pagination v-if="pageOnOff" background :page-size="pageSize" :pager-count="5" :total="total" @current-change="currentPage">
+            </el-pagination>
+        </div>
 
-    <!-- 查询框 -->
-    <!-- <el-dialog title="请输入您要查询的设计款号" :visible.sync="oldSearch">
+        <!-- 查询框 -->
+        <!-- <el-dialog title="请输入您要查询的设计款号" :visible.sync="oldSearch">
             <el-input v-model="search" placeholder="请输入您要查询的设计款号"></el-input>
             <ul class="srcond_menu">
                 <p v-if="oldSearchList.length===0">暂无数据</p>
@@ -364,256 +341,111 @@
                 </li>
             </ul>
         </el-dialog>          -->
-    <el-dialog
-      title="请输入您要查询的设计款号"
-      :visible.sync="oldPsn"
-    >
-      <el-input
-        v-model="psn"
-        placeholder="请输入您要查询的设计款号"
-      ></el-input>
-      <ul class="srcond_menu">
-        <p v-if="oldPsnList.length===0">暂无数据</p>
-        <li
-          v-for="(item,i) in oldPsnList"
-          :key="i"
-          class="clearfix"
-        >
-          <span @click="getItemPsn(item)">{{item.pSn}}</span>
-        </li>
-      </ul>
-    </el-dialog>
+        <el-dialog title="请输入您要查询的设计款号" :visible.sync="oldPsn">
+            <el-input v-model="psn" placeholder="请输入您要查询的设计款号"></el-input>
+            <button class="button_btn" @click="vaguePsn">查询</button>
+            <ul class="srcond_menu">
+                <p v-if="oldPsnList.length===0">暂无数据</p>
+                <li v-for="(item,i) in oldPsnList" :key="i" class="clearfix">
+                    <span @click="getItemPsn(item)">{{item.pSn}}</span>
+                </li>
+            </ul>
+        </el-dialog>
 
-    <!-- 物料档案编号弹窗 -->
-    <el-dialog
-      title="请输入您要查询的物料名称"
-      :visible.sync="oldMaterial"
-    >
-      <el-input
-        v-model="material"
-        placeholder="请输入您要查询的物料名称"
-      ></el-input>
-      <ul class="srcond_menu">
-        <p v-if="oldMaterialList.length===0">暂无数据</p>
-        <li
-          v-for="(item,i) in oldMaterialList"
-          :key="i"
-          class="clearfix"
-        >
-          <span
-            class="material"
-            @click="getItemMaterial(item)"
-          >{{item.sn}}</span>
-          <span
-            class="material"
-            @click="getItemMaterial(item)"
-          >{{item.name}}</span>
-        </li>
-      </ul>
-    </el-dialog>
+        <!-- 物料档案编号弹窗 -->
+        <el-dialog title="请输入您要查询的物料名称" :visible.sync="oldMaterial">
+            <el-input v-model="material" placeholder="请输入您要查询的物料名称"></el-input>
+            <button class="button_btn" @click="vagueMaterial">查询</button>
+            <ul class="srcond_menu">
+                <p v-if="oldMaterialList.length===0">暂无数据</p>
+                <li v-for="(item,i) in oldMaterialList" :key="i" class="clearfix">
+                    <span class="material" @click="getItemMaterial(item)">{{item.sn}}-{{item.name}}</span>
+                </li>
+            </ul>
+        </el-dialog>
 
-    <el-dialog
-      title="请选择物料颜色"
-      :visible.sync="oldMaterialColor"
-    >
-      <ul class="srcond_menu">
-        <p v-if="materialColorList.length===0">暂无数据</p>
-        <li
-          v-for="(item,i) in materialColorList"
-          :key="i"
-          class="clearfix"
-        >
-          <span
-            style="padding-left:0"
-            class="material"
-            @click="getmaterialColorItem(item)"
-          >{{item.yscmSn}}-{{item.yscmName}}</span>
-        </li>
-      </ul>
-    </el-dialog>
-    <!-- 编辑弹出框 -->
-    <el-dialog
-      title="编辑"
-      :visible.sync="editVisible"
-      width="30%"
-      class="edit"
-    >
-      <el-form
-        :model="dialog"
-        label-width="100px"
-      >
-        <el-form-item label="开发用量">
-          <el-input
-            v-model="dialog.amount"
-            type="text"
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="性质">
-          <el-select
-            v-model="dialog.nature"
-            placeholder="请选择"
-          >
-            <el-option
-              v-for="item in this.natureList"
-              :key="item.name"
-              :label="item.name"
-              :value="item.name"
-            >
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="成品编码">
-          <el-input
-            v-model="dialog.productSn"
-            type="text"
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="领用部门">
-          <el-select
-            v-model="dialog.func"
-            placeholder="请选择"
-          >
-            <el-option
-              v-for="item in this.oldFuncList"
-              :key="item.name"
-              :label="item.name"
-              :value="item.name"
-            >
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="应用部位">
-          <el-input
-            v-model="dialog.part"
-            type="text"
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="生产损耗">
-          <el-input
-            v-model="dialog.loss"
-            type="text"
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="大量货用量">
-          <el-input
-            v-model="dialog.dosage"
-            type="text"
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="用量单位">
-          <el-select
-            v-model="dialog.dosageUnit"
-            placeholder="请选择"
-          >
-            <el-option
-              v-for="item in this.dosageUnit"
-              :key="item.name"
-              :label="item.name"
-              :value="item.name"
-            >
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="说明">
-          <el-input
-            v-model="dialog.explain"
-            type="textarea"
-          ></el-input>
-        </el-form-item>
-      </el-form>
-      <span
-        slot="footer"
-        class="dialog-footer"
-      >
-        <el-button @click="editVisible = false">取 消</el-button>
-        <el-button
-          type="primary"
-          @click="saveEdit"
-        >确 定</el-button>
-      </span>
-    </el-dialog>
+        <el-dialog title="请选择物料颜色" :visible.sync="oldMaterialColor">
+            <ul class="srcond_menu">
+                <p v-if="materialColorList.length===0">暂无数据</p>
+                <li v-for="(item,i) in materialColorList" :key="i" class="clearfix">
+                    <span style="padding-left:0" class="material" @click="getmaterialColorItem(item)">{{item.yscmSn}}-{{item.yscmName}}</span>
+                </li>
+            </ul>
+        </el-dialog>
+        <!-- 编辑弹出框 -->
+        <el-dialog title="编辑" :visible.sync="editVisible" width="30%" class="edit">
+            <el-form :model="dialog" label-width="100px">
+                <el-form-item label="开发用量">
+                    <el-input v-model="dialog.amount" type="text"></el-input>
+                </el-form-item>
+                <el-form-item label="性质">
+                    <el-select v-model="dialog.nature" placeholder="请选择">
+                        <el-option v-for="item in this.natureList" :key="item.name" :label="item.name" :value="item.name">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="成品编码">
+                    <el-input v-model="dialog.productSn" type="text"></el-input>
+                </el-form-item>
+                <el-form-item label="领用部门">
+                    <el-select v-model="dialog.func" placeholder="请选择">
+                        <el-option v-for="item in this.oldFuncList" :key="item.name" :label="item.name" :value="item.name">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="应用部位">
+                    <el-input v-model="dialog.part" type="text"></el-input>
+                </el-form-item>
+                <el-form-item label="生产损耗">
+                    <el-input v-model="dialog.loss" type="text"></el-input>
+                </el-form-item>
+                <el-form-item label="大量货用量">
+                    <el-input v-model="dialog.dosage" type="text"></el-input>
+                </el-form-item>
+                <el-form-item label="用量单位">
+                    <el-select v-model="dialog.dosageUnit" placeholder="请选择">
+                        <el-option v-for="item in this.dosageUnit" :key="item.name" :label="item.name" :value="item.name">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="说明">
+                    <el-input v-model="dialog.explain" type="textarea"></el-input>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="editVisible = false">取 消</el-button>
+                <el-button type="primary" @click="saveEdit">确 定</el-button>
+            </span>
+        </el-dialog>
 
-    <!-- 导入弹窗 -->
-    <el-dialog
-      class="importExport"
-      title="导入"
-      :visible.sync="importbox"
-      width="30%"
-      :showClose="false"
-      :show-file-list="false"
-    >
-      <a
-        class="down"
-        href="/TPA/cMatBill/downExcel"
-      >下载导入模板</a>
-      <el-upload
-        name="file"
-        class="upload-demo"
-        ref="upload"
-        action=""
-        :file-list="fileList"
-        :http-request="uploadFile"
-        :auto-upload="false"
-        accept=".xls,.xlsx,.csv"
-      >
-        <el-button
-          slot="trigger"
-          size="small"
-          type="primary"
-          plain
-        >选取文件</el-button>
-        <div
-          slot="tip"
-          class="el-upload__tip"
-        >只能上传excel文件</div>
-      </el-upload>
-      <span
-        slot="footer"
-        class="dialog-footer"
-      >
-        <el-button @click="importCancel">取 消</el-button>
-        <el-button
-          type="primary"
-          @click="submitUpload"
-          plain
-        >确 定</el-button>
-      </span>
-    </el-dialog>
-    <div
-      class="importZhe"
-      v-if="importZhe"
-      v-loading="true"
-      element-loading-text="正在上传中..."
-      element-loading-spinner="el-icon-loading"
-      element-loading-background="rgba(0, 0, 0, 0.8)"
-    ></div>
-    <!-- 下载错误文件 -->
-    <el-dialog
-      title="错误提示"
-      :visible.sync="tipOffON"
-    >
-      <ul class="srcond_menu">
-        <li>
-          <el-alert
-            :title="Tips"
-            type="error"
-          ></el-alert>
-          <span style="margin-top:5vh">是否下载错误提示文件</span>
-        </li>
-        <span
-          slot="footer"
-          class="dialog-footer"
-        >
-          <el-button @click="tipOffON = importbox = false">取 消</el-button>
-          <el-button
-            type="primary"
-            @click="importErr"
-          >下载</el-button>
-        </span>
-      </ul>
-    </el-dialog>
+        <!-- 导入弹窗 -->
+        <el-dialog class="importExport" title="导入" :visible.sync="importbox" width="30%" :showClose="false" :show-file-list="false">
+            <a class="down" href="/TPA/cMatBill/downExcel">下载导入模板</a>
+            <el-upload name="file" class="upload-demo" ref="upload" action="" :file-list="fileList" :http-request="uploadFile" :auto-upload="false" accept=".xls,.xlsx,.csv">
+                <el-button slot="trigger" size="small" type="primary" plain>选取文件</el-button>
+                <div slot="tip" class="el-upload__tip">只能上传excel文件</div>
+            </el-upload>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="importCancel">取 消</el-button>
+                <el-button type="primary" @click="submitUpload" plain>确 定</el-button>
+            </span>
+        </el-dialog>
+        <div class="importZhe" v-if="importZhe" v-loading="true" element-loading-text="正在上传中..." element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)"></div>
+        <!-- 下载错误文件 -->
+        <el-dialog title="错误提示" :visible.sync="tipOffON">
+            <ul class="srcond_menu">
+                <li>
+                    <el-alert :title="Tips" type="error"></el-alert>
+                    <span style="margin-top:5vh">是否下载错误提示文件</span>
+                </li>
+                <span slot="footer" class="dialog-footer">
+                    <el-button @click="tipOffON = importbox = false">取 消</el-button>
+                    <el-button type="primary" @click="importErr">下载</el-button>
+                </span>
+            </ul>
+        </el-dialog>
 
-  </div>
+    </div>
 </template>
 
 <script>
@@ -1047,6 +879,7 @@ export default {
             this.noDisabledFirstForm();
 
             this.psn = "";
+            this.oldPsnList = []
         },
 
         //点击物料编号
@@ -1057,6 +890,7 @@ export default {
             this.noDisabledFirstForm();
 
             this.material = "";
+            this.oldMaterialList = []
         },
 
         //退出
@@ -1715,8 +1549,58 @@ export default {
             this.page = val;
         },
 
-        foor(row, column, cell, event) {
-            console.log(row, column, cell, event);
+        //模糊查询设计款号
+        vaguePsn(){
+            if(this.psn){
+                let search = {
+                    pSn: 17 + "|" + this.psn
+                };
+                let searchStr = JSON.stringify(search);
+                this.$http.post("/TPA/cSpda/search?sp=1&search=" + searchStr)
+                    .then(res => {
+                        if (res.data.code === 0) {
+                            if(res.data.data.list.length>0){
+                                this.oldPsnList = res.data.data.list
+                            }else{
+                                error('暂无数据') 
+                                 this.oldPsnList = []                                  
+                            }
+                        } else {
+                            error(res.data.msg);
+                        }
+                    })
+
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });                
+            }else{
+                error('请输入搜索条件！')
+            }
+        },
+        //模糊查询无聊
+        vagueMaterial(){
+            if (this.material) {
+                this.$http.post("/TPA/cWlda/getByName?name=" + this.material)
+                    .then(res => {
+                        console.log(res);
+                        if (res.data.code === 0) {
+                            if(res.data.data.length>0){
+                                this.oldMaterialList = res.data.data;
+                            }else{
+                                error('暂无数据')
+                                 this.oldMaterialList = []
+                            }
+                        } else {
+                            error(res.data.msg);
+                        }
+                    })
+
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });
+            } else {
+                error('请输入搜索条件！') 
+            }            
         }
     },
 
@@ -1730,39 +1614,6 @@ export default {
 
             this.getPageData(this.pageParams);
         },
-
-        //获取设计编号
-
-        psn() {
-            if (this.psn) {
-                let search = {
-                    pSn: 17 + "|" + this.psn
-                };
-
-                let searchStr = JSON.stringify(search);
-
-                this.$http
-
-                    .post("/TPA/cSpda/search?sp=1&search=" + searchStr)
-
-                    .then(res => {
-                        if (res.data.code === 0) {
-                            this.oldPsnList = res.data.data.list;
-                        } else {
-                            error(res.data.msg);
-                        }
-                    })
-
-                    .catch(err => {
-                        NetworkAnomaly();
-                    });
-            } else {
-                this.oldPsnList = [];
-            }
-
-            this.doAdd = false;
-        },
-
         search() {
             if (this.search) {
                 this.doSearch = false;
@@ -1771,82 +1622,6 @@ export default {
             }
         },
 
-        //获取查询设计编号
-
-        // search(){
-
-        //     if(this.search){
-
-        //         this.$http
-
-        //             .post("/TPA/cMatBill/getByPsn2?psn=" + this.search)
-
-        //             .then(res => {
-
-        //                if(res.data.code===0){
-
-        //                    this.oldSearchList = res.data.data
-
-        //                    console.log(res)
-
-        //                }else{
-
-        //                    error(res.data.msg)
-
-        //                }
-
-        //             })
-
-        //             .catch(err => {
-
-        //                 NetworkAnomaly();
-
-        //             });
-
-        //     }else{
-
-        //         this.oldPsnList = []
-
-        //     }
-
-        //     this.doAdd = false
-
-        // },
-
-        //获取物料
-
-        material() {
-            if (this.material) {
-                // let search = {
-
-                //   name: 17 + "|" + this.material
-
-                // };
-
-                // let searchStr = JSON.stringify(search);
-
-                this.$http
-
-                    .post("/TPA/cWlda/getByName?name=" + this.material)
-
-                    .then(res => {
-                        console.log(res);
-
-                        if (res.data.code === 0) {
-                            // this.oldMaterialList = res.data.data.list;
-                            this.oldMaterialList = res.data.data;
-                        } else {
-                            error(res.data.msg);
-                        }
-                    })
-
-                    .catch(err => {
-                        NetworkAnomaly();
-                    });
-            } else {
-                this.oldMaterialList = [];
-            }
-        }
     }
 };
 </script>
@@ -1907,6 +1682,18 @@ export default {
 .container>>>.el-dialog
     width 500px
     height 500px
+    .el-dialog__headerbtn
+        border none
+    .el-input
+        width 80%
+        float left
+    button
+        height 40px 
+        width 60px
+        background #ffffff
+        margin-left 10px 
+        border 1px solid #409EFF
+        color #409EFF       
 .srcond_menu
     li
         &:hover
@@ -1914,10 +1701,6 @@ export default {
         span
             padding-left 2vh
             line-height 3vh
-            &.material
-                width 50%
-                float left
-                padding-left 10%
 .order_table
     width 180px
     height 43.8vh

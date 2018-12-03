@@ -810,11 +810,6 @@ export default {
                     NetworkAnomaly();
                 });
         },
-        tipOffON() {
-            if (this.tipOffON === false) {
-                console.log(0);
-            }
-        },
         importbox() {
             if (this.importbox === false) {
                 this.$refs.upload.clearFiles();

@@ -232,8 +232,8 @@
 
         <el-dialog title="材质+名称+规格" :visible.sync="oldMenu">
             <el-input v-model="name" placeholder="请输入你要查找的物料规格名称"></el-input>
+            <button class="button_btn" @click="vagueGetOld">查询</button>
             <ul class="srcond_menu">
-                <li v-if="nameList.length===0">暂无数据</li>
                 <li v-for="(item,i) in nameList" :key="i">
                     <span @click="getOldMenu(item)">|--{{item.name}}&nbsp;&nbsp;-&nbsp;&nbsp;{{item.type}}</span>
                 </li>
@@ -241,6 +241,7 @@
         </el-dialog>
         <el-dialog title="请输入面料档案编号" :visible.sync="oldSearch">
             <el-input v-model="search" placeholder="请输入面料档案编号"></el-input>
+            <button class="button_btn" @click="vagueSearch">查询</button>
             <ul class="srcond_menu">
                 <li v-if="searchList.length===0">暂无数据</li>
                 <li v-for="(item,i) in searchList" :key="i">
@@ -896,24 +897,7 @@ export default {
             this.name = ""
             this.nameList = ""
         },
-        //获取 材质+名称+规格
-        getOld(name) {
-            let search = {
-                name: 17 + "|" + name
-            };
-            let searchStr = JSON.stringify(search);
-            this.$http.post('/TPA/cSpecification/search?status=1&search=' + searchStr)
-                .then(res => {
-                    if (res.data.code === 0) {
-                        this.nameList = res.data.data.list
-                    } else {
-                        error(res.data.msg)
-                    }
-                })
-                .catch(err => {
-                    NetworkAnomaly()
-                })
-        },
+
 
         //选择 材质+名称+规格
         getOldMenu(item) {
@@ -980,44 +964,7 @@ export default {
         currentPage(val) {
             this.page = val;
         },
-        // //编辑单条数据
-        // handleEdit(index, row) {
-        //     this.idx = index;
-        //     const item = this.list[index];
-        //     (this.dialog = {
-        //         id: item.id, //id
-        //         sn: item.sn, //编号
-        //         yscmSn: item.yscmSn, //颜色编号
-        //         yscmName: item.yscmName, //颜色名称
-        //         gysYsSn: item.gysYsSn, //供应商色号
-        //         status: item.status //状态
-        //     }),
-        //         (this.editVisible = true);
-        // },
-        // // 保存编辑
-        // saveEdit() {
-        //     if (this.dialog.gysYsSn.length === 0) {
-        //         error("供应商色号不能为空");
-        //         this.dialog.gysYsSn = "";
-        //     } else {
-        //         console.log(this.dialog);
-        //         this.$http
-        //             .post("/TPA/cWldaA/update", qs.stringify(this.dialog))
-        //             .then(res => {
-        //                 if (res.data.code === 0) {
-        //                     this.$set(this.list, this.idx, this.dialog);
-        //                     this.editVisible = false;
-        //                     succ(res.data.msg);
-        //                     this.getGysColorGys();
-        //                 } else {
-        //                     error(res.data.msg);
-        //                 }
-        //             })
-        //             .catch(err => {
-        //                 NetworkAnomaly();
-        //             });
-        //     }
-        // },
+        
         //table有效
         effective(index, row) {
             this.idx = index;
@@ -1091,7 +1038,67 @@ export default {
                     this.getGysColorGys();
                 }
             }
-        }
+        },
+        //模糊查询
+        vagueSearch(){
+            this.searchList = []
+            if (this.search) {
+                let search = {
+                    sn: 17 + "|" + this.search
+                };
+                let searchStr = JSON.stringify(search);
+                this.$http
+                    .post("/TPA/cWlda/search?search=" + searchStr)
+                    .then(res => {
+                        if(res.data.code===0){
+                            if(res.data.data.list.length>0){
+                                this.searchList = res.data.data.list;
+                            }else{
+                                error('暂无数据')
+                                this.searchList = []
+                            }
+                        }else{
+                            error(res.data.msg)
+                        }
+                    })
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });
+            }else{
+                error('请输入搜索条件！')              
+            }
+        },
+        //获取 材质+名称+规格
+        vagueGetOld() {
+            this.nameList = []
+            if(this.name){
+                let search = {
+                    name: 17 + "|" + name
+                };
+                let searchStr = JSON.stringify(search);
+                this.$http.post('/TPA/cSpecification/search?status=1&search=' + searchStr)
+                    .then(res => {
+                        if (res.data.code === 0) {
+                            if(res.data.data.list.length>0){
+                                this.nameList = res.data.data.list
+                            }else{
+                                error('暂无数据')  
+                                this.nameList = []                        
+                            }
+                            
+                        } else {
+                            error(res.data.msg)
+                        }
+                    })
+                    .catch(err => {
+                        NetworkAnomaly()
+                    })
+            }else{
+                let obj = {name:"暂无数据"}
+                this.searchList.push(obj)                        
+            }
+
+        },
     },
     watch: {
         page() {
@@ -1122,30 +1129,7 @@ export default {
                 this.list[i].sn = this.firstForm.sn;
             }
         },
-        name() {
-            if (this.name.length !== 0) {
-                this.getOld(this.name)
-            } else {
-                this.name = ""
-            }
-        },
-        //模糊查询
-        search() {
-            if (this.search) {
-                let search = {
-                    sn: 17 + "|" + this.search
-                };
-                let searchStr = JSON.stringify(search);
-                this.$http
-                    .post("/TPA/cWlda/search?search=" + searchStr)
-                    .then(res => {
-                        this.searchList = res.data.data.list;
-                    })
-                    .catch(err => {
-                        NetworkAnomaly();
-                    });
-            }
-        }
+
     },
     computed: {
         ...mapState(["collapse"])
@@ -1190,6 +1174,14 @@ export default {
     width 500px
     height 500px
     overflow-x hidden
+    .el-input
+        width 80%
+        float left
+    button
+        height 40px 
+        width 75px
+        background #ffffff
+        margin-left 10px
     li
         &.color
             &:hover

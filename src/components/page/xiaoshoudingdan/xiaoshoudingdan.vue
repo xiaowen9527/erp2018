@@ -75,7 +75,7 @@
                         </li>
                         <li>
                             <label>订单号</label>
-                            <input type="text" disabled placeholder="自动生成">
+                            <input type="text" v-model="form.sn" disabled placeholder="自动生成">
                         </li>
                         <li>
                             <label>来源号</label>
@@ -127,9 +127,9 @@
                     <ul class="clearfix">
                         <li>
                             <label for="">款号</label>
-                            <input type="text" disabled>
+                            <input type="text" v-model="spdaPsn" @click="searchspdaPsnFun" :disabled="spdaPsnOff">
                         </li>
-                        <button class="save" disabled="disabled">查询</button>
+                        <button class="save" :disabled="spdaPsnOff" @click="openSaves" :class="{button_btn:!spdaPsnOff}">查询</button>
                     </ul>
                 </div>
 
@@ -175,6 +175,38 @@
             </div>
         </div>
 
+        <!-- 底部页码 -->
+        <div class="pageBox">
+            <ul class="pageData">
+                <li>
+                    <span>编制人：</span>
+                    <span>{{this.form.addUser}}</span>
+                </li>
+                <li>
+                    <span>编制日期：</span>
+                    <span>{{this.form.addDate}}</span>
+                </li>
+                <li>
+                    <span>修改人：</span>
+                    <span>{{this.form.updateUser}}</span>
+                </li>
+                <li>
+                    <span>修改日期：</span>
+                    <span>{{this.form.updateDate}}</span>
+                </li>
+                <li>
+                    <span>审核人：</span>
+                    <span>{{this.form.shUser}}</span>
+                </li>
+                <li>
+                    <span>审核日期：</span>
+                    <span>{{this.form.shDate}}</span>
+                </li>
+            </ul>
+            <!-- <el-pagination @current-change="currentPage" :current-page='page' v-if="pageOnOff" background :page-size="pageSize" :pager-count="5" :total="total">
+            </el-pagination> -->
+        </div>
+
         <!-- 获取客户信息弹窗 -->
         <el-dialog title="客户信息" :visible.sync="customerOff">
             <el-input v-model="customerInfo" placeholder="客户编号 / 客户名称"></el-input>
@@ -183,6 +215,60 @@
                 <li class="clearfix" v-for="(item,i) in customerList" :key="i">
                     <span class="search" @click="getSearchItem(item)">|--{{item.sn}}-{{item.name}}</span>
                 </li>
+            </ul>
+        </el-dialog>
+
+        <!-- 款号弹窗 -->
+        <el-dialog title="款号" :visible.sync="spdaPsnSearchOff">
+            <el-input v-model="searchSpdaPsn" placeholder="请输入你要查找的款号"></el-input>
+            <ul class="srcond_menu">
+                <li v-if="searchSpdaPsnList.length===0">暂无数据</li>
+                <li class="clearfix" v-for="(item,i) in searchSpdaPsnList" :key="i">
+                    <span class="search" @click="getspdaPsnItem(item)">|--{{item.psn}}</span>
+                </li>
+            </ul>
+        </el-dialog>
+
+        <!-- 添加数量弹窗 -->
+        <el-dialog title="保存" :visible.sync="saveOff">
+            <el-table :data="saveList">
+                <el-table-column prop="spdaPsn" label="款号"></el-table-column>
+                <el-table-column prop="color" label="颜色"></el-table-column>
+                <div v-for="item in this.sizeList" :data="sizeList" :key="item">
+                    <el-table-column :label="item">
+                        <template slot-scope="scope">
+                            <!-- <el-input class="changeInput" v-model="scope.row.item"/> -->
+                            <input class="changeInput" :v-model="scope.row.item" type="text"/>
+                        </template>
+                    </el-table-column>
+                </div>
+            </el-table>
+        </el-dialog>
+
+        <!-- 导入弹窗 -->
+        <el-dialog class="importExport" title="导入" :visible.sync="importbox" width="30%" :showClose="false" :show-file-list="false">
+            <a class="down" href="/TPA/dSellOrder/downExcel">下载导入模板</a>
+            <el-upload name="file" class="upload-demo" ref="upload" action="" :file-list="fileList" :http-request="uploadFile" :auto-upload="false" accept=".xls,.xlsx,.csv">
+                <el-button slot="trigger" size="small" type="primary" plain>选取文件</el-button>
+                <div slot="tip" class="el-upload__tip">只能上传excel文件</div>
+            </el-upload>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="importCancel">取 消</el-button>
+                <el-button type="primary" @click="submitUpload" plain>确 定</el-button>
+            </span>
+        </el-dialog>
+        <div class="importZhe" v-if="importZhe" v-loading="true" element-loading-text="正在上传中..." element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)"></div>
+        <!-- 下载错误文件 -->
+        <el-dialog title="错误提示" :visible.sync="tipOffON">
+            <ul class="srcond_menu">
+                <li>
+                    <el-alert :title="Tips" type="error"></el-alert>
+                    <span style="margin-top:5vh">是否下载错误提示文件</span>
+                </li>
+                <span slot="footer" class="dialog-footer">
+                    <el-button @click="tipOffON = importbox = false">取 消</el-button>
+                    <el-button type="primary" @click="importErr">下载</el-button>
+                </span>
             </ul>
         </el-dialog>
     </div>
@@ -221,9 +307,18 @@ export default {
           priceType: "", // 价格类型
           currency: "", // 币别
           balanceMode: "", // 结算方式
-          remark: "" // 备注
+          remark: "", // 备注
+
+          addUser: "", // 编制人
+          addDate: "", // 编制日期
+          updateUser: "", // 修改人
+          updateDate: "", // 修改日期
+          shUser: "", // 审核人
+          shDate: "" // 审核日期
       },
+      spdaPsn: "", // 款号
       formOff: true, // 表单禁用、开启
+      spdaPsnOff: false, // 款号禁用、开启
       // 属性选择
       property: [
           {name: "销售"},
@@ -239,6 +334,25 @@ export default {
       customerInfo: "", // 客户弹窗查询内容
       customerOff: false, // 客户弹窗开关
       customerList: [], // 客户弹窗列表 
+      
+      spdaPsnSearchOff: false, // 款号弹出框开关
+      searchSpdaPsn: "", // 模糊查询的值
+      searchSpdaPsnList: [], // 模糊查询列表
+
+      saveOff: false, // 保存弹窗开关
+
+      //导入弹出开关
+      importbox: false,
+      importZhe: false, //导入遮罩
+      isCover: false, //默认导入不覆盖
+      project: "", //错误文件名
+      //上传的文件
+      fileList: [],
+      Tips: "", //错误提示
+      tipOffON: false, //错误文件下载开关
+
+      saveList: [], // 保存时款号颜色尺码列表
+      sizeList: [], // 尺码组
     };
   },
 
@@ -251,6 +365,7 @@ export default {
     // 取消
     doCancels() {
         this.formOff = true;
+        this.psnOff = true;
         this.form = {
             activeDate: "", // 订单日期
             clientSn: "", // 客户编号
@@ -266,18 +381,80 @@ export default {
             priceType: "", // 价格类型
             currency: "", // 币别
             balanceMode: "", // 结算方式
-            remark: "" // 备注
+            remark: "", // 备注
+
+            addUser: "", // 编制人
+            addDate: "", // 编制日期
+            updateUser: "", // 修改人
+            updateDate: "", // 修改日期
+            shUser: "", // 审核人
+            shDate: "" // 审核日期
         }
     },
 
     // 修改
     doChanges() {},
 
-    // 导入
-    doImports() {},
-
-    // 导出
-    doExports() {},
+    //导入按纽
+    doImports() {
+      this.importbox = true;
+    },
+    //导入取消
+    importCancel() {
+      this.importbox = false;
+      this.$refs.upload.clearFiles();
+    },
+    //文件上传到服务器按钮
+    submitUpload() {
+      this.$refs.upload.submit();
+    },
+    //自定义上传
+    uploadFile(params) {
+      this.importZhe = true;
+      const _file = params.file;
+      let formData = new FormData();
+      formData.append("file", _file);
+      this.$ajax
+        .post("/TPA/dSellOrder/importExcel", formData)
+        .then(res => {
+          // console.log(res);
+          if (res.status === 200) {
+            if (res.data.code === 0) {
+              succ(res.data.msg);
+              this.getnavMenu();
+              this.importCancel();
+              this.$refs.upload.clearFiles();
+            } else if (res.data.code === 100) {
+              this.tipOffON = true;
+              this.project = res.data.attachment.name;
+              this.Tips = res.data.msg;
+            } else {
+              error(res.data.msg);
+            }
+          } else {
+            NetworkAnomaly();
+          }
+          this.importZhe = false;
+        })
+        .catch(err => {
+          NetworkAnomaly();
+          this.importZhe = false;
+        });
+    },
+    //下载错误文件按钮
+    importErr() {
+      let errUrl = "/TPA/aImportExcel/exportMsg?name=" + this.project;
+      // console.log(errUrl)
+      window.location.href = errUrl;
+      setTimeout(() => {
+        this.tipOffON = false;
+        this.importCancel();
+      }, 500);
+    },
+    //导出
+    doExports() {
+      window.location.href = "/TPA/dSellOrder/exportExcel";
+    },
 
     // 打印
     doPrints() {},
@@ -289,27 +466,57 @@ export default {
     doOuts() {},
 
     // 审核
-    doExamines() {},
+    doExamines() {
+
+    },
 
     // 反审核
     doExamineAgains() {},
 
     // 终止
-    doStops() {},
+    doStops() {
+        this.$http.post("/TPA/dSellOrderA/stop?status=1&id=").then(res => {
+
+        })
+        .catch(err => {
+            NetworkAnomaly();
+        })
+    },
 
     // 反终止
-    NotStops() {},
+    NotStops() {
+        this.$http.post("/TPA/dSellOrderA/stop?status=0&id=").then(res => {
+
+        })
+        .catch(err => {
+            NetworkAnomaly();
+        })
+    },
 
     // 关单
-    closeOrders() {},
+    closeOrders() {
+        this.$http.post("/TPA/dSellOrderA/close?status=1&id=").then(res => {
+
+        })
+        .catch(err => {
+            NetworkAnomaly();
+        })
+    },
 
     // 开单
-    doOrders() {},
+    doOrders() {
+        this.$http.post("/TPA/dSellOrderA/close?status=0&id=").then(res => {
+
+        })
+        .catch(err => {
+            NetworkAnomaly();
+        })
+    },
 
     // 获取左侧树形导航数据
     getnavMenu() {
         this.$http.post("/TPA/dSellOrder/tree").then(res => {
-            console.log(res)
+            // console.log(res)
         })
     },
 
@@ -317,7 +524,7 @@ export default {
     getChoose() {
         // 仓库选择
         this.$http.post("/TPA/aRepertory/option").then(res => {
-            console.log(res)
+            // console.log(res)
             if(res.data.code === 0) {
                 this.repertory = res.data.data;
             }
@@ -400,12 +607,59 @@ export default {
         && this.form.currency && this.form.balanceMode;
         if(terms) {
             this.$http.post("/TPA/dSellOrder/insert", qs.stringify(this.form)).then(res => {
-                console.log(res)
+                this.form.sn = res.data.data.sn;
+                this.spdaPsnOff = false;
             })
         } else {
             error("请填写所有必填项");
         }
         this.formOff = true;
+    },
+
+    // 打开款号查询弹窗
+    searchspdaPsnFun() {
+        this.spdaPsnSearchOff = true;
+    },
+
+    // 款号查询弹窗选择
+    getspdaPsnItem(item) {
+        this.searchSpdaPsn = "";
+        this.spdaPsnSearchOff = false;
+        this.spdaPsn = item.psn;
+    },
+
+    // 打开保存弹窗
+    openSaves() {
+        if(this.spdaPsn) {
+            this.$http.post("/TPA/dSellOrder/order?psn=" + this.spdaPsn).then(res => {
+                // 将所有尺码拿出来
+                let Arr = [];
+                for(let i in res.data.data[0]) {
+                    if(i != "color") {
+                        Arr.push(i);
+                    }
+                }
+                Arr.unshift("款号","颜色");
+                console.log(Arr)
+                this.sizeList = Arr;
+                // this.LabelList = Arr;
+
+                // 给每一个数据加上款号
+                let Res = res.data.data;
+                for (let i = 0; i < Res.length; i++) {
+                    Res[i].spdaPsn = this.spdaPsn;
+                }
+                console.log(Res)
+                this.saveList = Res;
+
+                this.saveOff = true;
+            })
+            .catch(err => {
+                NetworkAnomaly();
+            })
+        } else {
+            error("请先填写款号")
+        }
     },
 
     // 双击当前行
@@ -431,6 +685,22 @@ export default {
       } else {
         this.customerList = [];
       }
+    },
+
+    searchSpdaPsn() {
+        if (this.searchSpdaPsn.length !== 0) {
+        this.$http
+          .post("/TPA/cSpda/option?psn=" + this.searchSpdaPsn)
+          .then(res => {
+            this.searchSpdaPsnList = res.data.data;
+            // console.log(res)
+          })
+          .catch(err => {
+            NetworkAnomaly();
+          });
+        } else {
+            this.searchSpdaPsnList = [];
+        }
     }
   },
 

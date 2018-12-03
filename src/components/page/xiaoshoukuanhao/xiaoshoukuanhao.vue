@@ -53,8 +53,8 @@
                         <el-table-column prop="clientName" label="客户" min-width="10%">
                             <template slot-scope="scope">
                                 <el-tooltip :content="scope.row.clientName" placement="top" :enterable="false">
-                                <p>{{ scope.row.clientName }}</p>
-                                </el-tooltip>        
+                                    <p>{{ scope.row.clientName }}</p>
+                                </el-tooltip>
                             </template>
                         </el-table-column>
                         <el-table-column prop="spdaPsn" label="款号" min-width="10%">
@@ -64,22 +64,22 @@
                         <el-table-column prop="msg1" label="信息1" min-width="10%">
                             <template slot-scope="scope">
                                 <el-tooltip :content="scope.row.msg1" placement="top" :enterable="false">
-                                <p>{{ scope.row.msg1 }}</p>
-                                </el-tooltip>        
+                                    <p>{{ scope.row.msg1 }}</p>
+                                </el-tooltip>
                             </template>
                         </el-table-column>
                         <el-table-column prop="msg2" label="信息2" min-width="10%">
                             <template slot-scope="scope">
                                 <el-tooltip :content="scope.row.msg2" placement="top" :enterable="false">
-                                <p>{{ scope.row.msg2 }}</p>
-                                </el-tooltip>        
+                                    <p>{{ scope.row.msg2 }}</p>
+                                </el-tooltip>
                             </template>
                         </el-table-column>
                         <el-table-column prop="msg3" label="信息3" min-width="10%">
                             <template slot-scope="scope">
                                 <el-tooltip :content="scope.row.msg3" placement="top" :enterable="false">
-                                <p>{{ scope.row.msg3 }}</p>
-                                </el-tooltip>        
+                                    <p>{{ scope.row.msg3 }}</p>
+                                </el-tooltip>
                             </template>
                         </el-table-column>
                         <el-table-column fixed="right" label="操作" min-width="30%">
@@ -93,7 +93,7 @@
                     </el-table>
                 </div>
             </div>
-            
+
             <!-- 底部页码 -->
             <div class="pageBox">
                 <el-pagination @current-change="currentPage" :current-page='page' v-if="pageOnOff" background :page-size="pageSize" :pager-count="5" :total="total">
@@ -171,337 +171,366 @@ import "@/assets/js/import.js"; //导入请求超时拦截
 import { mapState } from "vuex";
 
 import {
-  NetworkAnomaly,
-  succ,
-  error,
-  getOut
+    NetworkAnomaly,
+    succ,
+    error,
+    getOut
 } from "../../../assets/js/message.js";
 import qs from "qs";
 import NavMenu from "./NavMenu";
 export default {
-  name: "xiaoshoukuanhao",
-  data() {
-    return {
-      queryInfo: "", // 顶部查询内容
-      navMenus: [], // 左侧导航栏数据
-      form: {
-        activeDate: "",
-        clientSn: "",
-        clientName: "",
-        spdaPsn: ""
-      },
-      formOff: true, // 表单禁用、开启
-      list: [], // 表格内容
-      customerInfo: "", // 客户弹窗查询内容
-      customerOff: false, // 客户弹窗开关
-      handleEditOff: false, // 修改弹窗开关
-      customerList: [], // 客户弹窗列表
-      dialog: {}, // 弹窗内容
-      //导入弹出开关
-      importbox: false,
-      importZhe: false, //导入遮罩
-      isCover: false, //默认导入不覆盖
-      project: "", //错误文件名
-      //上传的文件
-      fileList: [],
-      Tips: "", //错误提示
-      tipOffON: false, //错误文件下载开关
-      //分页：当前页码/总数量/每页显示条数
-      page: 0,
-      total: "",
-      pageSize: 10,
-      pageOnOff: false,
-      pageParams: {}
-    };
-  },
-
-  methods: {
-    // 新增
-    doAdds() {
-      this.formOff = false;
-      this.form = {
-        activeDate: "",
-        clientSn: "",
-        clientName: "",
-        spdaPsn: ""
-      };
+    name: "xiaoshoukuanhao",
+    data() {
+        return {
+            queryInfo: "", // 顶部查询内容
+            navMenus: [], // 左侧导航栏数据
+            form: {
+                activeDate: "",
+                clientSn: "",
+                clientName: "",
+                spdaPsn: ""
+            },
+            formOff: true, // 表单禁用、开启
+            list: [], // 表格内容
+            customerInfo: "", // 客户弹窗查询内容
+            customerOff: false, // 客户弹窗开关
+            handleEditOff: false, // 修改弹窗开关
+            customerList: [], // 客户弹窗列表
+            dialog: {}, // 弹窗内容
+            //导入弹出开关
+            importbox: false,
+            importZhe: false, //导入遮罩
+            isCover: false, //默认导入不覆盖
+            project: "", //错误文件名
+            //上传的文件
+            fileList: [],
+            Tips: "", //错误提示
+            tipOffON: false, //错误文件下载开关
+            //分页：当前页码/总数量/每页显示条数
+            page: 0,
+            total: "",
+            pageSize: 10,
+            pageOnOff: false,
+            pageParams: {}
+        };
     },
 
-    // 取消
-    doCancels() {
-      this.formOff = true;
-      this.form = {
-        activeDate: "",
-        clientSn: "",
-        clientName: "",
-        spdaPsn: ""
-      };
-    },
+    methods: {
+        // 新增
+        doAdds() {
+            this.formOff = false;
+            this.form = {
+                activeDate: "",
+                clientSn: "",
+                clientName: "",
+                spdaPsn: ""
+            };
+        },
 
-    //导入按纽
-    doImports() {
-      this.importbox = true;
-    },
-    //导入取消
-    importCancel() {
-      this.importbox = false;
-      this.$refs.upload.clearFiles();
-    },
-    //文件上传到服务器按钮
-    submitUpload() {
-      this.$refs.upload.submit();
-    },
-    //自定义上传
-    uploadFile(params) {
-      this.importZhe = true;
-      const _file = params.file;
-      let formData = new FormData();
-      formData.append("file", _file);
-      this.$ajax
-        .post("/TPA/dSellPsn/importExcel", formData)
-        .then(res => {
-          // console.log(res);
-          if (res.status === 200) {
-            if (res.data.code === 0) {
-              succ(res.data.msg);
-              this.getnavMenu();
-              this.importCancel();
-              this.$refs.upload.clearFiles();
-            } else if (res.data.code === 100) {
-              this.tipOffON = true;
-              this.project = res.data.attachment.name;
-              this.Tips = res.data.msg;
-            } else {
-              error(res.data.msg);
-            }
-          } else {
-            NetworkAnomaly();
-          }
-          this.importZhe = false;
-        })
-        .catch(err => {
-          NetworkAnomaly();
-          this.importZhe = false;
-        });
-    },
-    //下载错误文件按钮
-    importErr() {
-      let errUrl = "/TPA/aImportExcel/exportMsg?name=" + this.project;
-      // console.log(errUrl)
-      window.location.href = errUrl;
-      setTimeout(() => {
-        this.tipOffON = false;
-        this.importCancel();
-      }, 500);
-    },
-    //导出
-    doExports() {
-      window.location.href = "/TPA/dSellPsn/exportExcel";
-    },
+        // 取消
+        doCancels() {
+            this.formOff = true;
+            this.form = {
+                activeDate: "",
+                clientSn: "",
+                clientName: "",
+                spdaPsn: ""
+            };
+        },
 
-    searchFun(params) {
-        
-        this.$http.post("/TPA/dSellPsn/search?delStatus=0", qs.stringify(params)).then(res => {
-            if(res.data.code === 0) {
-                succ(res.data.msg);
-                this.list = res.data.data.list;
+        //导入按纽
+        doImports() {
+            this.importbox = true;
+        },
+        //导入取消
+        importCancel() {
+            this.importbox = false;
+            this.$refs.upload.clearFiles();
+        },
+        //文件上传到服务器按钮
+        submitUpload() {
+            this.$refs.upload.submit();
+        },
+        //自定义上传
+        uploadFile(params) {
+            this.importZhe = true;
+            const _file = params.file;
+            let formData = new FormData();
+            formData.append("file", _file);
+            this.$ajax
+                .post("/TPA/dSellPsn/importExcel", formData)
+                .then(res => {
+                    // console.log(res);
+                    if (res.status === 200) {
+                        if (res.data.code === 0) {
+                            succ(res.data.msg);
+                            this.getnavMenu();
+                            this.importCancel();
+                            this.$refs.upload.clearFiles();
+                        } else if (res.data.code === 100) {
+                            this.tipOffON = true;
+                            this.project = res.data.attachment.name;
+                            this.Tips = res.data.msg;
+                        } else {
+                            error(res.data.msg);
+                        }
+                    } else {
+                        NetworkAnomaly();
+                    }
+                    this.importZhe = false;
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                    this.importZhe = false;
+                });
+        },
+        //下载错误文件按钮
+        importErr() {
+            let errUrl = "/TPA/aImportExcel/exportMsg?name=" + this.project;
+            // console.log(errUrl)
+            window.location.href = errUrl;
+            setTimeout(() => {
+                this.tipOffON = false;
+                this.importCancel();
+            }, 500);
+        },
+        //导出
+        doExports() {
+            window.location.href = "/TPA/dSellPsn/exportExcel";
+        },
 
-                this.total = res.data.data.total;
-                console.log(this.total)
-                if (this.total > this.pageSize) {
-                    this.pageOnOff = true;
-                } else {
-                    this.pageOnOff = false;
-                }
-            }
-        })
-        .catch(err => {
-          NetworkAnomaly();
-        })
-    },
+        searchFun(params) {
+            this.$http
+                .post("/TPA/dSellPsn/search?delStatus=0", qs.stringify(params))
+                .then(res => {
+                    if (res.data.code === 0) {
+                        succ(res.data.msg);
+                        this.list = res.data.data.list;
 
-    // 查询
-    doSearchs() {
-        this.searchFun(this.queryInfo);
-    },
+                        this.total = res.data.data.total;
+                        console.log(this.total);
+                        if (this.total > this.pageSize) {
+                            this.pageOnOff = true;
+                        } else {
+                            this.pageOnOff = false;
+                        }
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
+        },
 
-    // 退出
-    doOuts() {
-      this.$emit("getOut", this.$route.name);
-    },
+        // 查询
+        doSearchs() {
+            this.searchFun(this.queryInfo);
+        },
 
-    // 获取左侧树形导航数据
-    getnavMenu() {
-      this.$http.post("/TPA/dSellPsn/list").then(res => {
-        if (res.data.code === 0) {
-          this.navMenus = res.data.data;
-        }
-      })
-      .catch(err => {
-        NetworkAnomaly();
-      });
-    },
+        // 退出
+        doOuts() {
+            this.$emit("getOut", this.$route.name);
+        },
 
-    // 点击左侧导航
-    menuSelected(index) {
-        let params = {
-            page: this.page,
-            count: this.pageSize,
-            name: index
-        }
-        this.pageParams = params;
-        this.searchFun(this.pageParams)
-    },
+        // 获取左侧树形导航数据
+        getnavMenu() {
+            this.$http
+                .post("/TPA/dSellPsn/list")
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.navMenus = res.data.data;
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
+        },
 
-    // 点击弹出客户弹窗
-    customerFun() {
-      this.customerOff = true;
-    },
-
-    // 客户弹窗选择
-    getSearchItem(item) {
-      this.customerInfo = "";
-      this.customerOff = false;
-      this.form.clientSn = item.sn;
-      this.form.clientName = item.name;
-    },
-
-    // 表单保存
-    doSaves() {
-      if(this.form.activeDate && this.form.clientSn && this.form.clientName && this.form.spdaPsn) {
-        this.$http.post("/TPA/dSellPsn/insert", qs.stringify(this.form)).then(res => {
-            console.log(res)
-            this.form.spdaPsn = "";
+        // 点击左侧导航
+        menuSelected(index) {
             let params = {
                 page: this.page,
                 count: this.pageSize,
-                name: res.data.data.clientSn
-            }
+                name: index
+            };
             this.pageParams = params;
-            this.searchFun(this.pageParams)
-        })
-        .catch(err => {
-          NetworkAnomaly();
-        });
-      } else {
-          error("请将所有信息填写完整");
-      }
-      
-    },
+            this.searchFun(this.pageParams);
+        },
 
-    // 修改按钮
-    handleEdit(index, row) {
-        this.idx = index;
-        const item = this.list[index];
-        this.dialog = {
-            id: item.id,
-            activeDate: item.activeDate,
-            clientSn: item.clientSn,
-            clientName: item.clientName,
-            spdaPsn: item.spdaPsn,
-            psn: item.psn,
-            msg1: item.msg1,
-            msg2: item.msg2,
-            msg3: item.msg3
+        // 点击弹出客户弹窗
+        customerFun() {
+            this.customerOff = true;
+        },
+
+        // 客户弹窗选择
+        getSearchItem(item) {
+            this.customerInfo = "";
+            this.customerOff = false;
+            this.form.clientSn = item.sn;
+            this.form.clientName = item.name;
+        },
+
+        // 表单保存
+        doSaves() {
+            if (
+                this.form.activeDate &&
+                this.form.clientSn &&
+                this.form.clientName &&
+                this.form.spdaPsn
+            ) {
+                this.$http
+                    .post("/TPA/dSellPsn/insert", qs.stringify(this.form))
+                    .then(res => {
+                        console.log(res);
+                        this.form.spdaPsn = "";
+                        let params = {
+                            page: this.page,
+                            count: this.pageSize,
+                            name: res.data.data.clientSn
+                        };
+                        this.pageParams = params;
+                        this.searchFun(this.pageParams);
+                    })
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });
+            } else {
+                error("请将所有信息填写完整");
+            }
+        },
+
+        // 修改按钮
+        handleEdit(index, row) {
+            this.idx = index;
+            const item = this.list[index];
+            this.dialog = {
+                id: item.id,
+                activeDate: item.activeDate,
+                clientSn: item.clientSn,
+                clientName: item.clientName,
+                spdaPsn: item.spdaPsn,
+                psn: item.psn,
+                msg1: item.msg1,
+                msg2: item.msg2,
+                msg3: item.msg3
+            };
+            this.handleEditOff = true;
+        },
+
+        // 修改保存按钮
+        saveEdit() {
+            this.$http
+                .post("/TPA/dSellPsn/update", qs.stringify(this.dialog))
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.pageParams.name = this.dialog.clientSn;
+                        this.searchFun(this.pageParams);
+                    }
+                });
+            this.handleEditOff = false;
+        },
+
+        // 删除按钮
+        tableDelete(index, row) {
+            this.idx = index;
+            const item = this.list[index];
+            this.$http
+                .post("/TPA/dSellPsn/delete?id=" + item.id)
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.pageParams.name = item.clientSn;
+                        this.searchFun(this.pageParams);
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
+        },
+
+        // 审核按钮
+        doExamines(index, row) {
+            this.idx = index;
+            const item = this.list[index];
+            this.$http
+                .post("/TPA/dSellPsn/auditing?status=1&id=" + item.id)
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.pageParams.name = item.clientSn;
+                        this.searchFun(this.pageParams);
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
+        },
+
+        // 反审按钮
+        doExamineAgains(index, row) {
+            this.idx = index;
+            const item = this.list[index];
+            this.$http
+                .post("/TPA/dSellPsn/auditing?status=0&id=" + item.id)
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.pageParams.name = item.clientSn;
+                        this.searchFun(this.pageParams);
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
+        },
+
+        // 获取当前页码
+        currentPage(val) {
+            this.pageParams.page = val - 1;
+            this.searchFun(this.pageParams);
+        },
+        //模糊查询
+        vagueCustomerInfo() {
+            if (this.customerInfo.length !== 0) {
+                let search = {
+                    name: 17 + "|" + this.customerInfo
+                };
+                let searchStr = JSON.stringify(search);
+                this.$http
+                    .post("/TPA/aKsDa/search?delStatus=0&search=" + searchStr)
+                    .then(res => {
+                        if(res.data.code===0){
+                            if(es.data.data.list.length>0){
+                                this.customerList = res.data.data.list;
+                            }else{
+                                error('暂无数据') 
+                                this.customerList = []  
+                            }
+                        }else{
+                            error(res.data.msg)
+                        }
+                    })
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });
+            } else {
+                error('请输入搜索条件！')                   
+            }
         }
-        this.handleEditOff = true;
     },
 
-    // 修改保存按钮
-    saveEdit() {
-        this.$http.post("/TPA/dSellPsn/update", qs.stringify(this.dialog)).then(res => {
-            if(res.data.code === 0) {
-                this.pageParams.name = this.dialog.clientSn;
-                this.searchFun(this.pageParams)
-            }
-        })
-        this.handleEditOff = false;
+    mounted() {
+        this.getnavMenu();
     },
 
-    // 删除按钮
-    tableDelete(index, row) {
-        this.idx = index;
-        const item = this.list[index];
-        this.$http.post("/TPA/dSellPsn/delete?id=" + item.id).then(res => {
-            if(res.data.code === 0) {
-                this.pageParams.name = item.clientSn;
-                this.searchFun(this.pageParams)
-            }
-        })
-        .catch(err => {
-            NetworkAnomaly();
-        })
+    watch: {
+        customerInfo() {}
     },
 
-    // 审核按钮
-    doExamines(index, row) {
-        this.idx = index;
-        const item = this.list[index];
-        this.$http.post("/TPA/dSellPsn/auditing?status=1&id=" + item.id).then(res => {
-            if(res.data.code === 0) {
-                this.pageParams.name = item.clientSn;
-                this.searchFun(this.pageParams)
-            }
-        })
-        .catch(err => {
-            NetworkAnomaly();
-        })
+    computed: {
+        ...mapState(["collapse"])
     },
 
-    // 反审按钮
-    doExamineAgains(index, row) {
-        this.idx = index;
-        const item = this.list[index];
-        this.$http.post("/TPA/dSellPsn/auditing?status=0&id=" + item.id).then(res => {
-            if(res.data.code === 0) {
-                this.pageParams.name = item.clientSn;
-                this.searchFun(this.pageParams)
-            }
-        })
-        .catch(err => {
-            NetworkAnomaly();
-        })
-    },
-
-    // 获取当前页码
-    currentPage(val) {
-        this.pageParams.page = val - 1;
-        this.searchFun(this.pageParams);
+    // 引入组件
+    components: {
+        NavMenu
     }
-  },
-
-  mounted() {
-    this.getnavMenu();
-  },
-
-  watch: {
-    customerInfo() {
-      if (this.customerInfo.length !== 0) {
-        let search = {
-          name: 17 + "|" + this.customerInfo
-        };
-        let searchStr = JSON.stringify(search);
-        this.$http.post("/TPA/aKsDa/search?delStatus=0&search=" + searchStr).then(res => {
-            this.customerList = res.data.data.list;
-            // console.log(res.data.data.list)
-          })
-          .catch(err => {
-            NetworkAnomaly();
-          });
-      } else {
-        this.customerList = [];
-      }
-    }
-  },
-
-  computed: {
-    ...mapState(["collapse"])
-  },
-
-  // 引入组件
-  components: {
-    NavMenu
-  }
 };
 </script>
 

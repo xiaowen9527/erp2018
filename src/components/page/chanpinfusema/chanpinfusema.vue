@@ -121,6 +121,7 @@
         </div>
         <el-dialog title="查询" :visible.sync="oldSearch">
             <el-input v-model="searchXun" placeholder="请输入你要查找的款号"></el-input>
+            <button class="button_btn" @click="vagueSearch">查询</button>
             <ul class="srcond_menu">
                 <li v-if="searchList.length===0">暂无数据</li>
                 <li class="clearfix" v-for="(item,i) in searchList" :key="i">
@@ -131,6 +132,7 @@
 
         <el-dialog title="颜色" :visible.sync="oldColor">
             <el-input v-model="searchColor" placeholder="请输入你要查找的颜色"></el-input>
+            <button class="button_btn" @click="vagueSearch">查询</button>
             <ul class="srcond_menu">
                 <li v-if="colorList.length===0">暂无数据</li>
                 <li class="clearfix" v-for="(item,i) in colorList" :key="i">
@@ -391,11 +393,14 @@ export default {
         doSearchs() {
             this.oldSearch = true;
             this.searchXun = "";
+            this.searchList = []
         },
 
         //点击颜色按钮
         doColor() {
             this.oldColor = true;
+            this.searchColor = ""
+            this.colorList = []
         },
 
         //选择查询
@@ -764,6 +769,7 @@ export default {
                     NetworkAnomaly();
                 });
         },
+        //获取颜色的最新修改时间修改人/编制人、编制时间
         getLastTime(name) {
             this.$http
                 .post("/TPA/cSpdaA/getLastUpdate?psn=" + name)
@@ -777,8 +783,69 @@ export default {
                 .catch(err => {
                     NetworkAnomaly();
                 });
+        },
+
+        //模糊查询
+        vagueSearch(){
+            if(this.searchXun){
+                let search = {
+                    psn: 17 + "|" + this.searchXun
+                };
+                let searchStr = JSON.stringify(search);
+                this.$http
+                    .post("/TPA/psn/search?sp=1&search=" + searchStr)
+                    .then(res => {
+                        if(res.data.code===0){
+                            if(res.data.data.list.length>0){
+                                this.searchList = res.data.data.list;
+                            }else{
+                                error('暂无数据') 
+                                this.searchList = []                              
+                            }
+                        }else{
+                            error(res.data.msg)
+                        }
+                    })
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });                
+            }else{
+                error('请输入搜索条件！') 
+            }
+        },
+        //模糊查询颜色
+        vagueColor(){
+            if(this.searchColor){
+                let search = {
+                    pidSn: "9|1",
+                    name: 17 + "|" + this.searchColor
+                };
+                let searchStr = JSON.stringify(search);
+                this.$http
+                    .post(
+                        "/TPA/aYscm/searchColor?status=1&&delStatus=0&search=" +
+                            searchStr
+                    )
+                    .then(res => {
+                        if (res.data.code === 0) {
+                            if(res.data.data.list.length>0){
+                                this.colorList = res.data.data.list;
+                            }else{
+                                error('暂无数据') 
+                                this.colorList = []                                 
+                            }
+                        } else {
+                            error(res.data.msg);
+                        }
+                    })
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });
+            }else{
+                error('请输入搜索条件！') 
+            }
         }
-        //获取颜色的最新修改时间修改人/编制人、编制时间
+        
     },
     mounted() {
         this.getYear();
@@ -794,24 +861,7 @@ export default {
         swiperSlide
     },
     watch: {
-        searchXun() {
-            if (this.searchXun.length !== 0) {
-                let search = {
-                    psn: 17 + "|" + this.searchXun
-                };
-                let searchStr = JSON.stringify(search);
-                this.$http
-                    .post("/TPA/psn/search?sp=1&search=" + searchStr)
-                    .then(res => {
-                        this.searchList = res.data.data.list;
-                    })
-                    .catch(err => {
-                        NetworkAnomaly();
-                    });
-            } else {
-                this.searchList = [];
-            }
-        },
+
         searchColor() {
             if (this.searchColor.length !== 0) {
                 let search = {
@@ -883,6 +933,16 @@ export default {
     line-height 2.5vh
     font-weight bold
     padding 1vh 2vh
+    .el-input
+        width 80%
+        float left
+    button
+        height 40px 
+        width 60px
+        background #ffffff
+        margin-left 10px 
+        border 1px solid #409EFF
+        color #409EFF       
     li
         &:hover
             background #d2d2d2

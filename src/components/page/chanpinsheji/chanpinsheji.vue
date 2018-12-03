@@ -225,6 +225,7 @@
 
         <el-dialog title="企划需求" :visible.sync="oldMenu">
             <el-input v-model="searchSecondTable" placeholder="请输入你要查找的企划需求"></el-input>
+            <button class="button_btn" @click="vagueSearch">查询</button>
             <ul class="qihua_menu">
                 <li v-if="list.length===0">暂无数据</li>
                 <li v-for="(item,i) in list" :key="i" @click="getQihuaItem(item)" class="clearfix">
@@ -248,6 +249,7 @@
 
         <el-dialog title="颜色" :visible.sync="oldColor" class="mohu">
             <el-input v-model="searchColor" placeholder="请输入你要查找的颜色"></el-input>
+            <button class="button_btn" @click="vagueColor">查询</button>
             <ul class="srcond_menu">
                 <li v-if="color.length===0">暂无数据</li>
                 <li class="clearfix" v-for="(item,i) in color" :key="i">
@@ -259,6 +261,7 @@
 
         <el-dialog title="尺码" :visible.sync="oldSize" class="mohu">
             <el-input v-model="searchSize" placeholder="请输入你要查找的尺码"></el-input>
+            <button class="button_btn" @click="vagueSize">查询</button>
             <ul class="srcond_menu">
                 <li v-if="size.length===0">暂无数据</li>
                 <li class="clearfix" v-for="(item,i) in size" :key="i">
@@ -1359,51 +1362,8 @@ export default {
                     NetworkAnomaly();
                 });
         },
-        //模糊查询颜色
-        getColor() {
-            let search = {
-                pidSn: "9|1",
-                name: 17 + "|" + this.searchColor
-            };
-            let searchStr = JSON.stringify(search);
-            this.$http
-                .post(
-                    "/TPA/aYscm/searchColor?status=1&&delStatus=0&&search=" + searchStr
-                )
-                .then(res => {
-                    if (res.data.code === 0) {
-                        this.color = res.data.data.list;
-                    } else {
-                        error(res.data.msg);
-                    }
-                })
-                .catch(err => {
-                    NetworkAnomaly();
-                });
-        },
-        //模糊查询尺码
-        getSize() {
-            let search = {
-                pidSn: "9|1",
-                name: 17 + "|" + this.searchSize
-            };
-            let searchStr = JSON.stringify(search);
-            this.$http
-                .post(
-                    "/TPA/aYscm/searchSize?status=1&&delStatus=0&&search=" +
-                        searchStr
-                )
-                .then(res => {
-                    if (res.data.code === 0) {
-                        this.size = res.data.data.list;
-                    } else {
-                        error(res.data.msg);
-                    }
-                })
-                .catch(err => {
-                    NetworkAnomaly();
-                });
-        },
+
+
         //点击选择企划
         getQihua() {
             this.oldMenu = true;
@@ -1439,21 +1399,7 @@ export default {
                 });
         },
 
-        //获取企划子表
-        getSearchTable() {
-            this.$http
-                .post("/TPA/cSpqhA/getBySn?sn=" + this.searchSecondTable)
-                .then(res => {
-                    if (res.data.code === 0) {
-                        this.list = res.data.data;
-                    } else {
-                        error(res.data.msg);
-                    }
-                })
-                .catch(err => {
-                    NetworkAnomaly();
-                });
-        },
+
         //点击款式按钮
         getStyleBtn() {
             this.oldStyle = true;
@@ -1507,6 +1453,96 @@ export default {
                 name = 0;
             }
             return name;
+        },
+        //模糊搜索
+        vagueSearch(){
+            this.list = []
+            if(this.searchSecondTable){
+                this.$http
+                    .post("/TPA/cSpqhA/getBySn?sn=" + this.searchSecondTable)
+                    .then(res => {
+                        if (res.data.code === 0) {
+                            if(res.data.data.length>0){
+                                this.list = res.data.data
+                            }else{
+                                error('暂无数据')  
+                                 this.list = []                            
+                            }
+                        } else {
+                            error(res.data.msg);
+                        }
+                    })
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });                
+            }else{
+                error('请输入搜索条件！')     
+            }
+        },
+        //模糊查询颜色
+        vagueColor(){
+            this.color = []
+            if(this.searchColor){
+                let search = {
+                    pidSn: "9|1",
+                    name: 17 + "|" + this.searchColor
+                };
+                let searchStr = JSON.stringify(search);
+                this.$http
+                    .post(
+                        "/TPA/aYscm/searchColor?status=1&&delStatus=0&&search=" + searchStr
+                    )
+                    .then(res => {
+                        if (res.data.code === 0) {
+                            if(res.data.data.list.length>0){
+                                this.color = res.data.data.list;
+                            }else{
+                                error('暂无数据')   
+                                 this.color = []                              
+                            }
+                        } else {
+                            error(res.data.msg);
+                        }
+                    })
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });             
+            }else{
+                error('请输入搜索条件！')     
+            }
+        },       
+        //模糊查询尺码
+        vagueSize(){
+            this.searchList = []
+            if(this.searchSize){
+                let search = {
+                    pidSn: "9|1",
+                    name: 17 + "|" + this.searchSize
+                };
+                let searchStr = JSON.stringify(search);
+                this.$http
+                    .post(
+                        "/TPA/aYscm/searchSize?status=1&&delStatus=0&&search=" +
+                            searchStr
+                    )
+                    .then(res => {
+                        if (res.data.code === 0) {
+                            if(res.data.data.list.length>0){
+                                this.size = res.data.data.list;
+                            }else{
+                                error('暂无数据')  
+                                 this.size = []                               
+                            }
+                        } else {
+                            error(res.data.msg);
+                        }
+                    })
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });
+            }else{
+                error('请输入搜索条件！')                   
+            }
         }
     },
     mounted() {
@@ -1515,28 +1551,6 @@ export default {
         this.getnavMenu();
     },
     watch: {
-        //模糊搜索框
-        searchSecondTable() {
-            if (this.searchSecondTable.length > 0) {
-                this.getSearchTable();
-            } else {
-                this.searchSecondTableList = [];
-            }
-        },
-        searchColor() {
-            if (this.searchColor.length !== 0) {
-                this.getColor();
-            } else {
-                this.color = [];
-            }
-        },
-        searchSize() {
-            if (this.searchSize.length !== 0) {
-                this.getSize();
-            } else {
-                this.size = [];
-            }
-        },
         searchYear(){
             this.getnavMenu();
         }         
@@ -1571,6 +1585,16 @@ export default {
     line-height 3.5vh
     font-weight bold
     padding 1vh 2vh
+    .el-input
+        width 80%
+        float left
+    button
+        height 40px 
+        width 60px
+        background #ffffff
+        margin-left 10px 
+        border 1px solid #409EFF
+        color #409EFF   
 .container>>>.el-tabs__content
     background url('../../../../static/imgNone.jpg')
     background-repeat no-repeat

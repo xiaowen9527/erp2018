@@ -115,6 +115,7 @@
         <!-- 查询框 -->
         <el-dialog title="请输入您要查询的设计款号" :visible.sync="oldSearch">
             <el-input v-model="search" placeholder="请输入您要查询的设计款号"></el-input>
+            <button class="button_btn" @click="vagueSearch">查询</button>
             <ul class="srcond_menu">
                 <p v-if="oldSearchList.length===0">暂无数据</p>
                 <li v-for="(item,i) in oldSearchList" :key="i" class="clearfix">
@@ -124,6 +125,7 @@
         </el-dialog>
         <el-dialog title="请输入您要查询的设计款号" :visible.sync="oldPsn">
             <el-input v-model="psn" placeholder="请输入您要查询的设计款号"></el-input>
+            <button class="button_btn" @click="vaguePsn">查询</button>
             <ul class="srcond_menu">
                 <p v-if="oldPsnList.length===0">暂无数据</p>
                 <li v-for="(item,i) in oldPsnList" :key="i" class="clearfix">
@@ -641,6 +643,65 @@ export default {
         //获取当前页码
         currentPage(val) {
             this.page = val;
+        },
+
+        //模糊查询
+        vagueSearch(){
+            if (this.search) {
+                let search = {
+                    psn: 17 + "|" + this.search
+                };
+                let searchStr = JSON.stringify(search);
+                this.$http
+                    .post("/TPA/cStandardOper/search?search=" + searchStr)
+                    .then(res => {
+                        if (res.data.code === 0) {
+                            if(res.data.data.list.length>0){
+                                this.oldSearchList = res.data.data.list;
+                            }else{
+                                error('暂无数据')  
+                                this.oldSearchList = []                                                               
+                            }
+                        } else {
+                            error(res.data.msg);
+                        }
+                    })
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });
+            } else {
+                error('请输入搜索条件！')                   
+            }
+            this.doAdd = false;            
+        },
+        //模糊查询psn
+        vaguePsn(){
+            if (this.psn) {
+                let search = {
+                    pSn: 17 + "|" + this.psn
+                };
+                let searchStr = JSON.stringify(search);
+                this.$http
+                    .post("/TPA/cSpda/search?sp=1&search=" + searchStr)
+                    .then(res => {
+                        if (res.data.code === 0) {
+                            if(res.data.data.list.length>0){
+                                this.oldPsnList = res.data.data.list
+                            }else{
+                                error('暂无数据')   
+                                this.oldPsnList = []                            
+                            }
+                        } else {
+                            error(res.data.msg);
+                        }
+                    })
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });
+            } else {
+                error('请输入搜索条件！') 
+            }
+            this.doAdd = false;
         }
     },
     computed: {
@@ -651,54 +712,8 @@ export default {
             this.pageParams.page = this.page - 1;
             this.getPageData();
         },
-        //获取设计编号
-        psn() {
-            if (this.psn) {
-                let search = {
-                    pSn: 17 + "|" + this.psn
-                };
-                let searchStr = JSON.stringify(search);
-                this.$http
-                    .post("/TPA/cSpda/search?sp=1&search=" + searchStr)
-                    .then(res => {
-                        if (res.data.code === 0) {
-                            this.oldPsnList = res.data.data.list;
-                        } else {
-                            error(res.data.msg);
-                        }
-                    })
-                    .catch(err => {
-                        NetworkAnomaly();
-                    });
-            } else {
-                this.oldPsnList = [];
-            }
-            this.doAdd = false;
-        },
-        //获取查询设计编号
-        search() {
-            if (this.search) {
-                let search = {
-                    psn: 17 + "|" + this.search
-                };
-                let searchStr = JSON.stringify(search);
-                this.$http
-                    .post("/TPA/cStandardOper/search?search=" + searchStr)
-                    .then(res => {
-                        if (res.data.code === 0) {
-                            this.oldSearchList = res.data.data.list;
-                        } else {
-                            error(res.data.msg);
-                        }
-                    })
-                    .catch(err => {
-                        NetworkAnomaly();
-                    });
-            } else {
-                this.oldPsnList = [];
-            }
-            this.doAdd = false;
-        },
+
+
         workshop(){
             if(this.workshop){
                 this.firstForm.workshop = this.workshop
@@ -726,6 +741,18 @@ export default {
     width 500px
     height 550px
     overflow-x hidden
+    .el-dialog__headerbtn
+        border none
+    .el-input
+        width 80%
+        float left
+    button
+        height 40px 
+        width 60px
+        background #ffffff
+        margin-left 10px 
+        border 1px solid #409EFF
+        color #409EFF      
     .el-select
         width 100%
 .container>>>.el-table td, .container>>>.el-table th

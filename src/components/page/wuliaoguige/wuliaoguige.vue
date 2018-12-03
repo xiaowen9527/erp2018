@@ -108,7 +108,8 @@
         </el-dialog>
 
         <el-dialog title="查询" :visible.sync="oldSearch">
-            <el-input v-model="search" placeholder="请输入您要查询的物料规格名称"></el-input>
+            <el-input v-model="search" placeholder="请输入您要查询的物料规格名称" style="width:80%"></el-input>
+            <button class="button_btn" @click="vagueSearch" style="width:60px;height:40px;border:1px solid #409EFF;color:#409EFF;background:#fff;">查询</button>
             <ul class="srcond_menu">
                 <li v-if="searchList.length===0">暂无数据</li>
                 <li class="clearfix" v-for="(item,i) in searchList" :key="i">
@@ -300,23 +301,7 @@ export default {
       this.search = item.name;
       this.firstForm = item;
     },
-    //搜索
-    getSearch(name) {
-      let search = {
-        name: 17 + "|" + name
-      };
-      let searchStr = JSON.stringify(search);
-      this.$http
-        .post("/TPA/cSpecification/search?search=" + searchStr)
-        .then(res => {
-          if (res.data.code === 0) {
-            this.searchList = res.data.data.list;
-          }
-        })
-        .catch(err => {
-          NetworkAnomaly();
-        });
-    },
+
     //退出
     doOuts() {
       this.$emit("getOut", this.$route.name);
@@ -546,7 +531,33 @@ export default {
     //获取页码
     currentPage(val) {
       this.page = val;
-    }
+    },
+
+    //模糊查询
+    vagueSearch(){
+        if(this.search){
+            let search = {
+                name: 17 + "|" + this.search
+            };
+            let searchStr = JSON.stringify(search);
+            this.$http.post("/TPA/cSpecification/search?search=" + searchStr)
+                .then(res => {
+                    if (res.data.code === 0) {
+                        if(res.data.data.list.length>0){
+                            this.searchList = res.data.data.list;
+                        }else{
+                                error('暂无数据')  
+                                this.searchList = []                                 
+                        }
+                    }
+                })
+                .catch(err => {
+                NetworkAnomaly();
+                });            
+        }else{
+            error('请输入搜索条件！')  
+        }
+    } 
   },
   computed: {
     ...mapState(["collapse"])
@@ -559,12 +570,6 @@ export default {
     page() {
       this.pageParams.page = this.page - 1;
       this.getPageData();
-    },
-    //查询
-    search() {
-      if (this.search.length !== 0) {
-        this.getSearch(this.search);
-      }
     },
     //错误文件下载框消失的时候把消除上传记录
     importbox() {
@@ -579,65 +584,62 @@ export default {
 <style lang="stylus" scoped>
 @import './css/style.styl';
 
-.container>>>.el-submenu__title, .container>>>.el-menu-item {
+.container>>>.el-submenu__title, .container>>>.el-menu-item 
 	height: 3vh;
 	line-height: 3vh;
 	font-size: 1.6vh !important;
-}
 
-.secondForm>>>th, .order_table>>>.el-table td, .el-table th {
+.secondForm>>>th, .order_table>>>.el-table td, .el-table th 
 	padding: 0;
-}
 
-.secondForm>>>.el-table .cell {
+
+.secondForm>>>.el-table .cell 
 	height: 4vh;
 	line-height: 4vh;
 	text-align: center;
 	font-size: 1.6vh;
-}
 
-.secondForm>>>.el-table__empty-block {
+.secondForm>>>.el-table__empty-block 
 	min-height: 4vh;
-}
 
-.container>>>.el-dialog {
+
+.container>>>.el-dialog 
 	width: 400px;
 	height: 400px;
 	overflow-x: hidden;
-}
 
-.container>>>.el-dialog__body {
+
+.container>>>.el-dialog__body 
 	cursor: pointer !important;
 	line-height: 4vh;
 	font-weight: bold;
 	padding: 1vh 2vh;
-}
 
-.container>>>.el-input__inner {
+
+.container>>>.el-input__inner 
 	width: 100% !important;
-}
 
-.el-select>>>.el-input {
+
+.el-select>>>.el-input 
 	display: inline-block;
-}
 
-.order_table {
+.order_table 
 	width: 99%;
 	margin: 5px auto 0;
 	max-height: 45.6vh;
 	border: 0.1vh solid #d9d9d9;
 	overflow: hidden;
 
-	.el-button {
+	.el-button 
 		padding: 0.6vh 2vh;
 		margin-top: 0.4vh;
 		border: 0.1vh solid #409eff;
 		color: #409eff;
 
-		&.btn {
+		&.btn 
 			border: 0.1vh solid #d2d2d2;
 			color: #d2d2d2;
-		}
-	}
-}
+		
+	
+
 </style>

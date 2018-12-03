@@ -323,6 +323,14 @@ const router = new Router({
           meta: {
             title: '销售订单'
           },
+        },
+        {
+          path: '/shangpinzuhe',
+          name: "shangpinzuhe",
+          component: resolve => require(['@/components/page/shangpinzuhe/shangpinzuhe'], resolve),
+          meta: {
+            title: '销售订单'
+          },
         }
       ]
     }

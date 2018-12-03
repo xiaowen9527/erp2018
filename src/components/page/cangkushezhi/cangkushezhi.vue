@@ -142,6 +142,7 @@
         <!-- 查询框 -->
         <el-dialog title="查询公司" :visible.sync="oldSearch">
             <el-input v-model="search" placeholder="公司"></el-input>
+            <button class="button_btn" @click="vagueSearch">查询</button>            
             <ul class="srcond_menu">
                 <p v-if="oldSearchList.length===0">暂无数据</p>
                 <li v-for="(item,i) in oldSearchList" :key="i" class="clearfix">
@@ -683,6 +684,36 @@ export default {
         //获取页码
         currentPage(val) {
             this.page = val;
+        },
+
+        //模糊查询
+        vagueSearch(){
+            this.oldSearchList = []
+            if(this.search){
+                let search = {
+                    gsName: 17 + "|" + this.search
+                };
+                let searchStr = JSON.stringify(search);  
+                this.$http
+                    .post("/TPA/aRepertory/search?search=" + searchStr)
+                    .then(res => {
+                        if(res.data.code===0){
+                            if(res.data.data.list.length>0){
+                                this.oldSearchList = res.data.data.list;
+                            }else{
+                                error('暂无数据') 
+                                this.oldSearchList = []           
+                            }
+                        }else{
+                            errorres.data.msg()
+                        }
+                    })
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });                    
+            }else{
+                error('请输入搜索条件！')                
+            }
         }
     },
     mounted() {
@@ -695,23 +726,7 @@ export default {
                 this.$refs.upload.clearFiles();
             }
         },
-        //查询
-        search() {
-            if (this.search) {
-                let search = {
-                    gsName: 17 + "|" + this.search
-                };
-                let searchStr = JSON.stringify(search);  
-                this.$http
-                    .post("/TPA/aRepertory/search?search=" + searchStr)
-                    .then(res => {
-                        this.oldSearchList = res.data.data.list;
-                    })
-                    .catch(err => {
-                        NetworkAnomaly();
-                    });  
-            }
-        }
+
     },
     computed: {
         ...mapState(["collapse"])

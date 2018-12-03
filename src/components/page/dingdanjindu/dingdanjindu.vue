@@ -47,6 +47,7 @@
         <!-- 查询框 -->
         <el-dialog title="查询生产订单号" :visible.sync="oldSearch">
             <el-input v-model="search" placeholder="生产订单号"></el-input>
+            <button class="button_btn" @click="vagueSearch">查询</button>
             <ul class="srcond_menu">
                 <p v-if="searchList.length===0"></p>
                 <li v-for="(item,i) in searchList" :key="i" class="clearfix">
@@ -91,15 +92,18 @@ export default {
         //退出
         doOuts() {
             this.$emit("getOut", this.$route.name);
+        },
+
+        //模糊搜索
+        vagueSearch(){
+            if (this.search) {
+            } else {
+                error('请输入搜索条件!')
+            }
         }
     },
     watch: {
-        search() {
-            if (this.search) {
-            } else {
-                this.searchList = [];
-            }
-        }
+
     },
     computed: {
         ...mapState(["collapse"])

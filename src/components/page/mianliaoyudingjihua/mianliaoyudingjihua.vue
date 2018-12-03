@@ -878,22 +878,7 @@ export default {
         currentPage(val) {
             this.page = val;
         },
-        //查询颜色
-        getSearchTable() {
 
-            this.$http
-                .post("/TPA/cWldaA/getByName?name=" + this.searchSecondTable)
-                .then(res => {
-                    if (res.data.code === 0) {
-                        this.searchSecondTableList = res.data.data;
-                    } else {
-                        error(res.data.msg);
-                    }
-                })
-                .catch(err => {
-                    NetworkAnomaly();
-                });
-        },
         //选择颜色并获取当前编号的资料
         getOldColor(item) {
             this.secondForm.cWldaAId = item.id;
@@ -1051,7 +1036,46 @@ export default {
                     NetworkAnomaly();
                 });
         },
+        //查询颜色
+        getSearchTable() {
 
+            this.$http
+                .post("/TPA/cWldaA/getByName?name=" + this.searchSecondTable)
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.searchSecondTableList = res.data.data;
+                    } else {
+                        error(res.data.msg);
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
+        },
+        //模糊查询颜色
+        vagueSearchSecondTable(){
+            if(this.searchSecondTable){
+                this.$http
+                    .post("/TPA/cWldaA/getByName?name=" + this.searchSecondTable)
+                    .then(res => {
+                        if (res.data.code === 0) {
+                            if(res.data.data.length>0){
+                                this.searchSecondTableList = res.data.data;
+                            }else{
+                                error('暂无数据')   
+                                this.searchSecondTableList = []                               
+                            }
+                        } else {
+                            error(res.data.msg);
+                        }
+                    })
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });
+            }else{
+              error('请输入搜索条件！')  
+            }            
+        }
 
 
     },
@@ -1086,7 +1110,6 @@ export default {
                 this.getnavMenu();
             }
         }
-
     },
     computed: {
         ...mapState(["collapse","searchym"])
