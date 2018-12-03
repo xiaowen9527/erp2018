@@ -231,18 +231,40 @@
 
         <!-- 添加数量弹窗 -->
         <el-dialog title="保存" :visible.sync="saveOff">
-            <el-table :data="saveList">
+            <el-table :data="saveList" @cell-click="test">
                 <el-table-column prop="spdaPsn" label="款号"></el-table-column>
-                <el-table-column prop="color" label="颜色"></el-table-column>
-                <div v-for="item in this.sizeList" :data="sizeList" :key="item">
-                    <el-table-column :label="item">
-                        <template slot-scope="scope">
-                            <!-- <el-input class="changeInput" v-model="scope.row.item"/> -->
-                            <input class="changeInput" :v-model="scope.row.item" type="text"/>
+                <el-table-column prop="color" label="颜色">
+                    <template slot-scope="scope">
+                            <input class="changeInput" v-model="scope.row.color" type="text"/>
                         </template>
+                </el-table-column>
+                <div v-for="(item, index) in this.sizeList" :key="index">
+                    <el-table-column :prop="item" :label="item">
+                        <!-- <template slot-scope="scope">
+                            <input class="changeInput" v-model="scope.row.item" type="text"/>
+                        </template> -->
                     </el-table-column>
                 </div>
             </el-table>
+            <!-- <table>
+                <thead>
+                    <tr>
+                        <td>款号</td>
+                        <td>颜色</td>
+                        <td v-for="item in sizeList" :key="item">{{item}}</td>
+                    </tr>
+                    <tr></tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(item, index) in this.saveList" :key="index">
+                        <block v-for="(name, i) in sizeList" :key="i">
+                            <td v-for="(size, j) in item" :key="j">
+                                <input :v-if="size == name" :value="size" />
+                            </td>
+                        </block>
+                    </tr>
+                </tbody>
+            </table> -->
         </el-dialog>
 
         <!-- 导入弹窗 -->
@@ -316,7 +338,7 @@ export default {
           shUser: "", // 审核人
           shDate: "" // 审核日期
       },
-      spdaPsn: "", // 款号
+      spdaPsn: "b11110003", // 款号
       formOff: true, // 表单禁用、开启
       spdaPsnOff: false, // 款号禁用、开启
       // 属性选择
@@ -639,10 +661,7 @@ export default {
                         Arr.push(i);
                     }
                 }
-                Arr.unshift("款号","颜色");
-                console.log(Arr)
                 this.sizeList = Arr;
-                // this.LabelList = Arr;
 
                 // 给每一个数据加上款号
                 let Res = res.data.data;
@@ -665,6 +684,14 @@ export default {
     // 双击当前行
     chooseRow(e) {
         console.log(e)
+    },
+
+    // 双击单元格
+    test(row, column, cell, event) {
+        console.log(row)
+        console.log(column)
+        console.log(cell)
+        console.log(event)
     }
   },
 
