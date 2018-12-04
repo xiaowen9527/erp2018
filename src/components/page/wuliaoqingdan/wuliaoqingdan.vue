@@ -916,7 +916,7 @@ export default {
         doPrints() {
             this.$http
 
-                .post("/TPA/cMatBill/search?psn=" + this.list[0].psn)
+                .post("/TPA/cMatBill/order?psn=" + this.list[0].psn)
 
                 .then(res => {
                     if (res.data.code === 0) {
@@ -1483,7 +1483,7 @@ export default {
 
             // this.getDesignColor(params.psn);
             this.$http
-                .post("/TPA/cMatBill/search", qs.stringify(params))
+                .post("/TPA/cMatBill/order", qs.stringify(params))
                 .then(res => {
                     if (res.data.code === 0) {
                         this.doPrint = false;

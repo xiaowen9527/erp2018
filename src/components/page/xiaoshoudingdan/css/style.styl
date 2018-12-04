@@ -25,6 +25,20 @@
 .container>>>.el-dialog
   width: 390px 
   height: 460px
+  .el-dialog__headerbtn
+    border none
+  .el-input
+    width 80%
+    float left
+  button
+    height 23px 
+    line-height: 23px
+    width 60px
+    background #ffffff
+    margin-left 10px 
+    border 1px solid #409EFF
+    color #409EFF  
+    padding: 0
 .container>>>.tableDialog 
     .el-dialog
         width: 500px !important
@@ -36,30 +50,30 @@
         overflow: auto
         display: block
         position relative
-        thead
-            height 3vh  
-            background: #409EFF
-            td
-                width: 100px
-                line-height: 3vh
-                text-align: center
-                color: #ffffff
-        tbody
-            tr
-                &:nth-child(even)
-                    td
-                        input
-                            background: #ffffff    
-                &:nth-child(odd)
-                    td
-                        input
-                            background: #d9d9d9      
-                td
-                    input
-                        width: 100px
-                        border: none 
-                        text-align: center
-                        line-height: 3vh
+        // thead
+        //     height 36px  
+        //     background: #409EFF
+        //     td
+        //         width: 100px
+        //         line-height: 36px
+        //         text-align: center
+        //         color: #ffffff
+        // tbody
+        //     tr
+        //         &:nth-child(even)
+        //             td
+        //                 input
+        //                     background: #ffffff    
+        //         &:nth-child(odd)
+        //             td
+        //                 input
+        //                     background: #d9d9d9      
+        //         td
+        //             input
+        //                 width: 100px
+        //                 border: none 
+        //                 text-align: center
+        //                 line-height: 3vh
 //弹窗表格
 // .tableUl
 //     width: 100%
@@ -217,6 +231,8 @@
   background: transparent
   border: none
   width: 100%
+  height 4vh
+  line-height: 4vh
   text-align: center
 
 .container>>>th, .order_table>>>.el-table td, .el-table th

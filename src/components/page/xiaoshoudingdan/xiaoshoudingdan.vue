@@ -210,6 +210,7 @@
         <!-- 获取客户信息弹窗 -->
         <el-dialog title="客户信息" :visible.sync="customerOff">
             <el-input v-model="customerInfo" placeholder="客户编号 / 客户名称"></el-input>
+            <el-button @click="customerInfoFun">查询</el-button>
             <ul class="srcond_menu">
                 <li v-if="customerList.length===0">暂无数据</li>
                 <li class="clearfix" v-for="(item,i) in customerList" :key="i">
@@ -221,6 +222,7 @@
         <!-- 款号弹窗 -->
         <el-dialog title="款号" :visible.sync="spdaPsnSearchOff">
             <el-input v-model="searchSpdaPsn" placeholder="请输入你要查找的款号"></el-input>
+            <el-button @click="searchSpdaPsnFun">查询</el-button>
             <ul class="srcond_menu">
                 <li v-if="searchSpdaPsnList.length===0">暂无数据</li>
                 <li class="clearfix" v-for="(item,i) in searchSpdaPsnList" :key="i">
@@ -231,19 +233,18 @@
 
         <!-- 添加数量弹窗 -->
         <el-dialog title="保存" :visible.sync="saveOff" class="tableDialog">
-
-                <el-table :data="data_list">
-                    <el-table-column  :label="date" v-for="(date, key) in header" :key="key">
-                        <template slot-scope="scope">
-                            <input type="text" v-model="data_list[scope.$index][key]">
-                        </template>
-                    </el-table-column>
-                </el-table>
-
+            <el-table :data="tableBody">
+                <el-table-column :label="tit" v-for="(tit, key) in tableTit" :key="key">
+                    <template slot-scope="scope">
+                        <input class="changeInput" :disabled="(tableBody[scope.$index][key] == tableBody[scope.$index][0]) || 
+                        (tableBody[scope.$index][key] == tableBody[scope.$index][1])" type="text" v-model="tableBody[scope.$index][key]" />
+                    </template>
+                </el-table-column>
+            </el-table>
             <span slot="footer" class="dialog-footer">
-                <el-button @click="importCancel">取 消</el-button>
-                <el-button type="primary" @click="submitUpload" plain>确 定</el-button>
-            </span>
+                <el-button @click="savesCencel">取 消</el-button>
+                <el-button type="primary" @click="savesCommit" plain>确 定</el-button>
+            </span> 
         </el-dialog>
 
         <!-- 导入弹窗 -->
@@ -291,33 +292,6 @@ export default {
     name: "xiaoshoudingdan",
     data() {
         return {
-                header:["颜色","S", "M","L","XL","XXL","XXXL"],
-                data_list:[
-                    ["#FFFFFF","100111","100000","454545","555555","222222","9898088"],
-                    ["#FFFFFF","100111","100000","454545","555555","222222","9898088"],
-                    ["#FFFFFF","100111","100000","454545","555555","222222","9898088"],
-                ],
-            // aa: [
-            //         { name: "颜色" },
-            //         { name: "X" },
-            //         { name: "XL" },
-            //         { name: "XXL" },
-            //         { name: "XXXL" }
-            //     ],
-            // bb: [
-            //         [{ hav: "#fff" },{ hav: "10" },{ hav: "19" },{ hav: "32" },{ hav: "11" }],
-            //         [{ hav: "#fff" },{ hav: "10" },{ hav: "19" },{ hav: "32" },{ hav: "11" }],
-            //         [{ hav: "#fff" },{ hav: "10" },{ hav: "19" },{ hav: "32" },{ hav: "11" }],
-            //         [{ hav: "#fff" },{ hav: "10" },{ hav: "19" },{ hav: "32" },{ hav: "11" }],
-            //         [{ hav: "#fff" },{ hav: "10" },{ hav: "19" },{ hav: "32" },{ hav: "11" }],
-            //         [{ hav: "#fff" },{ hav: "10" },{ hav: "19" },{ hav: "32" },{ hav: "11" }],
-            //         [{ hav: "#fff" },{ hav: "10" },{ hav: "19" },{ hav: "32" },{ hav: "11" }],
-            //         [{ hav: "#fff" },{ hav: "10" },{ hav: "19" },{ hav: "32" },{ hav: "11" }],
-            //         [{ hav: "#fff" },{ hav: "10" },{ hav: "19" },{ hav: "32" },{ hav: "11" }],
-            //         [{ hav: "#fff" },{ hav: "10" },{ hav: "19" },{ hav: "32" },{ hav: "11" }],
-            //         [{ hav: "#fff" },{ hav: "10" },{ hav: "19" },{ hav: "32" },{ hav: "11" }],
-            //         [{ hav: "#fff" },{ hav: "10" },{ hav: "19" },{ hav: "32" },{ hav: "11" }],
-            //     ],
             queryInfo: "", // 顶部查询内容
             navMenus: [], // 左侧导航栏数据
             form: {
@@ -364,6 +338,8 @@ export default {
             searchSpdaPsn: "", // 模糊查询的值
             searchSpdaPsnList: [], // 模糊查询列表
 
+            tableTit: [], // 保存弹窗表头
+            tableBody: [], // 保存弹窗表格内容
             saveOff: false, // 保存弹窗开关
 
             //导入弹出开关
@@ -628,6 +604,24 @@ export default {
             this.customerOff = true;
         },
 
+        // 客户弹窗模糊查询
+        customerInfoFun() {
+            if (this.customerInfo.length !== 0) {
+                this.$http
+                    .post("/TPA/aKsDa/option?nature=客户&name=" + this.customerInfo).then(res => {
+                        if (res.data.code === 0) {
+                            this.customerList = res.data.data;
+                        } else {
+                            error(res.data.msg);
+                            this.customerList = [];
+                        }
+                    })
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });
+            }
+        },
+
         // 客户弹窗选择
         getSearchItem(item) {
             this.customerInfo = "";
@@ -667,6 +661,23 @@ export default {
             this.spdaPsnSearchOff = true;
         },
 
+        // 款号弹窗模糊查询
+        searchSpdaPsnFun() {
+            if (this.searchSpdaPsn.length !== 0) {
+                this.$http.post("/TPA/cSpda/option?psn=" + this.searchSpdaPsn).then(res => {
+                        if (res.data.code === 0) {
+                            this.searchSpdaPsnList = res.data.data;
+                        } else {
+                            error(res.data.msg);
+                            this.customerList = [];
+                        }
+                    })
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });
+            }
+        },
+
         // 款号查询弹窗选择
         getspdaPsnItem(item) {
             this.searchSpdaPsn = "";
@@ -677,27 +688,14 @@ export default {
         // 打开保存弹窗
         openSaves() {
             if (this.spdaPsn) {
-                this.$http
-                    .post("/TPA/dSellOrder/order?psn=" + this.spdaPsn)
-                    .then(res => {
-                        // 将所有尺码拿出来
-                        let Arr = [];
-                        for (let i in res.data.data[0]) {
-                            if (i != "color") {
-                                Arr.push(i);
-                            }
-                        }
-                        this.sizeList = Arr;
-
-                        // 给每一个数据加上款号
-                        let Res = res.data.data;
-                        for (let i = 0; i < Res.length; i++) {
-                            Res[i].spdaPsn = this.spdaPsn;
-                        }
-                        console.log(Res);
-                        this.saveList = Res;
-
-                        this.saveOff = true;
+                this.$http.post("/TPA/dSellOrder/order?psn=" + this.spdaPsn).then(res => {
+                       if(res.data.code === 0) {
+                            this.tableTit = res.data.attachment.head;
+                            this.tableBody = res.data.data;
+                            this.saveOff = true;
+                       } else {
+                           error(res.data.msg);
+                       }
                     })
                     .catch(err => {
                         NetworkAnomaly();
@@ -707,18 +705,51 @@ export default {
             }
         },
 
+        // 保存弹窗取消
+        savesCencel() {
+            this.saveOff = false;
+        },
+
+        // 保存弹窗确认
+        savesCommit() {
+
+            //获取所有尺码的数量
+            let lists = []
+            for(let i in this.tableBody){
+                for(let j=2;j<this.tableBody[i].length;j++)
+                    lists.push(this.tableBody[i][j])
+            }
+            
+            //把款号跟颜色拿出来遍历成数组
+            let Arrs = []
+            for(let i in this.tableBody){
+                for(let j=2;j<this.tableBody[i].length;j++){
+                    let obj = {}
+                    obj.sn = this.tableBody[i][0]
+                    obj.color = this.tableBody[i][1]
+                    Arrs.push(obj)
+                
+                }
+            }
+            
+            //把每个尺码的数量加到数组里，并把其他字段加上
+            for(let i in Arrs){
+                Arrs[i].num = lists[i]
+                Arrs[i].masterSn =this.form.sn,
+                Arrs[i].psn =this.spdaPsn,
+                Arrs[i].standarprice =this.form.priceType,
+                Arrs[i].balancePrice =this.form.priceNature,
+                Arrs[i].remark = this.form.remark                
+            }
+
+            console.log(Arrs);
+            
+        },
+
         // 双击当前行
         chooseRow(e) {
             console.log(e);
         },
-
-        // 双击单元格
-        test(row, column, cell, event) {
-            console.log(row);
-            console.log(column);
-            console.log(cell);
-            console.log(event);
-        }
     },
 
     mounted() {
@@ -728,39 +759,6 @@ export default {
     },
 
     watch: {
-        customerInfo() {
-            if (this.customerInfo.length !== 0) {
-                this.$http
-                    .post(
-                        "/TPA/aKsDa/option?nature=客户&name=" +
-                            this.customerInfo
-                    )
-                    .then(res => {
-                        this.customerList = res.data.data;
-                    })
-                    .catch(err => {
-                        NetworkAnomaly();
-                    });
-            } else {
-                this.customerList = [];
-            }
-        },
-
-        searchSpdaPsn() {
-            if (this.searchSpdaPsn.length !== 0) {
-                this.$http
-                    .post("/TPA/cSpda/option?psn=" + this.searchSpdaPsn)
-                    .then(res => {
-                        this.searchSpdaPsnList = res.data.data;
-                        // console.log(res)
-                    })
-                    .catch(err => {
-                        NetworkAnomaly();
-                    });
-            } else {
-                this.searchSpdaPsnList = [];
-            }
-        }
     },
 
     computed: {

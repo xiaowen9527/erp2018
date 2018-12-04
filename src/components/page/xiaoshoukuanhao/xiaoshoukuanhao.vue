@@ -104,6 +104,7 @@
         <!-- 获取客户信息弹窗 -->
         <el-dialog title="客户信息" :visible.sync="customerOff">
             <el-input v-model="customerInfo" placeholder="客户编号 / 客户名称"></el-input>
+            <el-button @click="vagueCustomerInfo">查询</el-button>
             <ul class="srcond_menu">
                 <li v-if="customerList.length===0">暂无数据</li>
                 <li class="clearfix" v-for="(item,i) in customerList" :key="i">
@@ -209,7 +210,7 @@ export default {
             //分页：当前页码/总数量/每页显示条数
             page: 0,
             total: "",
-            pageSize: 10,
+            pageSize: 1,
             pageOnOff: false,
             pageParams: {}
         };
@@ -301,13 +302,13 @@ export default {
 
         searchFun(params) {
             this.$http
-                .post("/TPA/dSellPsn/search?delStatus=0", qs.stringify(params))
+                .post("/TPA/dSellPsn/getPage", qs.stringify(params))
                 .then(res => {
                     if (res.data.code === 0) {
                         succ(res.data.msg);
-                        this.list = res.data.data.list;
+                        this.list = res.data.data;
 
-                        this.total = res.data.data.total;
+                        this.total = res.data.attachment.total;
                         console.log(this.total);
                         if (this.total > this.pageSize) {
                             this.pageOnOff = true;
@@ -323,7 +324,13 @@ export default {
 
         // 查询
         doSearchs() {
-            this.searchFun(this.queryInfo);
+            let params = {
+                page: this.page,
+                count: this.pageSize,
+                name: this.queryInfo
+            };
+            this.pageParams = params;
+            this.searchFun(this.pageParams);
         },
 
         // 退出
@@ -467,6 +474,7 @@ export default {
         doExamineAgains(index, row) {
             this.idx = index;
             const item = this.list[index];
+            console.log(item)
             this.$http
                 .post("/TPA/dSellPsn/auditing?status=0&id=" + item.id)
                 .then(res => {
@@ -493,10 +501,11 @@ export default {
                 };
                 let searchStr = JSON.stringify(search);
                 this.$http
-                    .post("/TPA/aKsDa/search?delStatus=0&search=" + searchStr)
+                    .post("/TPA/aKsDa/search?nature=客户&delStatus=0&search=" + searchStr)
                     .then(res => {
                         if(res.data.code===0){
-                            if(es.data.data.list.length>0){
+                            console.log(res)
+                            if(res.data.data.list.length>0){
                                 this.customerList = res.data.data.list;
                             }else{
                                 error('暂无数据') 
