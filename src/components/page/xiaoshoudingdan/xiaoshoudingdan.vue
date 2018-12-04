@@ -230,41 +230,20 @@
         </el-dialog>
 
         <!-- 添加数量弹窗 -->
-        <el-dialog title="保存" :visible.sync="saveOff">
-            <el-table :data="saveList" @cell-click="test">
-                <el-table-column prop="spdaPsn" label="款号"></el-table-column>
-                <el-table-column prop="color" label="颜色">
-                    <template slot-scope="scope">
-                            <input class="changeInput" v-model="scope.row.color" type="text"/>
+        <el-dialog title="保存" :visible.sync="saveOff" class="tableDialog">
+
+                <el-table :data="data_list">
+                    <el-table-column  :label="date" v-for="(date, key) in header" :key="key">
+                        <template slot-scope="scope">
+                            <input type="text" v-model="data_list[scope.$index][key]">
                         </template>
-                </el-table-column>
-                <div v-for="(item, index) in this.sizeList" :key="index">
-                    <el-table-column :prop="item" :label="item">
-                        <!-- <template slot-scope="scope">
-                            <input class="changeInput" v-model="scope.row.item" type="text"/>
-                        </template> -->
                     </el-table-column>
-                </div>
-            </el-table>
-            <!-- <table>
-                <thead>
-                    <tr>
-                        <td>款号</td>
-                        <td>颜色</td>
-                        <td v-for="item in sizeList" :key="item">{{item}}</td>
-                    </tr>
-                    <tr></tr>
-                </thead>
-                <tbody>
-                    <tr v-for="(item, index) in this.saveList" :key="index">
-                        <block v-for="(name, i) in sizeList" :key="i">
-                            <td v-for="(size, j) in item" :key="j">
-                                <input :v-if="size == name" :value="size" />
-                            </td>
-                        </block>
-                    </tr>
-                </tbody>
-            </table> -->
+                </el-table>
+
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="importCancel">取 消</el-button>
+                <el-button type="primary" @click="submitUpload" plain>确 定</el-button>
+            </span>
         </el-dialog>
 
         <!-- 导入弹窗 -->
@@ -301,444 +280,497 @@ import "@/assets/js/import.js"; //导入请求超时拦截
 import { mapState } from "vuex";
 
 import {
-  NetworkAnomaly,
-  succ,
-  error,
-  getOut
+    NetworkAnomaly,
+    succ,
+    error,
+    getOut
 } from "../../../assets/js/message.js";
 import qs from "qs";
 import NavMenu from "./NavMenu";
 export default {
-  name: "xiaoshoudingdan",
-  data() {
-    return {
-      queryInfo: "", // 顶部查询内容
-      navMenus: [], // 左侧导航栏数据
-      form: {
-          activeDate: "", // 订单日期
-          clientSn: "", // 客户编号
-          clientName: "", // 客户名称
-          property: "", // 属性
-          repertory: "", // 仓库
-          address: "", // 交货地址
-          deliveryDate: "", // 交货日期
-          sn: "", // 订单号
-          originSn: "", // 来源号
-          brand: "", // 品牌
-          priceNature: "", // 价格性质
-          priceType: "", // 价格类型
-          currency: "", // 币别
-          balanceMode: "", // 结算方式
-          remark: "", // 备注
+    name: "xiaoshoudingdan",
+    data() {
+        return {
+                header:["颜色","S", "M","L","XL","XXL","XXXL"],
+                data_list:[
+                    ["#FFFFFF","100111","100000","454545","555555","222222","9898088"],
+                    ["#FFFFFF","100111","100000","454545","555555","222222","9898088"],
+                    ["#FFFFFF","100111","100000","454545","555555","222222","9898088"],
+                ],
+            // aa: [
+            //         { name: "颜色" },
+            //         { name: "X" },
+            //         { name: "XL" },
+            //         { name: "XXL" },
+            //         { name: "XXXL" }
+            //     ],
+            // bb: [
+            //         [{ hav: "#fff" },{ hav: "10" },{ hav: "19" },{ hav: "32" },{ hav: "11" }],
+            //         [{ hav: "#fff" },{ hav: "10" },{ hav: "19" },{ hav: "32" },{ hav: "11" }],
+            //         [{ hav: "#fff" },{ hav: "10" },{ hav: "19" },{ hav: "32" },{ hav: "11" }],
+            //         [{ hav: "#fff" },{ hav: "10" },{ hav: "19" },{ hav: "32" },{ hav: "11" }],
+            //         [{ hav: "#fff" },{ hav: "10" },{ hav: "19" },{ hav: "32" },{ hav: "11" }],
+            //         [{ hav: "#fff" },{ hav: "10" },{ hav: "19" },{ hav: "32" },{ hav: "11" }],
+            //         [{ hav: "#fff" },{ hav: "10" },{ hav: "19" },{ hav: "32" },{ hav: "11" }],
+            //         [{ hav: "#fff" },{ hav: "10" },{ hav: "19" },{ hav: "32" },{ hav: "11" }],
+            //         [{ hav: "#fff" },{ hav: "10" },{ hav: "19" },{ hav: "32" },{ hav: "11" }],
+            //         [{ hav: "#fff" },{ hav: "10" },{ hav: "19" },{ hav: "32" },{ hav: "11" }],
+            //         [{ hav: "#fff" },{ hav: "10" },{ hav: "19" },{ hav: "32" },{ hav: "11" }],
+            //         [{ hav: "#fff" },{ hav: "10" },{ hav: "19" },{ hav: "32" },{ hav: "11" }],
+            //     ],
+            queryInfo: "", // 顶部查询内容
+            navMenus: [], // 左侧导航栏数据
+            form: {
+                activeDate: "", // 订单日期
+                clientSn: "", // 客户编号
+                clientName: "", // 客户名称
+                property: "", // 属性
+                repertory: "", // 仓库
+                address: "", // 交货地址
+                deliveryDate: "", // 交货日期
+                sn: "", // 订单号
+                originSn: "", // 来源号
+                brand: "", // 品牌
+                priceNature: "", // 价格性质
+                priceType: "", // 价格类型
+                currency: "", // 币别
+                balanceMode: "", // 结算方式
+                remark: "", // 备注
 
-          addUser: "", // 编制人
-          addDate: "", // 编制日期
-          updateUser: "", // 修改人
-          updateDate: "", // 修改日期
-          shUser: "", // 审核人
-          shDate: "" // 审核日期
-      },
-      spdaPsn: "b11110003", // 款号
-      formOff: true, // 表单禁用、开启
-      spdaPsnOff: false, // 款号禁用、开启
-      // 属性选择
-      property: [
-          {name: "销售"},
-          {name: "退货"}
-      ],
-      repertory: [], // 仓库选择
-      brand: [], // 品牌选择
-      priceNature: [], // 价格性质选择
-      priceType: [], // 价格类型选择
-      currency: [], // 币别选择
-      balanceMode: [], // 结算方式选择
-      list: [], // 表格内容
-      customerInfo: "", // 客户弹窗查询内容
-      customerOff: false, // 客户弹窗开关
-      customerList: [], // 客户弹窗列表 
-      
-      spdaPsnSearchOff: false, // 款号弹出框开关
-      searchSpdaPsn: "", // 模糊查询的值
-      searchSpdaPsnList: [], // 模糊查询列表
+                addUser: "", // 编制人
+                addDate: "", // 编制日期
+                updateUser: "", // 修改人
+                updateDate: "", // 修改日期
+                shUser: "", // 审核人
+                shDate: "" // 审核日期
+            },
+            spdaPsn: "b11110003", // 款号
+            formOff: true, // 表单禁用、开启
+            spdaPsnOff: false, // 款号禁用、开启
+            // 属性选择
+            property: [{ name: "销售" }, { name: "退货" }],
+            repertory: [], // 仓库选择
+            brand: [], // 品牌选择
+            priceNature: [], // 价格性质选择
+            priceType: [], // 价格类型选择
+            currency: [], // 币别选择
+            balanceMode: [], // 结算方式选择
+            list: [], // 表格内容
+            customerInfo: "", // 客户弹窗查询内容
+            customerOff: false, // 客户弹窗开关
+            customerList: [], // 客户弹窗列表
 
-      saveOff: false, // 保存弹窗开关
+            spdaPsnSearchOff: false, // 款号弹出框开关
+            searchSpdaPsn: "", // 模糊查询的值
+            searchSpdaPsnList: [], // 模糊查询列表
 
-      //导入弹出开关
-      importbox: false,
-      importZhe: false, //导入遮罩
-      isCover: false, //默认导入不覆盖
-      project: "", //错误文件名
-      //上传的文件
-      fileList: [],
-      Tips: "", //错误提示
-      tipOffON: false, //错误文件下载开关
+            saveOff: false, // 保存弹窗开关
 
-      saveList: [], // 保存时款号颜色尺码列表
-      sizeList: [], // 尺码组
-    };
-  },
+            //导入弹出开关
+            importbox: false,
+            importZhe: false, //导入遮罩
+            isCover: false, //默认导入不覆盖
+            project: "", //错误文件名
+            //上传的文件
+            fileList: [],
+            Tips: "", //错误提示
+            tipOffON: false, //错误文件下载开关
 
-  methods: {
-    // 新增
-    doAdds() {
-        this.formOff = false;
+            saveList: [], // 保存时款号颜色尺码列表
+            sizeList: [] // 尺码组
+        };
     },
 
-    // 取消
-    doCancels() {
-        this.formOff = true;
-        this.psnOff = true;
-        this.form = {
-            activeDate: "", // 订单日期
-            clientSn: "", // 客户编号
-            clientName: "", // 客户名称
-            property: "", // 属性
-            repertory: "", // 仓库
-            address: "", // 交货地址
-            deliveryDate: "", // 交货日期
-            sn: "", // 订单号
-            originSn: "", // 来源号
-            brand: "", // 品牌
-            priceNature: "", // 价格性质
-            priceType: "", // 价格类型
-            currency: "", // 币别
-            balanceMode: "", // 结算方式
-            remark: "", // 备注
+    methods: {
+        getDate() {},
+        // 新增
+        doAdds() {
+            this.formOff = false;
+        },
 
-            addUser: "", // 编制人
-            addDate: "", // 编制日期
-            updateUser: "", // 修改人
-            updateDate: "", // 修改日期
-            shUser: "", // 审核人
-            shDate: "" // 审核日期
-        }
-    },
+        // 取消
+        doCancels() {
+            this.formOff = true;
+            this.psnOff = true;
+            this.form = {
+                activeDate: "", // 订单日期
+                clientSn: "", // 客户编号
+                clientName: "", // 客户名称
+                property: "", // 属性
+                repertory: "", // 仓库
+                address: "", // 交货地址
+                deliveryDate: "", // 交货日期
+                sn: "", // 订单号
+                originSn: "", // 来源号
+                brand: "", // 品牌
+                priceNature: "", // 价格性质
+                priceType: "", // 价格类型
+                currency: "", // 币别
+                balanceMode: "", // 结算方式
+                remark: "", // 备注
 
-    // 修改
-    doChanges() {},
+                addUser: "", // 编制人
+                addDate: "", // 编制日期
+                updateUser: "", // 修改人
+                updateDate: "", // 修改日期
+                shUser: "", // 审核人
+                shDate: "" // 审核日期
+            };
+        },
 
-    //导入按纽
-    doImports() {
-      this.importbox = true;
-    },
-    //导入取消
-    importCancel() {
-      this.importbox = false;
-      this.$refs.upload.clearFiles();
-    },
-    //文件上传到服务器按钮
-    submitUpload() {
-      this.$refs.upload.submit();
-    },
-    //自定义上传
-    uploadFile(params) {
-      this.importZhe = true;
-      const _file = params.file;
-      let formData = new FormData();
-      formData.append("file", _file);
-      this.$ajax
-        .post("/TPA/dSellOrder/importExcel", formData)
-        .then(res => {
-          // console.log(res);
-          if (res.status === 200) {
-            if (res.data.code === 0) {
-              succ(res.data.msg);
-              this.getnavMenu();
-              this.importCancel();
-              this.$refs.upload.clearFiles();
-            } else if (res.data.code === 100) {
-              this.tipOffON = true;
-              this.project = res.data.attachment.name;
-              this.Tips = res.data.msg;
-            } else {
-              error(res.data.msg);
-            }
-          } else {
-            NetworkAnomaly();
-          }
-          this.importZhe = false;
-        })
-        .catch(err => {
-          NetworkAnomaly();
-          this.importZhe = false;
-        });
-    },
-    //下载错误文件按钮
-    importErr() {
-      let errUrl = "/TPA/aImportExcel/exportMsg?name=" + this.project;
-      // console.log(errUrl)
-      window.location.href = errUrl;
-      setTimeout(() => {
-        this.tipOffON = false;
-        this.importCancel();
-      }, 500);
-    },
-    //导出
-    doExports() {
-      window.location.href = "/TPA/dSellOrder/exportExcel";
-    },
+        // 修改
+        doChanges() {},
 
-    // 打印
-    doPrints() {},
-
-    // 查询
-    doSearchs() {},
-
-    // 退出
-    doOuts() {},
-
-    // 审核
-    doExamines() {
-
-    },
-
-    // 反审核
-    doExamineAgains() {},
-
-    // 终止
-    doStops() {
-        this.$http.post("/TPA/dSellOrderA/stop?status=1&id=").then(res => {
-
-        })
-        .catch(err => {
-            NetworkAnomaly();
-        })
-    },
-
-    // 反终止
-    NotStops() {
-        this.$http.post("/TPA/dSellOrderA/stop?status=0&id=").then(res => {
-
-        })
-        .catch(err => {
-            NetworkAnomaly();
-        })
-    },
-
-    // 关单
-    closeOrders() {
-        this.$http.post("/TPA/dSellOrderA/close?status=1&id=").then(res => {
-
-        })
-        .catch(err => {
-            NetworkAnomaly();
-        })
-    },
-
-    // 开单
-    doOrders() {
-        this.$http.post("/TPA/dSellOrderA/close?status=0&id=").then(res => {
-
-        })
-        .catch(err => {
-            NetworkAnomaly();
-        })
-    },
-
-    // 获取左侧树形导航数据
-    getnavMenu() {
-        this.$http.post("/TPA/dSellOrder/tree").then(res => {
-            // console.log(res)
-        })
-    },
-
-    // 获取所有下拉选择的数据
-    getChoose() {
-        // 仓库选择
-        this.$http.post("/TPA/aRepertory/option").then(res => {
-            // console.log(res)
-            if(res.data.code === 0) {
-                this.repertory = res.data.data;
-            }
-        })
-        .catch(err => {
-          NetworkAnomaly();
-        });
-
-        // 品牌选择
-        this.$http.post("/TPA/aLbJb/getBySn?sn=003").then(res => {
-            if(res.data.code === 0) {
-                this.brand = res.data.data;
-            }
-        })
-        .catch(err => {
-          NetworkAnomaly();
-        });
-
-        // 价格性质选择
-        this.$http.post("/TPA/aLbJb/getBySn?sn=027").then(res => {
-            if(res.data.code === 0) {
-                this.priceNature = res.data.data;
-            }
-        })
-        .catch(err => {
-          NetworkAnomaly();
-        });
-
-        // 价格类型选择
-        this.$http.post("/TPA/aLbJb/getBySn?sn=005").then(res => {
-            if(res.data.code === 0) {
-                this.priceType = res.data.data;
-            }
-        })
-        .catch(err => {
-          NetworkAnomaly();
-        });
-
-        // 币别选择
-        this.$http.post("/TPA/aLbJb/getBySn?sn=029").then(res => {
-            if(res.data.code === 0) {
-                this.currency = res.data.data;
-            }
-        })
-        .catch(err => {
-          NetworkAnomaly();
-        });
-
-        // 结算方式选择
-        this.$http.post("/TPA/aLbJb/getBySn?sn=028").then(res => {
-            if(res.data.code === 0) {
-                this.balanceMode = res.data.data;
-            }
-        })
-        .catch(err => {
-          NetworkAnomaly();
-        });
-    },
-
-    // 点击左侧导航
-    menuSelected() {},
-
-    // 点击弹出客户弹窗
-    customerFun() {
-        this.customerOff = true;
-    },
-
-     // 客户弹窗选择
-    getSearchItem(item) {
-      this.customerInfo = "";
-      this.customerOff = false;
-      this.form.clientSn = item.sn;
-      this.form.clientName = item.name;
-    },
-
-    // 表单保存
-    doSaves() {
-        let terms = this.form.activeDate && this.form.clientSn && this.form.priceType && this.form.address 
-        && this.form.deliveryDate && this.form.brand && this.form.priceNature && this.form.priceType
-        && this.form.currency && this.form.balanceMode;
-        if(terms) {
-            this.$http.post("/TPA/dSellOrder/insert", qs.stringify(this.form)).then(res => {
-                this.form.sn = res.data.data.sn;
-                this.spdaPsnOff = false;
-            })
-        } else {
-            error("请填写所有必填项");
-        }
-        this.formOff = true;
-    },
-
-    // 打开款号查询弹窗
-    searchspdaPsnFun() {
-        this.spdaPsnSearchOff = true;
-    },
-
-    // 款号查询弹窗选择
-    getspdaPsnItem(item) {
-        this.searchSpdaPsn = "";
-        this.spdaPsnSearchOff = false;
-        this.spdaPsn = item.psn;
-    },
-
-    // 打开保存弹窗
-    openSaves() {
-        if(this.spdaPsn) {
-            this.$http.post("/TPA/dSellOrder/order?psn=" + this.spdaPsn).then(res => {
-                // 将所有尺码拿出来
-                let Arr = [];
-                for(let i in res.data.data[0]) {
-                    if(i != "color") {
-                        Arr.push(i);
+        //导入按纽
+        doImports() {
+            this.importbox = true;
+        },
+        //导入取消
+        importCancel() {
+            this.importbox = false;
+            this.$refs.upload.clearFiles();
+        },
+        //文件上传到服务器按钮
+        submitUpload() {
+            this.$refs.upload.submit();
+        },
+        //自定义上传
+        uploadFile(params) {
+            this.importZhe = true;
+            const _file = params.file;
+            let formData = new FormData();
+            formData.append("file", _file);
+            this.$ajax
+                .post("/TPA/dSellOrder/importExcel", formData)
+                .then(res => {
+                    // console.log(res);
+                    if (res.status === 200) {
+                        if (res.data.code === 0) {
+                            succ(res.data.msg);
+                            this.getnavMenu();
+                            this.importCancel();
+                            this.$refs.upload.clearFiles();
+                        } else if (res.data.code === 100) {
+                            this.tipOffON = true;
+                            this.project = res.data.attachment.name;
+                            this.Tips = res.data.msg;
+                        } else {
+                            error(res.data.msg);
+                        }
+                    } else {
+                        NetworkAnomaly();
                     }
-                }
-                this.sizeList = Arr;
+                    this.importZhe = false;
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                    this.importZhe = false;
+                });
+        },
+        //下载错误文件按钮
+        importErr() {
+            let errUrl = "/TPA/aImportExcel/exportMsg?name=" + this.project;
+            // console.log(errUrl)
+            window.location.href = errUrl;
+            setTimeout(() => {
+                this.tipOffON = false;
+                this.importCancel();
+            }, 500);
+        },
+        //导出
+        doExports() {
+            window.location.href = "/TPA/dSellOrder/exportExcel";
+        },
 
-                // 给每一个数据加上款号
-                let Res = res.data.data;
-                for (let i = 0; i < Res.length; i++) {
-                    Res[i].spdaPsn = this.spdaPsn;
-                }
-                console.log(Res)
-                this.saveList = Res;
+        // 打印
+        doPrints() {},
 
-                this.saveOff = true;
-            })
-            .catch(err => {
-                NetworkAnomaly();
-            })
-        } else {
-            error("请先填写款号")
+        // 查询
+        doSearchs() {},
+
+        // 退出
+        doOuts() {},
+
+        // 审核
+        doExamines() {},
+
+        // 反审核
+        doExamineAgains() {},
+
+        // 终止
+        doStops() {
+            this.$http
+                .post("/TPA/dSellOrderA/stop?status=1&id=")
+                .then(res => {})
+                .catch(err => {
+                    NetworkAnomaly();
+                });
+        },
+
+        // 反终止
+        NotStops() {
+            this.$http
+                .post("/TPA/dSellOrderA/stop?status=0&id=")
+                .then(res => {})
+                .catch(err => {
+                    NetworkAnomaly();
+                });
+        },
+
+        // 关单
+        closeOrders() {
+            this.$http
+                .post("/TPA/dSellOrderA/close?status=1&id=")
+                .then(res => {})
+                .catch(err => {
+                    NetworkAnomaly();
+                });
+        },
+
+        // 开单
+        doOrders() {
+            this.$http
+                .post("/TPA/dSellOrderA/close?status=0&id=")
+                .then(res => {})
+                .catch(err => {
+                    NetworkAnomaly();
+                });
+        },
+
+        // 获取左侧树形导航数据
+        getnavMenu() {
+            this.$http.post("/TPA/dSellOrder/tree").then(res => {
+                // console.log(res)
+            });
+        },
+
+        // 获取所有下拉选择的数据
+        getChoose() {
+            // 仓库选择
+            this.$http
+                .post("/TPA/aRepertory/option")
+                .then(res => {
+                    // console.log(res)
+                    if (res.data.code === 0) {
+                        this.repertory = res.data.data;
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
+
+            // 品牌选择
+            this.$http
+                .post("/TPA/aLbJb/getBySn?sn=003")
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.brand = res.data.data;
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
+
+            // 价格性质选择
+            this.$http
+                .post("/TPA/aLbJb/getBySn?sn=027")
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.priceNature = res.data.data;
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
+
+            // 价格类型选择
+            this.$http
+                .post("/TPA/aLbJb/getBySn?sn=005")
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.priceType = res.data.data;
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
+
+            // 币别选择
+            this.$http
+                .post("/TPA/aLbJb/getBySn?sn=029")
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.currency = res.data.data;
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
+
+            // 结算方式选择
+            this.$http
+                .post("/TPA/aLbJb/getBySn?sn=028")
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.balanceMode = res.data.data;
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
+        },
+
+        // 点击左侧导航
+        menuSelected() {},
+
+        // 点击弹出客户弹窗
+        customerFun() {
+            this.customerOff = true;
+        },
+
+        // 客户弹窗选择
+        getSearchItem(item) {
+            this.customerInfo = "";
+            this.customerOff = false;
+            this.form.clientSn = item.sn;
+            this.form.clientName = item.name;
+        },
+
+        // 表单保存
+        doSaves() {
+            let terms =
+                this.form.activeDate &&
+                this.form.clientSn &&
+                this.form.priceType &&
+                this.form.address &&
+                this.form.deliveryDate &&
+                this.form.brand &&
+                this.form.priceNature &&
+                this.form.priceType &&
+                this.form.currency &&
+                this.form.balanceMode;
+            if (terms) {
+                this.$http
+                    .post("/TPA/dSellOrder/insert", qs.stringify(this.form))
+                    .then(res => {
+                        this.form.sn = res.data.data.sn;
+                        this.spdaPsnOff = false;
+                    });
+            } else {
+                error("请填写所有必填项");
+            }
+            this.formOff = true;
+        },
+
+        // 打开款号查询弹窗
+        searchspdaPsnFun() {
+            this.spdaPsnSearchOff = true;
+        },
+
+        // 款号查询弹窗选择
+        getspdaPsnItem(item) {
+            this.searchSpdaPsn = "";
+            this.spdaPsnSearchOff = false;
+            this.spdaPsn = item.psn;
+        },
+
+        // 打开保存弹窗
+        openSaves() {
+            if (this.spdaPsn) {
+                this.$http
+                    .post("/TPA/dSellOrder/order?psn=" + this.spdaPsn)
+                    .then(res => {
+                        // 将所有尺码拿出来
+                        let Arr = [];
+                        for (let i in res.data.data[0]) {
+                            if (i != "color") {
+                                Arr.push(i);
+                            }
+                        }
+                        this.sizeList = Arr;
+
+                        // 给每一个数据加上款号
+                        let Res = res.data.data;
+                        for (let i = 0; i < Res.length; i++) {
+                            Res[i].spdaPsn = this.spdaPsn;
+                        }
+                        console.log(Res);
+                        this.saveList = Res;
+
+                        this.saveOff = true;
+                    })
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });
+            } else {
+                error("请先填写款号");
+            }
+        },
+
+        // 双击当前行
+        chooseRow(e) {
+            console.log(e);
+        },
+
+        // 双击单元格
+        test(row, column, cell, event) {
+            console.log(row);
+            console.log(column);
+            console.log(cell);
+            console.log(event);
         }
     },
 
-    // 双击当前行
-    chooseRow(e) {
-        console.log(e)
+    mounted() {
+        this.getnavMenu();
+        this.getChoose();
+        this.getDate();
     },
 
-    // 双击单元格
-    test(row, column, cell, event) {
-        console.log(row)
-        console.log(column)
-        console.log(cell)
-        console.log(event)
-    }
-  },
+    watch: {
+        customerInfo() {
+            if (this.customerInfo.length !== 0) {
+                this.$http
+                    .post(
+                        "/TPA/aKsDa/option?nature=客户&name=" +
+                            this.customerInfo
+                    )
+                    .then(res => {
+                        this.customerList = res.data.data;
+                    })
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });
+            } else {
+                this.customerList = [];
+            }
+        },
 
-  mounted() {
-    this.getnavMenu();
-    this.getChoose();
-  },
-
-  watch: {
-    customerInfo() {
-      if (this.customerInfo.length !== 0) {
-        this.$http.post("/TPA/aKsDa/option?nature=客户&name=" + this.customerInfo).then(res => {
-            this.customerList = res.data.data;
-          })
-          .catch(err => {
-            NetworkAnomaly();
-          });
-      } else {
-        this.customerList = [];
-      }
-    },
-
-    searchSpdaPsn() {
-        if (this.searchSpdaPsn.length !== 0) {
-        this.$http
-          .post("/TPA/cSpda/option?psn=" + this.searchSpdaPsn)
-          .then(res => {
-            this.searchSpdaPsnList = res.data.data;
-            // console.log(res)
-          })
-          .catch(err => {
-            NetworkAnomaly();
-          });
-        } else {
-            this.searchSpdaPsnList = [];
+        searchSpdaPsn() {
+            if (this.searchSpdaPsn.length !== 0) {
+                this.$http
+                    .post("/TPA/cSpda/option?psn=" + this.searchSpdaPsn)
+                    .then(res => {
+                        this.searchSpdaPsnList = res.data.data;
+                        // console.log(res)
+                    })
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });
+            } else {
+                this.searchSpdaPsnList = [];
+            }
         }
+    },
+
+    computed: {
+        ...mapState(["collapse"])
+    },
+
+    // 引入组件
+    components: {
+        NavMenu
     }
-  },
-
-  computed: {
-    ...mapState(["collapse"])
-  },
-
-  // 引入组件
-  components: {
-    NavMenu
-  }
 };
 </script>
 

@@ -141,6 +141,9 @@
                             <input type="text" v-model="firstForm.dosage" :disabled="firstFormOn" placeholder="">
 
                         </li>
+                        <li>
+                             <el-checkbox  :disabled="firstFormOn" v-model="firstForm.isCode">按码算</el-checkbox>
+                        </li>
 
                         <li class="explain clearfix">
 
@@ -187,7 +190,7 @@
 
                                 <el-table-column prop="kz" label="克重" min-width="8.2%">
                                     <template slot-scope="scope">
-                                        <el-tooltip :content="scope.row.kz" placement="top" :enterable="false">
+                                        <el-tooltip :content="String(scope.row.kz)" placement="top" :enterable="false">
                                             <p>{{ scope.row.kz }}</p>
                                         </el-tooltip>
                                     </template>
@@ -195,7 +198,7 @@
 
                                 <el-table-column prop="size" label="布宽" min-width="8.2%">
                                     <template slot-scope="scope">
-                                        <el-tooltip :content="scope.row.size" placement="top" :enterable="false">
+                                        <el-tooltip :content="String(scope.row.size)" placement="top" :enterable="false">
                                             <p>{{ scope.row.size }}</p>
                                         </el-tooltip>
                                     </template>
@@ -212,7 +215,7 @@
 
                                 <el-table-column prop="dosage" label="用量" min-width="8.2%">
                                     <template slot-scope="scope">
-                                        <el-tooltip :content="scope.row.dosage" placement="top" :enterable="false">
+                                        <el-tooltip :content="String(scope.row.dosage)" placement="top" :enterable="false">
                                             <p>{{ scope.row.dosage }}</p>
                                         </el-tooltip>
                                     </template>
@@ -551,6 +554,8 @@ export default {
                 dosageUnit: "",
 
                 dosageUnitSn: "",
+                
+                isCode:false,   //是否按码算
 
                 explain: "" //说明
             },
@@ -607,7 +612,7 @@ export default {
 
             total: "",
 
-            pageSize: 10,
+            pageSize: 1,
 
             pageOnOff: false,
 
@@ -688,6 +693,7 @@ export default {
                 dosage: "", //大量货用量
 
                 dosageUnit: "",
+                isCode:false,
 
                 dosageUnitSn: "",
 
@@ -783,7 +789,13 @@ export default {
                     this.firstForm.dosageUnitSn = this.dosageUnit[i].sn;
                 }
             }
-
+            if(this.firstForm.isCode){
+                this.firstForm.isCode = 1
+            }else{
+                this.firstForm.isCode = 0
+            }
+            console.log(this.firstForm);
+            
             let term =
                 !this.firstForm.psn ||
                 !this.firstForm.materialSn ||
@@ -1366,25 +1378,7 @@ export default {
                 .catch(err => [NetworkAnomaly()]);
         },
 
-        //选择查询的设计编号
 
-        // getItemSearch(item) {
-
-        //   this.firstForm.psn = this.search;
-
-        //   this.doCancels();
-
-        //   this.emptyBtnTo();
-
-        //   this.firstForm = item;
-
-        //   this.oldSearch = false;
-
-        //   this.search = "";
-
-        //   this.getDesignColor(this.firstForm.psn);
-
-        // },
 
         //选择设计编号
 
@@ -1408,6 +1402,7 @@ export default {
             this.pageParams = params;
 
             this.getPageData(this.pageParams);
+            this.getDesignColor(item.pSn);
 
             this.psn = "";
             this.search = item.pSn;
@@ -1496,34 +1491,36 @@ export default {
                         let list = res.data.data.list;
 
                         // 循环表格数据
-                        for (var i = 0; i < list.length; i++) {
-                            // 声明变量装重新排序的每一个list
-                            let Arr = [];
+                        // for (var i = 0; i < list.length; i++) {
+                        //     // 声明变量装重新排序的每一个list
+                        //     let Arr = [];
 
-                            for (var j = 0; j < this.tableTit.length; j++) {
-                                for (
-                                    var k = 0;
-                                    k < list[i].attachment.color.length;
-                                    k++
-                                ) {
-                                    // 循环每一个this.list[i].attachment.color，拿每一个表头按顺序进行对比，如果相同
-                                    if (
-                                        this.tableTit[j] ==
-                                        list[i].attachment.color[k].psnColor
-                                    ) {
-                                        Arr.push(list[i].attachment.color[k]);
-                                    }
-                                }
-                            }
+                        //     for (var j = 0; j < this.tableTit.length; j++) {
+                        //         for (
+                        //             var k = 0;
+                        //             k < list[i].attachment.color.length;
+                        //             k++
+                        //         ) {
+                        //             // 循环每一个this.list[i].attachment.color，拿每一个表头按顺序进行对比，如果相同
+                        //             if (
+                        //                 this.tableTit[j] ==
+                        //                 list[i].attachment.color[k].psnColor
+                        //             ) {
+                        //                 Arr.push(list[i].attachment.color[k]);
+                        //             }
+                        //         }
+                        //     }
 
-                            if (Arr.length < list[i].attachment.color.length) {
-                                list[i].attachment.color = Arr;
-                            } else {
-                                Arr = [];
-                            }
-                        }
+                        //     if (Arr.length < list[i].attachment.color.length) {
+                        //         list[i].attachment.color = Arr;
+                        //     } else {
+                        //         Arr = [];
+                        //     }
+                        // }
 
                         this.list = list;
+
+                        
 
                         this.total = res.data.data.total;
 

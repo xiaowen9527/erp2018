@@ -132,7 +132,7 @@
 
         <el-dialog title="颜色" :visible.sync="oldColor">
             <el-input v-model="searchColor" placeholder="请输入你要查找的颜色"></el-input>
-            <button class="button_btn" @click="vagueSearch">查询</button>
+            <button class="button_btn" @click="vagueColor">查询</button>
             <ul class="srcond_menu">
                 <li v-if="colorList.length===0">暂无数据</li>
                 <li class="clearfix" v-for="(item,i) in colorList" :key="i">
@@ -815,7 +815,7 @@ export default {
         },
         //模糊查询颜色
         vagueColor(){
-            if(this.searchColor){
+            if (this.searchColor.length !== 0) {
                 let search = {
                     pidSn: "9|1",
                     name: 17 + "|" + this.searchColor
@@ -829,10 +829,10 @@ export default {
                     .then(res => {
                         if (res.data.code === 0) {
                             if(res.data.data.list.length>0){
-                                this.colorList = res.data.data.list;
+                                 this.colorList = res.data.data.list;
                             }else{
                                 error('暂无数据') 
-                                this.colorList = []                                 
+                                this.colorList = []                              
                             }
                         } else {
                             error(res.data.msg);
@@ -841,8 +841,8 @@ export default {
                     .catch(err => {
                         NetworkAnomaly();
                     });
-            }else{
-                error('请输入搜索条件！') 
+            } else {
+                this.colorList = [];
             }
         }
         
@@ -862,32 +862,7 @@ export default {
     },
     watch: {
 
-        searchColor() {
-            if (this.searchColor.length !== 0) {
-                let search = {
-                    pidSn: "9|1",
-                    name: 17 + "|" + this.searchColor
-                };
-                let searchStr = JSON.stringify(search);
-                this.$http
-                    .post(
-                        "/TPA/aYscm/searchColor?status=1&&delStatus=0&search=" +
-                            searchStr
-                    )
-                    .then(res => {
-                        if (res.data.code === 0) {
-                            this.colorList = res.data.data.list;
-                        } else {
-                            error(res.data.msg);
-                        }
-                    })
-                    .catch(err => {
-                        NetworkAnomaly();
-                    });
-            } else {
-                this.colorList = [];
-            }
-        },
+       
         searchYear() {
             this.getnavMenu();
         },
