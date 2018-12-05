@@ -3,9 +3,9 @@
 
         <label v-for="(navMenu,i) in navMenus" :key="i">
             <!--只有一级菜单-->
-            <el-menu-item :key="navMenu" :index="String(navMenu)">
+            <el-menu-item :index="String(navMenu.sn)">
                 <!--标题-->
-                <span slot="title">|--{{navMenu}}</span>
+                <span slot="title">|--{{navMenu.sn}}</span>
             </el-menu-item>
         </label>
 

@@ -210,7 +210,7 @@ export default {
             //分页：当前页码/总数量/每页显示条数
             page: 0,
             total: "",
-            pageSize: 1,
+            pageSize: 10,
             pageOnOff: false,
             pageParams: {}
         };
@@ -371,6 +371,7 @@ export default {
         // 客户弹窗选择
         getSearchItem(item) {
             this.customerInfo = "";
+            this.customerList = [];
             this.customerOff = false;
             this.form.clientSn = item.sn;
             this.form.clientName = item.name;
@@ -526,10 +527,6 @@ export default {
 
     mounted() {
         this.getnavMenu();
-    },
-
-    watch: {
-        customerInfo() {}
     },
 
     computed: {

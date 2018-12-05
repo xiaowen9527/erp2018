@@ -7,7 +7,7 @@
         <div class="btn-box">
             <button class="button_btn" @click="doAdds">新增</button>
             <button class="button_btn" @click="doCancels">取消</button>
-            <button class="button_btn" @click="doChanges">修改</button>
+            <button class="btn" :class="{button_btn: form.sn}" :disabled="!form.sn" @click="doChanges">修改</button>
             <button class="button_btn" @click="doImports">导入</button>
             <button class="button_btn" @click="doPrints">打印</button>
             <button class="button_btn" @click="doExports">导出</button>
@@ -16,12 +16,12 @@
             <button class="button_btn" @click="doOuts">退出</button>
 
             <div class="btn_right">
-                <button class="button_btn" @click="doExamines">审核</button>
-                <button class="button_btn" @click="doExamineAgains">反审核</button>
-                <button class="button_btn" @click="doStops">终止</button>
-                <button class="button_btn" @click="NotStops">启用</button>
-                <button class="button_btn" @click="closeOrders">关单</button>
-                <button class="button_btn" @click="doOrders">开单</button>
+                <button class="btn" :class="{button_btn: form.sh == 0}" :disabled="form.sh != 0" @click="doExamines">审核</button>
+                <button class="btn" :class="{button_btn: form.sh == 1}" :disabled="form.sh != 1" @click="doExamineAgains">反审核</button>
+                <button class="btn" :class="{button_btn: form.stopStatus == 0}" :disabled="form.stopStatus != 0" @click="doStops">终止</button>
+                <button class="btn" :class="{button_btn: form.stopStatus == 1}" :disabled="form.stopStatus != 1" @click="NotStops">启用</button>
+                <button class="btn" :class="{button_btn: form.closeStatus == 0}" :disabled="form.closeStatus != 0" @click="doOrders">开单</button>
+                <button class="btn" :class="{button_btn: form.closeStatus == 1}" :disabled="form.closeStatus != 1" @click="closeOrders">关单</button>
             </div>
         </div>
 
@@ -39,7 +39,7 @@
                     <ul class="clearfix">
                         <li>
                             <label>订单日期</label>
-                            <el-date-picker format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd" v-model="form.activeDate" type="date" placeholder="必填" :disabled="formOff">
+                            <el-date-picker format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd" v-model="form.date" type="date" placeholder="必填" :disabled="formOff">
                             </el-date-picker>
                         </li>
                         <li class="menuLi">
@@ -66,11 +66,11 @@
                     <ul class="clearfix">
                         <li>
                             <label>交货地址</label>
-                            <input type="text" placeholder="必填" v-model="form.address" :disabled="formOff">
+                            <input type="text" placeholder="必填" v-model="form.deliveryAddress" :disabled="formChange">
                         </li>
                         <li>
                             <label>交货日期</label>
-                            <el-date-picker format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd" v-model="form.deliveryDate" type="date" placeholder="必填" :disabled="formOff">
+                            <el-date-picker format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd" v-model="form.deliveryDate" type="date" placeholder="必填" :disabled="formChange">
                             </el-date-picker>
                         </li>
                         <li>
@@ -79,11 +79,11 @@
                         </li>
                         <li>
                             <label>来源号</label>
-                            <input type="text" :disabled="formOff" v-model="form.originSn">
+                            <input type="text" :disabled="formChange" v-model="form.originSn">
                         </li>
                         <li>
                             <label>品牌</label>
-                            <el-select v-model="form.brand" placeholder="必选" :disabled="formOff">
+                            <el-select v-model="form.brand" placeholder="必选" :disabled="formChange">
                                 <el-option v-for="item in this.brand" :key="item.name" :label="item.name" :value="item.name">
                                 </el-option>
                             </el-select>
@@ -106,23 +106,23 @@
                         </li>
                         <li>
                             <label>币别</label>
-                            <el-select v-model="form.currency" placeholder="必选" :disabled="formOff">
+                            <el-select v-model="form.currency" placeholder="必选" :disabled="formChange">
                                 <el-option v-for="item in this.currency" :key="item.name" :label="item.name" :value="item.name">
                                 </el-option>
                             </el-select>
                         </li>
                         <li>
                             <label>结算方式</label>
-                            <el-select v-model="form.balanceMode" placeholder="必选" :disabled="formOff">
+                            <el-select v-model="form.balanceMode" placeholder="必选" :disabled="formChange">
                                 <el-option v-for="item in this.balanceMode" :key="item.name" :label="item.name" :value="item.name">
                                 </el-option>
                             </el-select>
                         </li>
                         <li>
                             <label>备注</label>
-                            <input type="text" :disabled="formOff" v-model="form.remark">
+                            <input type="text" :disabled="formChange" v-model="form.remark">
                         </li>
-                        <button class="save" @click="doSaves" :class="{button_btn:!formOff}" :disabled="formOff">保存</button>
+                        <button class="save" @click="doSaves" :class="{button_btn:!formChange}" :disabled="formChange">保存</button>
                     </ul>
                     <ul class="clearfix">
                         <li>
@@ -140,34 +140,36 @@
                         <button class="changeTable_btn">附加信息</button>
                     </div> -->
                     <el-table :data="list" stripe style="width: 100%" index @row-dblclick="chooseRow">
-                        <el-table-column prop="activeDate" label="品类" min-width="7.5%">
+                        <el-table-column prop="lbch1Name" label="品类" min-width="8%">
                         </el-table-column>
-                        <el-table-column prop="clientName" label="名称" min-width="7.5%">
+                        <el-table-column prop="lbch3Name" label="名称" min-width="8%">
                         </el-table-column>
-                        <el-table-column prop="spdaPsn" label="款号" min-width="7.5%">
+                        <el-table-column prop="psn" label="款号" min-width="8%">
                         </el-table-column>
-                        <el-table-column prop="psn" label="颜色" min-width="7.5%">
+                        <el-table-column prop="color" label="颜色" min-width="8%">
                         </el-table-column>
-                        <el-table-column prop="msg1" label="尺码" min-width="10%">
-                            <template slot-scope="scope">
+                        <el-table-column prop="size" label="尺码" min-width="5%">
+                            <!-- <template slot-scope="scope">
                                 <el-button :disabled="(scope.row.sh == 1)" :class="{btn:scope.row.sh == 1}" @click="handleEdit(scope.$index, scope.row)">查看/修改</el-button>
-                            </template>
+                            </template> -->
                         </el-table-column>
-                        <el-table-column prop="msg2" label="数量" min-width="7.5%">
+                        <el-table-column prop="number" label="数量" min-width="6%">
                         </el-table-column>
-                        <el-table-column prop="msg3" label="标准价" min-width="7.5%">
+                        <el-table-column prop="discount" label="折扣" min-width="5%">
                         </el-table-column>
-                        <el-table-column prop="msg3" label="结算价" min-width="7.5%">
+                        <el-table-column prop="standardPrice" label="标准价" min-width="8%">
                         </el-table-column>
-                        <el-table-column prop="msg3" label="结算金额" min-width="7.5%">
+                        <el-table-column prop="balancePrice" label="结算价" min-width="8%">
                         </el-table-column>
-                        <el-table-column fixed="right" label="操作" min-width="24%">
+                        <el-table-column prop="price" label="结算金额" min-width="8%">
+                        </el-table-column>
+                        <el-table-column fixed="right" label="操作" min-width="28%">
                             <template slot-scope="scope">
-                                <el-button :disabled="(scope.row.sh == 1)" :class="{btn:scope.row.sh == 1}" @click="handleEdit(scope.$index, scope.row)">修改</el-button>
+                                <el-button :disabled="(scope.row.sh == 1)" :class="{btn:scope.row.sh == 1}" @click="tableUpdate(scope.$index, scope.row)">修改</el-button>
                                 <el-button :disabled="(scope.row.sh == 1)" :class="{btn:scope.row.sh == 1}" @click="tableDelete(scope.$index, scope.row)">删除</el-button>
-                                <el-button :disabled="(scope.row.sh == 1)" :class="{btn:scope.row.sh == 1}" @click="doExamines(scope.$index, scope.row)">终止</el-button>
+                                <el-button :disabled="(scope.row.sh == 1)" :class="{btn:scope.row.sh == 1}" @click="tableStop(scope.$index, scope.row)">终止</el-button>
                                 <!-- <el-button :disabled="(scope.row.sh == 0)" :class="{btn:scope.row.sh == 0}" @click="doExamineAgains(scope.$index, scope.row)">反审</el-button> -->
-                                <el-button :disabled="(scope.row.sh == 0)" :class="{btn:scope.row.sh == 0}" @click="doExamineAgains(scope.$index, scope.row)">关款</el-button>
+                                <el-button :disabled="(scope.row.sh == 0)" :class="{btn:scope.row.sh == 0}" @click="tableClose(scope.$index, scope.row)">关款</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -203,8 +205,8 @@
                     <span>{{this.form.shDate}}</span>
                 </li>
             </ul>
-            <!-- <el-pagination @current-change="currentPage" :current-page='page' v-if="pageOnOff" background :page-size="pageSize" :pager-count="5" :total="total">
-            </el-pagination> -->
+            <el-pagination @current-change="currentPage" :current-page='page' v-if="pageOnOff" background :page-size="pageSize" :pager-count="5" :total="total">
+            </el-pagination>
         </div>
 
         <!-- 获取客户信息弹窗 -->
@@ -242,9 +244,35 @@
                 </el-table-column>
             </el-table>
             <span slot="footer" class="dialog-footer">
+                <ul class="clearfix footerUL">
+                    <li class="fl">
+                        <label for="">折扣</label>
+                        <input type="text">
+                    </li>
+                    <li class="fl">
+                        <label for="">结算价</label>
+                        <input type="text" v-model="balancePrice">
+                    </li>
+                </ul>
                 <el-button @click="savesCencel">取 消</el-button>
                 <el-button type="primary" @click="savesCommit" plain>确 定</el-button>
             </span> 
+        </el-dialog>
+
+        <!-- 修改弹窗 -->
+        <el-dialog :visible.sync="editVisible" class="updateMask">
+            <el-form :model="dialog" label-width="100px">
+                <el-form-item label="数量">
+                    <el-input v-model="dialog.number"></el-input>
+                </el-form-item>
+                <el-form-item label="折扣">
+                    <el-input v-model="dialog.discount"></el-input>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="editVisible = false">取 消</el-button>
+                <el-button type="primary" @click="saveRevise">确 定</el-button>
+            </span>
         </el-dialog>
 
         <!-- 导入弹窗 -->
@@ -295,12 +323,12 @@ export default {
             queryInfo: "", // 顶部查询内容
             navMenus: [], // 左侧导航栏数据
             form: {
-                activeDate: "", // 订单日期
+                date: "", // 订单日期
                 clientSn: "", // 客户编号
                 clientName: "", // 客户名称
                 property: "", // 属性
                 repertory: "", // 仓库
-                address: "", // 交货地址
+                deliveryAddress: "", // 交货地址
                 deliveryDate: "", // 交货日期
                 sn: "", // 订单号
                 originSn: "", // 来源号
@@ -310,6 +338,9 @@ export default {
                 currency: "", // 币别
                 balanceMode: "", // 结算方式
                 remark: "", // 备注
+                sh: "-3", // 审核/反审
+                stopStatus: "-3", // 终止/开启
+                closeStatus: "", // 关单/开单
 
                 addUser: "", // 编制人
                 addDate: "", // 编制日期
@@ -318,9 +349,10 @@ export default {
                 shUser: "", // 审核人
                 shDate: "" // 审核日期
             },
-            spdaPsn: "b11110003", // 款号
+            spdaPsn: "", // 款号
             formOff: true, // 表单禁用、开启
-            spdaPsnOff: false, // 款号禁用、开启
+            formChange: true, // 表单修改内容
+            spdaPsnOff: true, // 款号禁用、开启
             // 属性选择
             property: [{ name: "销售" }, { name: "退货" }],
             repertory: [], // 仓库选择
@@ -341,6 +373,10 @@ export default {
             tableTit: [], // 保存弹窗表头
             tableBody: [], // 保存弹窗表格内容
             saveOff: false, // 保存弹窗开关
+            balancePrice: "", // 结算价
+
+            dialog: {}, // 修改弹窗内容
+            editVisible: false, // 修改弹窗显示/隐藏
 
             //导入弹出开关
             importbox: false,
@@ -353,7 +389,14 @@ export default {
             tipOffON: false, //错误文件下载开关
 
             saveList: [], // 保存时款号颜色尺码列表
-            sizeList: [] // 尺码组
+            sizeList: [], // 尺码组
+
+            //分页：当前页码/总数量/每页显示条数
+            page: 0,
+            total: "",
+            pageSize: 10,
+            pageOnOff: false,
+            pageParams: {}
         };
     },
 
@@ -361,20 +404,25 @@ export default {
         getDate() {},
         // 新增
         doAdds() {
+            this.doCancels();
             this.formOff = false;
+            this.formChange = false;
+            this.spdaPsnOff = true;
         },
 
         // 取消
         doCancels() {
             this.formOff = true;
-            this.psnOff = true;
+            this.formChange = true;
+            this.spdaPsnOff = true;
             this.form = {
-                activeDate: "", // 订单日期
+                id: "",
+                date: "", // 订单日期
                 clientSn: "", // 客户编号
                 clientName: "", // 客户名称
                 property: "", // 属性
                 repertory: "", // 仓库
-                address: "", // 交货地址
+                deliveryAddress: "", // 交货地址
                 deliveryDate: "", // 交货日期
                 sn: "", // 订单号
                 originSn: "", // 来源号
@@ -384,6 +432,9 @@ export default {
                 currency: "", // 币别
                 balanceMode: "", // 结算方式
                 remark: "", // 备注
+                sh: "-3", // 审核/反审
+                stopStatus: "-3", // 终止/开启
+                closeStatus: "", // 关单/开单
 
                 addUser: "", // 编制人
                 addDate: "", // 编制日期
@@ -392,10 +443,15 @@ export default {
                 shUser: "", // 审核人
                 shDate: "" // 审核日期
             };
+            this.list = [];
         },
 
         // 修改
-        doChanges() {},
+        doChanges() {
+            this.formOff = true;
+            this.formChange = false;
+            this.spdaPsnOff = true;
+        },
 
         //导入按纽
         doImports() {
@@ -461,62 +517,147 @@ export default {
         // 打印
         doPrints() {},
 
+        // 查询方法 查询、分页都用这个
+        searchFun(params) {
+            this.$http.post("/TPA/dSellOrderA/search", qs.stringify(params)).then(res => {
+                if (res.data.code === 0) {
+                    this.list = res.data.data;
+
+                    this.total = res.data.attachment.total;
+                    if (this.total > this.pageSize) {
+                        this.pageOnOff = true;
+                    } else {
+                        this.pageOnOff = false;
+                    }
+                }
+            })
+        },
+
         // 查询
-        doSearchs() {},
+        doSearchs() {
+            if (this.queryInfo != "") {
+                let params = {
+                    sn: this.queryInfo,
+                    page: this.page,
+                    count: this.pageSize
+                }
+                this.pageParams = params;
+                this.searchFun(this.pageParams);
+                this.$http.post("/TPA/dSellOrder/getBySn?sn=" + this.queryInfo).then(res => {
+                    if(res.data.code === 0) {
+                        this.form = res.data.data;
+                    } else {
+                        error(res.data.msg);
+                    }
+                })
+            }
+        },
 
         // 退出
         doOuts() {},
 
         // 审核
-        doExamines() {},
+        doExamines() {
+            this.$http.post("/TPA/dSellOrder/auditing?status=1&id=" + this.form.id).then(res => {
+                if (res.data.code === 0) {
+                    this.$http.post("/TPA/dSellOrder/getBySn?sn=" + this.pageParams.sn).then(res => {
+                        this.form = res.data.data;
+                    })
+                } else {
+                    error(res.data.msg)
+                }
+            })
+            .catch(err => {
+                NetworkAnomaly();
+            });
+        },
 
         // 反审核
-        doExamineAgains() {},
+        doExamineAgains() {
+            this.$http.post("/TPA/dSellOrder/auditing?status=0&id=" + this.form.id).then(res => {
+                if (res.data.code === 0) {
+                    this.$http.post("/TPA/dSellOrder/getBySn?sn=" + this.pageParams.sn).then(res => {
+                        this.form = res.data.data;
+                    })
+                } else {
+                    error(res.data.msg)
+                }
+            })
+            .catch(err => {
+                NetworkAnomaly();
+            });
+        },
 
         // 终止
         doStops() {
-            this.$http
-                .post("/TPA/dSellOrderA/stop?status=1&id=")
-                .then(res => {})
-                .catch(err => {
-                    NetworkAnomaly();
-                });
+            this.$http.post("/TPA/dSellOrder/stop?status=1&id=" + this.form.id).then(res => {
+                if (res.data.code === 0) {
+                    this.$http.post("/TPA/dSellOrder/getBySn?sn=" + this.pageParams.sn).then(res => {
+                        this.form = res.data.data;
+                    })
+                } else {
+                    error(res.data.msg)
+                }
+            })
+            .catch(err => {
+                NetworkAnomaly();
+            });
         },
 
         // 反终止
         NotStops() {
-            this.$http
-                .post("/TPA/dSellOrderA/stop?status=0&id=")
-                .then(res => {})
-                .catch(err => {
-                    NetworkAnomaly();
-                });
-        },
-
-        // 关单
-        closeOrders() {
-            this.$http
-                .post("/TPA/dSellOrderA/close?status=1&id=")
-                .then(res => {})
-                .catch(err => {
-                    NetworkAnomaly();
-                });
+            this.$http.post("/TPA/dSellOrder/stop?status=0&id=" + this.form.id).then(res => {
+                if (res.data.code === 0) {
+                    this.$http.post("/TPA/dSellOrder/getBySn?sn=" + this.pageParams.sn).then(res => {
+                        this.form = res.data.data;
+                    })
+                } else {
+                    error(res.data.msg)
+                }
+            })
+            .catch(err => {
+                NetworkAnomaly();
+            });
         },
 
         // 开单
         doOrders() {
-            this.$http
-                .post("/TPA/dSellOrderA/close?status=0&id=")
-                .then(res => {})
-                .catch(err => {
-                    NetworkAnomaly();
-                });
+            this.$http.post("/TPA/dSellOrder/close?status=0&id=" + this.form.id).then(res => {
+                if (res.data.code === 0) {
+                    this.$http.post("/TPA/dSellOrder/getBySn?sn=" + this.pageParams.sn).then(res => {
+                        this.form = res.data.data;
+                    })
+                } else {
+                    error(res.data.msg)
+                }
+            })
+            .catch(err => {
+                NetworkAnomaly();
+            });
+        },
+
+        // 关单
+        closeOrders() {
+            this.$http.post("/TPA/dSellOrder/close?status=1&id=" + this.form.id).then(res => {
+                if (res.data.code === 0) {
+                    this.$http.post("/TPA/dSellOrder/getBySn?sn=" + this.pageParams.sn).then(res => {
+                        this.form = res.data.data;
+                    })
+                } else {
+                    error(res.data.msg)
+                }
+            })
+            .catch(err => {
+                NetworkAnomaly();
+            });
         },
 
         // 获取左侧树形导航数据
         getnavMenu() {
             this.$http.post("/TPA/dSellOrder/tree").then(res => {
-                // console.log(res)
+                if (res.data.code === 0) {
+                    this.navMenus = res.data.data;
+                }
             });
         },
 
@@ -597,7 +738,20 @@ export default {
         },
 
         // 点击左侧导航
-        menuSelected() {},
+        menuSelected(e) {
+            this.doCancels();
+            this.page = 1;
+            let params = {
+                page: this.page - 1,
+                count: this.pageSize,
+                sn: e
+            }
+            this.pageParams = params;
+            this.searchFun(this.pageParams);
+            this.$http.post("/TPA/dSellOrder/getBySn?sn=" + e).then(res => {
+                this.form = res.data.data;
+            })
+        },
 
         // 点击弹出客户弹窗
         customerFun() {
@@ -619,6 +773,8 @@ export default {
                     .catch(err => {
                         NetworkAnomaly();
                     });
+            } else {
+                error("请输入要查询的内容")
             }
         },
 
@@ -633,10 +789,10 @@ export default {
         // 表单保存
         doSaves() {
             let terms =
-                this.form.activeDate &&
+                this.form.date &&
                 this.form.clientSn &&
                 this.form.priceType &&
-                this.form.address &&
+                this.form.deliveryAddress &&
                 this.form.deliveryDate &&
                 this.form.brand &&
                 this.form.priceNature &&
@@ -644,16 +800,28 @@ export default {
                 this.form.currency &&
                 this.form.balanceMode;
             if (terms) {
-                this.$http
-                    .post("/TPA/dSellOrder/insert", qs.stringify(this.form))
-                    .then(res => {
+                if (this.form.sn != "") {
+                    this.$http.post("/TPA/dSellOrder/update", qs.stringify(this.form)).then(res => {
+                        // let sn = this.form.sn;
+                        // this.form = res.data.data;
+                        // this.form.sn = sn;
+
+                        this.spdaPsnOff = false;
+                        this.formOff = true;
+                        this.formChange = true;
+                    });
+                } else {
+                    this.$http.post("/TPA/dSellOrder/insert", qs.stringify(this.form)).then(res => {
                         this.form.sn = res.data.data.sn;
                         this.spdaPsnOff = false;
+                        this.formOff = true;
+                        this.formChange = true;
                     });
+                }
+                
             } else {
                 error("请填写所有必填项");
             }
-            this.formOff = true;
         },
 
         // 打开款号查询弹窗
@@ -675,12 +843,15 @@ export default {
                     .catch(err => {
                         NetworkAnomaly();
                     });
+            } else {
+                error("请输入要查询的款号")
             }
         },
 
         // 款号查询弹窗选择
         getspdaPsnItem(item) {
             this.searchSpdaPsn = "";
+            this.customerList = [];
             this.spdaPsnSearchOff = false;
             this.spdaPsn = item.psn;
         },
@@ -712,7 +883,6 @@ export default {
 
         // 保存弹窗确认
         savesCommit() {
-
             //获取所有尺码的数量
             let lists = []
             for(let i in this.tableBody){
@@ -725,19 +895,18 @@ export default {
             for(let i in this.tableBody){
                 for(let j=2;j<this.tableBody[i].length;j++){
                     let obj = {}
-                    obj.sn = this.tableBody[i][0]
+                    // obj.sn = this.tableBody[i][0]
                     obj.color = this.tableBody[i][1]
                     Arrs.push(obj)
-                
                 }
             }
 
-            //获取所有表头的尺码名称
+            // 获取表头尺码名称
             let sizeLists = []
             for(let i in this.tableBody){
                 for(let j=2;j<this.tableTit.length;j++){
                     sizeLists.push(this.tableTit[j])
-                }                
+                }      
             }
             
             //把每个尺码的数量加到数组里，并把其他字段加上
@@ -746,18 +915,83 @@ export default {
                 Arrs[i].size = sizeLists[i]
                 Arrs[i].masterSn =this.form.sn,
                 Arrs[i].psn =this.spdaPsn,
-                Arrs[i].standarprice =this.form.priceType,
-                Arrs[i].balancePrice =this.form.priceNature,
-                Arrs[i].remark = this.form.remark                
+                // Arrs[i].standarprice =this.form.priceType,
+                Arrs[i].balancePrice = this.balancePrice;
+                // Arrs[i].balancePrice =this.form.priceNature,
+                Arrs[i].remark = this.form.remark
             }
 
-            console.log(Arrs);
-            
+            this.$http.post("/TPA/dSellOrderA/insert", Arrs).then(res => {
+                if (res.data.code === 0) {
+                    this.saveOff = false;
+                    let params = {
+                        page: this.page,
+                        count: this.pageSize,
+                        sn: this.form.sn
+                    }
+                    this.pageParams = params;
+                    this.searchFun(this.pageParams);
+                }
+            })
         },
+
+        // 表格修改
+        tableUpdate(index, row) {
+            this.idx = index;
+            const item = this.list[index];
+            this.dialog = item;
+            this.dialog.discount = ""
+            this.editVisible = true;
+        },
+
+        // 表格修改确认
+        saveRevise() {
+            console.log(this.dialog)
+            this.$http.post("/TPA/dSellOrderA/update", qs.stringify(this.dialog)).then(res => {
+                if(res.data.code === 0) {
+                    this.searchFun(this.pageParams);
+                } else {
+                    error(res.data.msg)
+                }
+            })
+            .catch(err => {
+                NetworkAnomaly();
+            })
+            this.editVisible = false;
+        },
+
+        // 表格删除
+        tableDelete(index, row) {
+            this.idx = index;
+            const item = this.list[index];
+            this.$http.post("/TPA/dSellOrderA/delete?id=" + item.id).then(res => {
+                if (res.data.code === 0) {
+                    this.searchFun(this.pageParams);
+                } else {
+                    error(res.data.msg)
+                }
+            })
+            .catch(err => {
+                NetworkAnomaly();
+            })
+        },
+
+        // 终止
+        tableStop() {},
+
+        // 关单
+        tableClose() {},
 
         // 双击当前行
         chooseRow(e) {
             console.log(e);
+        },
+
+        // 获取当前页码
+        currentPage(val) {
+            console.log(val)
+            this.pageParams.page = val - 1;
+            this.searchFun(this.pageParams);
         },
     },
 
