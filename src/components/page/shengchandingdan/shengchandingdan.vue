@@ -2,28 +2,24 @@
     <div class="container" :class="{container_collapse:collapse}">
         <!-- 页面标题 -->
         <p class="page_title">生产订单</p>
-
         <!-- 顶部操作按钮 -->
         <div class="btn-box">
             <button :class="{button_btn:!doAdd}" :disabled="doAdd" @click="doAdds">新增</button>
+            <button :class="{button_btn:!doEdit}" :disabled="doEdit">修改</button>
             <button :class="{button_btn:!doCancel}" :disabled="doCancel" @click="doCancels">取消</button>
             <button :class="{button_btn:!doImport}" :disabled="doImport" @click="doImports">导入</button>
             <button :class="{button_btn:!doImport}" :disabled="doImport" @click="doExports">导出</button>
-            <button class="button_btn" @click="doSearchs">查询</button>
-            <input type="text" class="doSearch" readonly placeholder="请选择" @click="doSearchs">
+            <button class="button_btn" @click="handleSearch">查询</button>
+            <input type="text" class="doSearch" readonly placeholder="请选择" @click="handleSearch">
             <button class="button_btn" @click="doOuts">退出</button>
             <button class="button_btn" @click="refresh">刷新</button>
             <div class="btn_right">
-                <button class="button_btn" @click="doExamines">审核</button>
-                <button class="button_btn" @click="doExamineAgains">反审</button>
-                <button class="button_btn" @click="doExamineAgains">终止</button>
-                <button class="button_btn" @click="doExamineAgains">反终止</button>
-                <button class="button_btn" @click="doExamineAgains">关单</button>
-                <button class="button_btn" @click="doExamineAgains">反关单</button>
+
             </div>
         </div>
 
         <div class="set_box">
+            <!-- 左侧导航栏 -->
             <div class="menu_box">
                 <el-menu unique-opened @select="menuSelected" background-color="#f2f2f2" text-color="#303133" active-text-color="#303133">
                     <nav-menu :navMenus="this.navMenus"></nav-menu>
@@ -84,37 +80,34 @@
                             <label>来源单号</label>
                             <input type="text" v-model="firstForm.originSn" :disabled="firstFormOn" class="gui_input">
                         </li>
-                        <button :disabled="firstFormOn" :class="{btn:!firstFormOn}" class="save" @click="dosave">保存</button>
+                        <button :disabled="firstFormOn" :class="{btn:!firstFormOn}" class="save" @click="firstFormSave">保存</button>                                               
                     </ul>
                     <div class="psn">
                         <ul class="clearfix">
                             <li>
                                 <label>款号</label>
-                                <input type="text" v-model="firstForm.psn" readonly class="gui_input">
+                                <input type="text" placeholder="请选择款号" v-model="secondForm.psn" readonly :disabled="secondFormGui" @click="handlePsn">
                             </li>
-                            <button :disabled="firstFormOn" :class="{btn:!firstFormOn}" class="save" @click="dosave">查询</button>
-                            <button :disabled="firstFormOn" :class="{btn:!firstFormOn}" class="save" @click="dosave">导入</button>
+                            <button :disabled="secondFormOn" :class="{btn:!secondFormOn}" class="save" @click="secondSearch">查询</button>
+                            <button :disabled="secondFormOn" :class="{btn:!secondFormOn}" class="save" @click="secondImport">导入</button>
                         </ul>
-                    </div>
+                    </div>                    
                 </div>
 
                 <!-- 表格内容 -->
                 <div class="order_table">
-                    <el-table :data="list" stripe style="width: 100%" index >
-                        <el-table-column prop="activeDate" label="品类" min-width="12.5%">
+                    <el-table :data="list" stripe style="width: 100%" index @cell-dblclick="tableDbclick" >
+                        <el-table-column prop="brand" label="品类" min-width="12.5%">
                         </el-table-column>
                         <el-table-column prop="clientName" label="名称" min-width="12.5%">
                         </el-table-column>
-                        <el-table-column prop="spdaPsn" label="款号" min-width="12.5%">
+                        <el-table-column prop="psn" label="款号" min-width="12.5%">
                         </el-table-column>
-                        <el-table-column prop="psn" label="颜色" min-width="12.5%">
+                        <el-table-column prop="color" label="颜色" min-width="12.5%">
                         </el-table-column>
-                        <el-table-column prop="msg1" label="尺码" min-width="12.5%">
-                            <template slot-scope="scope">
-                                <el-button :disabled="(scope.row.sh == 1)" :class="{btn:scope.row.sh == 0}" @click="handleEdit(scope.$index, scope.row)">查看/修改</el-button>
-                            </template>
+                        <el-table-column prop="size" label="尺码" min-width="12.5%">
                         </el-table-column>
-                        <el-table-column prop="msg2" label="数量" min-width="12.5%">
+                        <el-table-column prop="number" label="数量" min-width="12.5%">
                         </el-table-column>
                         <el-table-column fixed="right" label="操作" min-width="22%">
                             <template slot-scope="scope">
@@ -127,64 +120,96 @@
                     </el-table>
                 </div>
 
-            </div>
+            </div>      
+
+    
         </div>
 
-        <div class="pageBox" :class="{collapse:collapse}">
-            <el-pagination v-if="pageOnOff" background :page-size="pageSize" :pager-count="5" :total="total" @current-change="currentPage">
+
+        <!-- 底部页码 -->
+        <div class="pageBox">
+            <ul class="pageData">
+                <li>
+                    <span>编制人：</span>
+                    <span>{{this.firstForm.addUser}}</span>
+                </li>
+                <li>
+                    <span>编制日期：</span>
+                    <span>{{this.firstForm.addDate}}</span>
+                </li>
+                <li>
+                    <span>修改人：</span>
+                    <span>{{this.firstForm.updateUser}}</span>
+                </li>
+                <li>
+                    <span>修改日期：</span>
+                    <span>{{this.firstForm.updateDate}}</span>
+                </li>
+                <li>
+                    <span>审核人：</span>
+                    <span>{{this.firstForm.shUser}}</span>
+                </li>
+                <li>
+                    <span>审核日期：</span>
+                    <span>{{this.firstForm.shDate}}</span>
+                </li>
+            </ul>
+            <el-pagination @current-change="currentPage" :current-page='page' v-if="pageOnOff" background :page-size="pageSize" :pager-count="5" :total="total">
             </el-pagination>
         </div>
+
+
+        <!-- 模糊搜索生产单号 -->
+        <el-dialog title="生产单号" :visible.sync="oldSearch">
+            <el-input v-model="search" placeholder="生产单号"></el-input>
+            <button class="button_btn" @click="vagueSellSn">查询</button>            
+            <ul class="srcond_menu">
+                <li v-if="searchList.length===0">暂无数据</li>
+                <li class="clearfix" v-for="(item,i) in searchList" :key="i">
+                    <span @click="getItemSearch(item)">|--{{item.sn}}</span>
+                </li>
+            </ul>
+        </el-dialog>  
 
         <!-- 销售单号 -->
         <el-dialog title="销售单号" :visible.sync="oldSellSn">
             <el-input v-model="sellSn" placeholder="销售单号"></el-input>
+            <button class="button_btn" @click="vagueSellSn">查询</button>            
             <ul class="srcond_menu">
                 <li v-if="sellSnList.length===0">暂无数据</li>
                 <li class="clearfix" v-for="(item,i) in sellSnList" :key="i">
                     <span @click="getItemSellSn(item)">|--{{item.sn}}</span>
                 </li>
             </ul>
-        </el-dialog>
+        </el-dialog>  
 
-        <!-- 查询框 -->
-        <el-dialog title="查询公司" :visible.sync="oldSearch">
-            <el-input v-model="search" placeholder="公司"></el-input>
+        <!-- 查询款号 -->
+        <el-dialog title="查询款号" :visible.sync="oldPsn">
+            <el-input v-model="psn" placeholder="款号"></el-input>
+            <button class="button_btn" @click="vaguePsn">查询</button>            
             <ul class="srcond_menu">
-                <p v-if="oldSearchList.length===0">暂无数据</p>
-                <li v-for="(item,i) in oldSearchList" :key="i" class="clearfix">
-                    <span @click="getItemSearch(item)">{{item.sn}}</span>
+                <li v-if="psnList.length===0">暂无数据</li>
+                <li class="clearfix" v-for="(item,i) in psnList" :key="i">
+                    <span @click="getItemPsn(item)">|--{{item.psn}}</span>
                 </li>
             </ul>
-        </el-dialog>
+        </el-dialog>     
 
-        <!-- 编辑弹出框 -->
-        <el-dialog title="编辑" class="edit" :visible.sync="editVisible" width="30%">
-            <el-form :model="dialog" label-width="100px">
-                <el-form-item label="列起">
-                    <el-input v-model="dialog.rowStart" type="number"></el-input>
-                </el-form-item>
-                <el-form-item label="止">
-                    <el-input v-model="dialog.rowEnd" type="number"></el-input>
-                </el-form-item>
-                <el-form-item label="排起">
-                    <el-input v-model="dialog.columnStart" type="number"></el-input>
-                </el-form-item>
-                <el-form-item label="止">
-                    <el-input v-model="dialog.columnEnd" type="number"></el-input>
-                </el-form-item>
-                <el-form-item label="层起">
-                    <el-input v-model="dialog.layerStart" type="number"></el-input>
-                </el-form-item>
-                <el-form-item label="止">
-                    <el-input v-model="dialog.layerEnd" type="number"></el-input>
-                </el-form-item>
-
-            </el-form>
+        <!-- 添加数量弹窗 -->
+        <el-dialog title="添加数量" :visible.sync="saveOff" class="tableDialog">
+            <el-table :data="tableBody">
+                <el-table-column :label="tit" v-for="(tit, key) in tableTit" :key="key">
+                    <template slot-scope="scope">
+                        <input class="changeInput" :disabled="(tableBody[scope.$index][key] == tableBody[scope.$index][0]) || 
+                        (tableBody[scope.$index][key] == tableBody[scope.$index][1])" type="text" v-model="tableBody[scope.$index][key]" />
+                    </template>
+                </el-table-column>
+            </el-table>
             <span slot="footer" class="dialog-footer">
-                <el-button @click="editVisible = false">取 消</el-button>
-                <el-button type="primary" @click="saveEdit">确 定</el-button>
-            </span>
-        </el-dialog>
+                <el-button>取 消</el-button>
+                <el-button type="primary" plain>确 定</el-button>
+            </span> 
+        </el-dialog>           
 
         <!-- 导入弹窗 -->
         <el-dialog class="importExport" title="导入" :visible.sync="importbox" width="30%" :showClose="false" :show-file-list="false">
@@ -219,41 +244,52 @@
 <script>
 import "@/assets/js/import.js"; //导入请求超时拦截
 import { mapState } from "vuex";
-
+import qs from "qs";
 import {
     NetworkAnomaly,
     succ,
     error,
     getOut
 } from "../../../assets/js/message.js";
-import qs from "qs";
 import NavMenu from "./NavMenu";
-
 export default {
-    name: "cangkushezhi",
     data() {
         return {
             //按钮disabled
             doAdd: false,
             doCancel: true,
             doImport: false,
+            doEdit: true,
 
             //form的disabled
             firstFormNo: true,
             firstFormOn: true,
             firstFormGui: true,
 
-            search: "",
-            oldSearch: false, //查询框开关
-            oldSearchList: [], //查询框列表
-            sellSn:"",          //销售单号查询
-            oldSellSn:false,
-            sellSnList:[],
+            secondFormNo: true,
+            secondFormOn: true,
+            secondFormGui: true,
 
-            navMenus: [], //导航数据
+            search:"",
+            oldSearch:false,
+            searchList:[],
+            sellSn:"",                      //查询销售单号
+            oldSellSn:false,                //查询销售单号开关
+            sellSnList:[],                  //查询销售单号列表
+            psn:"",                         //款号
+            oldPsn:false,                   //款号开关
+            psnList:[],                     //款号列表
+
+            tableTit: [], // 保存弹窗表头
+            tableBody: [], // 保存弹窗表格内容
+            saveOff: false, // 保存弹窗开关   
+                     
+
+
+            navMenus:[],
 
             brand:[],
-            productUnit:[],
+            productUnit:[],            
 
             firstForm: {
                 sellSn:"",              //销售订单号
@@ -269,17 +305,21 @@ export default {
                 repertory:"",           //仓库
                 originSn:"",           //来源单号
                 remark:"",              //备注
-                psn:"",                 //款号
                 sh:"-1",                //审核
                 stopStatus:"-1",         //终止
-                closeStatus:"-1"        //关单
+                closeStatus:"-1",        //关单
+                addDate: "", //编制日期
+                addUser: "", //编制人
+                updateUser: "", //修改用户
+                updateDate: "", //修改时间
+                shUser: "", //审核人
+                shDate: "", //审核日期                                                
             },
-            list: [
-                { activeDate: "2018-12-1" },
-                { activeDate: "2018-12-1" },
-                { activeDate: "2018-12-1" },
-                { activeDate: "2018-12-1" }
-            ], // 表格内容
+            secondForm: {
+                psn: "" //款号
+            },
+
+            list: [],
 
             //编辑弹窗开关
             editVisible: false,
@@ -290,10 +330,10 @@ export default {
             //分页：当前页码/总数量/每页显示条数
             page: 0,
             total: "",
-            pageSize: 10,
+            pageSize: 1,
             pageOnOff: false,
             //分页排序查询条件
-            pageParams: {},
+            pageParams: {},            
 
             //导入弹出开关
             importbox: false,
@@ -312,37 +352,46 @@ export default {
             this.doAdd = false;
             this.doCancel = true;
             this.doImport = false;
+            this.doEdit = true;
         },
         //按钮按下状态
         emptyBtnTo() {
             this.doAdd = true;
             this.doCancel = false;
             this.doImport = true;
+            this.doEdit = true;
         },
         //表单1恢复初始空值状态
         emptyFirstForm() {
             this.firstForm = {
-                activeDate: "", //生效日期
-                gsSn: "", //公司编号
-                gsName: "", //公司名称
-                sn: "", //仓库编号
-                name: "", //仓库名称
-                areaSn: "", //库区编码
-                areaName: "", //库区名称
-                jc: "",
-                rowStart: "", //列起
-                rowEnd: "", //列止
-                columnStart: "", //排起
-                columnEnd: "", //排止
-                layerStart: "", //层起
-                layerEnd: "", //层止
+                sellSn:"",              //销售订单号
+                clientSn:"",            //客户编号
+                clientName:"",          //客户名称
+                deliveryDate:"",        //交货日期
+                date:"",                //订单日期
+                brand:"",               //品牌
+                sn:"",                  //生产订单号
+                inDate:"",              //入库日期
+                productUnitSn:"",       //生产单位编码
+                productUnit:"",         //生产单位
+                repertory:"",           //仓库
+                originSn:"",           //来源单号
+                remark:"",              //备注
+                sh:"-1",                //审核
+                stopStatus:"-1",         //终止
+                closeStatus:"-1",        //关单
                 addDate: "", //编制日期
                 addUser: "", //编制人
-                status: "-1", //有效状态
                 updateUser: "", //修改用户
                 updateDate: "", //修改时间
-                gsSn: "", //
-                sh: "-1"
+                shUser: "", //审核人
+                shDate: "", //审核日期                                                
+            }
+        },
+        //清空secondForm
+        emptySecondForm() {
+            this.secondForm = {
+                psn: "" //款号
             };
         },
         //禁用表单first
@@ -351,31 +400,72 @@ export default {
             this.firstFormOn = true;
             this.firstFormGui = true;
         },
-        //开放表单first
+        //禁用表单second
+        disabledSecondForm() {
+            this.secondFormNo = true
+            this.secondFormOn = true
+            this.secondFormGui = true
+        },
+        //开放表单firstForm
         noDisabledFirstForm() {
-            this.firstFormNo = true;
-            this.firstFormOn = false;
-            this.firstFormGui = false;
+            this.firstFormOn = true
+            this.firstFormOn = false
+            this.firstFormGui = false
+        },
+        //开放表单secondForm
+        noDisabledSecondForm() {
+            this.secondFormNo = true;
+            this.secondFormOn = true;
+            this.secondFormGui = false;
         },
 
+        //取消
+        doCancels() {
+
+            this.emptyBtn();
+            this.emptyFirstForm();
+            this.emptySecondForm();
+            this.disabledFirstForm();
+            this.disabledSecondForm()
+
+            this.list = [];
+        },
         //新增
         doAdds() {
             this.doCancels();
             this.emptyBtnTo();
-            this.noDisabledFirstForm();
+            this.noDisabledFirstForm()
+            this.noDisabledSecondForm()
 
-            this.getBrand()
-            this.getProductUnit()
+            this.getBrand()                 //获取品牌     
+            this.getProductUnit()           //获取生产单位
+
+            
+
+            this.pageOnOff = false;
         },
-        // 保存
-        dosave() {      
+
+
+        //刷新
+        refresh() {
+            this.doCancels();
+            this.getnavMenus();
+            succ("刷新成功");
+        },
+        //退出
+        doOuts() {
+            this.$emit("getOut", this.$route.name);
+        },        
+
+        //保存
+        firstFormSave(){
+            // 获取生产单位编号
             for(let i in this.productUnit){
                 if(this.firstForm.productUnit == this.productUnit[i].name){
                     this.firstForm.productUnitSn = this.productUnit[i].sn
                 }
-            }
-            console.log(this.firstForm);
-            
+            }    
+            //判断条件集合        
             let terms =
                 this.firstForm.sellSn ||
                 this.firstForm.clientSn ||
@@ -387,7 +477,7 @@ export default {
                 this.firstForm.inDate ||
                 this.firstForm.productUnitSn ||
                 this.firstForm.productUnit
-
+            
             if (!terms) {
                 error("请完善表单必填项！");
             } else {
@@ -398,21 +488,10 @@ export default {
                     )
                     .then(res => {
                         if (res.data.code === 0) {
-                            succ(res.data.msg);
-                            // this.getnavMenus();
-                            // let gsSn = this.firstForm.gsSn;
-                            // let gsName = this.firstForm.gsName;
-                            // let sn = this.firstForm.sn;
-                            // let name = this.firstForm.name;
-
-                            // this.emptyFirstForm();
-                            // this.firstForm.gsSn = gsSn;
-                            // this.firstForm.gsName = gsName;
-                            // this.firstForm.sn = sn;
-                            // this.firstForm.name = name;
-                            // this.firstFormGui = true;
-
-                            // this.getPageData(this.firstForm.gsName);
+                            succ(res.data.msg)
+                            this.disabledFirstForm()
+                            this.noDisabledSecondForm()
+                            this.getnavMenus()
                         } else {
                             error(res.data.msg);
                         }
@@ -421,41 +500,184 @@ export default {
                         NetworkAnomaly();
                     });
                 this.oldGsNameList = [];
-            }
+            }                
         },
-        //取消
-        doCancels() {
-            this.emptyBtn();
-            this.emptyFirstForm();
-            this.disabledFirstForm();
+        //表单查询
+        secondSearch(){
+            console.log(this.secondForm.psn);
+            
+            // if (this.spdaPsn) {
+            //     this.$http.post("/TPA/dSellOrder/order?psn=" + this.spdaPsn).then(res => {
+            //            if(res.data.code === 0) {
+            //                 this.tableTit = res.data.attachment.head;
+            //                 this.tableBody = res.data.data;
+            //                 this.saveOff = true;
+            //            } else {
+            //                error(res.data.msg);
+            //            }
+            //         })
+            //         .catch(err => {
+            //             NetworkAnomaly();
+            //         });
+            // } else {
+            //     error("请先填写款号");
+            // }
+        },
+        //表单导入
+        secondImport(){
 
-            this.list = [];
-            this.search = "";
-            this.oldSearch = false; //查询框开关
-            this.oldSearchList = []; //查询框列表
-            this.gsName = "";
-            this.oldGsName = false; //公司开关
-            this.oldGsNameList = []; //公司列表
         },
-        //修改
-        doEdits() {},
-        //点击查询按钮
-        doSearchs() {
-            this.search = "";
-            this.oldSearch = true;
-            this.oldSearchList = [];
-            this.getSearch();
+
+
+        //点击头部搜索
+        handleSearch(){
+            this.search = ""
+            this.oldSearch = true
+            this.searchList = []
         },
-        //刷新
-        refresh() {
-            this.getnavMenus();
-            this.doCancels();
-            succ("刷新成功");
+        //点击销售单号查询按钮
+        handleSellSn(){
+            this.oldSellSn = true
+            this.sellSn = ""
+            this.sellSnList = []
         },
-        //退出
-        doOuts() {
-            this.$emit("getOut", this.$route.name);
+        //选择销售单号
+        getItemSellSn(item){
+            this.oldSellSn = false
+            this.firstForm.sellSn = item.sn
+            this.firstForm.clientName = item.clientName
+            this.firstForm.clientSn = item.clientSn
+            this.firstForm.deliveryDate = item.deliveryDate
+            this.firstForm.repertory = item.repertory
         },
+        //点击款号输入框
+        handlePsn(){
+            this.psn = ""
+            this.oldPsn = true
+            this.psnList = []
+        },
+        //选择款号
+        getItemPsn(item){
+            this.secondForm.psn = item.psn
+            this.oldPsn = false
+            this.secondFormOn = false
+        },
+
+
+        //获取品牌
+        getBrand(){
+            this.$http.post('/TPA/aLbJb/getBySn?sn=003')
+                .then(res=>{
+                    if(res.data.code===0){
+                        this.brand = res.data.data
+                    }else{
+                        error(res.data.msg)
+                    }
+                })
+        },
+        //获取生产单位
+        getProductUnit(){   
+            this.$http.post('/TPA/aGsZzjg/search?sczz=1')
+                .then(res=>{
+                    if(res.data.code===0){
+                        this.productUnit = res.data.data.list
+                    }else{
+                        error(res.data.msg)
+                    }
+                })                
+        },
+
+
+        //获取导航
+        getnavMenus() {
+            this.$http
+                .post("/TPA/dProductOrder/list?colseStatus=0")
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.navMenus = res.data.data;
+                    } else {
+                        error(res.data.msg);
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
+        },
+        //导航展开查询table
+        menuSelected(index) {
+            this.doCancels()
+            this.emptyBtnTo();
+            this.doAdd = false;
+
+            this.pageOnOff = false;
+            this.page = 1
+            let params = {
+                masterSn: index,
+                count: this.pageSize,
+                page: 0
+            };
+            this.pageParams = params;
+
+            this.getPageData(this.pageParams);
+
+            
+        },
+        //审核
+        doExamines() {
+            this.$http
+                .post("/TPA/aRepertory/auditing?status=1&gsSn=" + this.list[0].gsSn)
+                .then(res => {
+                    if (res.data.code === 0) {
+                        succ(res.data.msg);
+                        this.getPageData(this.list[0].gsName);
+                    } else {
+                        error(res.data.msg);
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
+        },
+        //反审核
+        doExamineAgains() {
+            this.$http
+                .post("/TPA/aRepertory/auditing?status=0&gsSn=" + this.list[0].gsSn)
+                .then(res => {
+                    if (res.data.code === 0) {
+                        succ(res.data.msg);
+                        this.getPageData(this.list[0].gsName);
+                    } else {
+                        error(res.data.msg);
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
+        },
+
+        //分页-查询列表
+        getPageData(params) {
+            this.$http
+                .post("/TPA/dProductOrderA/search1",qs.stringify(params))
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.list = res.data.data.list;
+                        this.pageOnOff = false
+                        this.total = res.data.data.total;
+
+                        if (this.total > this.pageSize) {
+                            this.pageOnOff = true;
+                        } else {
+                            this.pageOnOff = false;
+                        }                        
+                    } else {
+                        error(res.data.msg);
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
+        },        
 
         //导入按纽
         doImports() {
@@ -480,7 +702,6 @@ export default {
             this.$ajax
                 .post("/TPA/aRepertory/importExcel", formData)
                 .then(res => {
-                    console.log(res);
                     if (res.status === 200) {
                         if (res.data.code === 0) {
                             succ(res.data.msg);
@@ -507,7 +728,6 @@ export default {
         //下载错误文件按钮
         importErr() {
             let errUrl = "/TPA/aImportExcel/exportMsg?name=" + this.project;
-            // console.log(errUrl)
             window.location.href = errUrl;
             setTimeout(() => {
                 this.tipOffON = false;
@@ -519,219 +739,25 @@ export default {
             window.location.href = "/TPA/aRepertory/exportExcel";
         },
 
-        //点击查询销售单号
-        handleSellSn() {
-            this.oldSellSn = true;
-            this.sellSnList = [];
-            this.sellSn = ''
-        },
 
-        //选择销售单号
-        getItemSellSn(item) {
-            this.oldSellSn = false
-            this.firstForm.sellSn = item.sn
-            this.firstForm.clientName = item.clientName
-            this.firstForm.clientSn = item.clientSn
-            this.firstForm.deliveryDate = item.date
-            this.firstForm.repertory = item.repertory
-            
-        },
-        //选择查询
-        getItemSearch(item) {},
-
-        //获取品牌
-        getBrand(){
-            this.$http.post('/TPA/aLbJb/getBySn?sn=003')
-                .then(res=>{
-                    if(res.data.code===0){
-                        this.brand = res.data.data
-                    }else{
-                        error(res.data.msg)
-                    }
-                })
-                .catch(error=>{
-                    NetworkAnomaly()
-                })
-        },
-        //获取生产单位
-        getProductUnit(){
-            this.$http.post('/TPA/aGsZzjg/search?sczz=1')
-                .then(res=>{
-                    if(res.data.code===0){
-                        this.productUnit = res.data.data.list
-                    }else{
-                        error(res.data.msg)
-                    }                 
-                })
-                .catch(error=>{
-                    NetworkAnomaly()
-                })            
-        },
-        //获取导航
-        getnavMenus() {
-            this.$http
-                .post("/TPA/dProductOrder/list")
-                .then(res => {
-                    if (res.data.code === 0) {
-                        this.navMenus = res.data.data;
-                    } else {
-                        error(res.data.msg);
-                    }
-                })
-                .catch(err => {
-                    NetworkAnomaly();
-                });
-        },
-        //导航展开查询table
-        menuSelected(index) {
-            this.getPageData(index);
-            this.emptyBtnTo();
-            this.doAdd = false;
-        },
-        //审核
-        doExamines() {
-            this.$http
-                .post("/TPA/cMatBill/auditing?gsName=" + this.firstForm.gsName)
-                .then(res => {
-                    if (res.data.code === 0) {
-                        succ(res.data.msg);
-                        this.getPageData(this.pageParams);
-                    } else {
-                        error(res.data.msg);
-                    }
-                })
-                .catch(err => {
-                    NetworkAnomaly();
-                });
-        },
-        //反审核
-        doExamineAgains() {
-            this.$http
-                .post("/TPA/cMatBill/auditing?gsName=" + this.firstForm.gsName)
-                .then(res => {
-                    if (res.data.code === 0) {
-                        succ(res.data.msg);
-                        this.getPageData(this.pageParams);
-                    } else {
-                        error(res.data.msg);
-                    }
-                })
-                .catch(err => {
-                    NetworkAnomaly();
-                });
-        },
-
-        //分页-查询列表
-        getPageData(name) {
-            this.$http
-                .post("/TPA/aRepertory/search?gsName=" + name)
-                .then(res => {
-                    if (res.data.code === 0) {
-                        this.list = res.data.data.list;
-                    } else {
-                        error(res.data.msg);
-                    }
-                })
-                .catch(err => {
-                    NetworkAnomaly();
-                });
-        },
-        //编辑单条数据
-        handleEdit(index, row) {
-            this.idx = index;
-            const item = this.list[index];
-            this.dialog = {
-                id: item.id, //id
-                rowStart: item.rowStart,
-                rowEnd: item.rowEnd,
-                columnStart: item.columnStart,
-                columnEnd: item.columnEnd,
-                layerStart: item.layerStart,
-                layerEnd: item.layerEnd,
-                gsName: item.gsName
-            };
-            this.editVisible = true;
-        },
-        // 保存编辑
-        saveEdit() {
-            this.$http
-                .post("/TPA/aRepertory/update", qs.stringify(this.dialog))
-                .then(res => {
-                    if (res.data.code === 0) {
-                        this.$set(this.list, this.idx, this.dialog);
-                        this.editVisible = false;
-                        succ(res.data.msg);
-                        this.getPageData(this.dialog.gsName);
-                    } else {
-                        error(res.data.msg);
-                    }
-                })
-                .catch(err => {
-                    NetworkAnomaly();
-                });
-        },
-        //table有效
-        effective(index, row) {
-            this.idx = index;
-            const item = this.list[index];
-            item.status = 1;
-            this.$http
-                .post("/TPA/aRepertory/status", qs.stringify(item))
-                .then(res => {
-                    if (res.data.code === 0) {
-                        console.log(0);
-                        succ(res.data.msg);
-                        this.$set(this.list, this.idx, item);
-                    } else {
-                        error(res.data.msg);
-                    }
-                })
-                .catch(err => {
-                    NetworkAnomaly();
-                });
-        },
-        //table无效
-        invalid(index, row) {
-            this.idx = index;
-            const item = this.list[index];
-            item.status = 0;
-            this.$http
-                .post("/TPA/aRepertory/status", qs.stringify(item))
-                .then(res => {
-                    if (res.status == 200 && res.data.code === 0) {
-                        succ(res.data.msg);
-                        this.$set(this.list, this.idx, item);
-                    } else {
-                        error(res.data.msg);
-                    }
-                })
-                .catch(err => {
-                    NetworkAnomaly();
-                });
-        },
         //获取页码
         currentPage(val) {
             this.page = val;
-        }
-    },
-    mounted() {
-        this.getnavMenus();
-    },
-    watch: {
-        //错误文件下载框消失的时候把消除上传记录
-        importbox() {
-            if (!this.importbox) {
-                this.$refs.upload.clearFiles();
-            }
         },
-        //模糊搜索销售单号
-        sellSn(){
+        tableDbclick(){
+            console.log(0);
+            
+        },
+
+
+        //模糊查询销售单号
+        vagueSellSn(){
             if(this.sellSn){
                 let search = {
                     sn: 17 + "|" + this.sellSn
-                }
+                };
                 let searchStr = JSON.stringify(search);  
-                this.$http.post('/TPA/dSellOrder/search?search='+searchStr)
+                this.$http.post("/TPA/dSellOrder/search?search=" + searchStr)
                     .then(res=>{
                         if(res.data.code===0){
                             this.sellSnList = res.data.data.list
@@ -742,20 +768,54 @@ export default {
                     .catch(err=>{
                         NetworkAnomaly()
                     })
+
+            }else{
+                error('请输入查询条件')
             }
-        }
+        },
+        //模糊查询款号
+        vaguePsn(){
+            if(this.psn){
+                let search = {
+                    psn: 17 + "|" + this.psn
+                };
+                let searchStr = JSON.stringify(search);  
+                this.$http.post("/TPA/dProductOrderA/search?masterSn=" + this.firstForm.sellSn + "&search=" + searchStr)
+                    .then(res=>{
+                        if(res.data.code===0){
+                            this.psnList = res.data.data.list
+                        }else{
+                            error(res.data.msg)
+                        }
+                    })
+                    .catch(err=>{
+                        NetworkAnomaly()
+                    })
+
+            }else{
+                error('请输入查询条件')
+            }
+        },
+    },
+    mounted() {
+        this.getnavMenus()
     },
     computed: {
         ...mapState(["collapse"])
     },
-
+    watch:{
+        page() {
+            this.pageParams.page = this.page - 1;
+            this.getPageData(this.pageParams);
+        },        
+    },
     // 引入组件
     components: {
         NavMenu
     }
 };
 </script>
-<style lang="stylus" scoped>
-@import './css/style.styl'
-</style>
 
+<style lang="stylus" scoped>
+@import 'css/style.styl'
+</style>

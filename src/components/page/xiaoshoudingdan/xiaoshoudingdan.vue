@@ -731,10 +731,19 @@ export default {
                 
                 }
             }
+
+            //获取所有表头的尺码名称
+            let sizeLists = []
+            for(let i in this.tableBody){
+                for(let j=2;j<this.tableTit.length;j++){
+                    sizeLists.push(this.tableTit[j])
+                }                
+            }
             
             //把每个尺码的数量加到数组里，并把其他字段加上
             for(let i in Arrs){
-                Arrs[i].num = lists[i]
+                Arrs[i].number = lists[i]
+                Arrs[i].size = sizeLists[i]
                 Arrs[i].masterSn =this.form.sn,
                 Arrs[i].psn =this.spdaPsn,
                 Arrs[i].standarprice =this.form.priceType,

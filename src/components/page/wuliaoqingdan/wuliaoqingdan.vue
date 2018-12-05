@@ -169,10 +169,7 @@
 
                             <el-table :data="list" height="52vh" border style="width: 100%">
 
-                                <!-- <el-table-column prop="materialSn" label="物料编码" min-width="8.2%">
-  
-                </el-table-column> -->
-                                <el-table-column prop="materialSn" label="物料编号" min-width="8.2%">
+                                <el-table-column prop="materialSn" label="物料编号" min-width="6.6%">
                                     <template slot-scope="scope">
                                         <el-tooltip :content="scope.row.materialSn" placement="top" :enterable="false">
                                             <p>{{ scope.row.materialSn }}</p>
@@ -180,7 +177,7 @@
                                     </template>
                                 </el-table-column>
 
-                                <el-table-column prop="materialName" label="名称" min-width="8.2%">
+                                <el-table-column prop="materialName" label="名称" min-width="6.6%">
                                     <template slot-scope="scope">
                                         <el-tooltip :content="scope.row.materialName" placement="top" :enterable="false">
                                             <p>{{ scope.row.materialName }}</p>
@@ -188,7 +185,7 @@
                                     </template>
                                 </el-table-column>
 
-                                <el-table-column prop="kz" label="克重" min-width="8.2%">
+                                <el-table-column prop="kz" label="克重" min-width="6.6%">
                                     <template slot-scope="scope">
                                         <el-tooltip :content="String(scope.row.kz)" placement="top" :enterable="false">
                                             <p>{{ scope.row.kz }}</p>
@@ -196,7 +193,7 @@
                                     </template>
                                 </el-table-column>
 
-                                <el-table-column prop="size" label="布宽" min-width="8.2%">
+                                <el-table-column prop="size" label="布宽" min-width="6.6%">
                                     <template slot-scope="scope">
                                         <el-tooltip :content="String(scope.row.size)" placement="top" :enterable="false">
                                             <p>{{ scope.row.size }}</p>
@@ -204,7 +201,7 @@
                                     </template>
                                 </el-table-column>
 
-                                <el-table-column prop="dosageUnit" label="用量单位" min-width="8.2%">
+                                <el-table-column prop="dosageUnit" label="用量单位" min-width="6.6%">
                                     <template slot-scope="scope">
                                         <el-tooltip :content="scope.row.dosageUnit" placement="top" :enterable="false">
                                             <p>{{ scope.row.dosageUnit }}</p>
@@ -213,7 +210,7 @@
 
                                 </el-table-column>
 
-                                <el-table-column prop="dosage" label="用量" min-width="8.2%">
+                                <el-table-column prop="dosage" label="用量" min-width="6.6%">
                                     <template slot-scope="scope">
                                         <el-tooltip :content="String(scope.row.dosage)" placement="top" :enterable="false">
                                             <p>{{ scope.row.dosage }}</p>
@@ -222,7 +219,16 @@
 
                                 </el-table-column>
 
-                                <el-table-column prop="purchaseUnit" label="采购单位" min-width="8.2%">
+                                <el-table-column prop="zhxs" label="转换系数" min-width="6.6%">
+                                    <template slot-scope="scope">
+                                        <el-tooltip :content="String(scope.row.zhxs)" placement="top" :enterable="false">
+                                            <p>{{ scope.row.zhxs }}</p>
+                                        </el-tooltip>
+                                    </template>
+
+                                </el-table-column>
+
+                                <el-table-column prop="purchaseUnit" label="采购单位" min-width="6.6%">
                                     <template slot-scope="scope">
                                         <el-tooltip :content="scope.row.purchaseUnit" placement="top" :enterable="false">
                                             <p>{{ scope.row.purchaseUnit }}</p>
@@ -231,7 +237,7 @@
 
                                 </el-table-column>
 
-                                <el-table-column prop="func" label="领用部门" min-width="8.2%">
+                                <el-table-column prop="func" label="领用部门" min-width="6.6%">
                                     <template slot-scope="scope">
                                         <el-tooltip :content="scope.row.func" placement="top" :enterable="false">
                                             <p>{{ scope.row.func }}</p>
@@ -240,7 +246,7 @@
 
                                 </el-table-column>
 
-                                <el-table-column prop="part" label="应用部位" min-width="8.2%">
+                                <el-table-column prop="part" label="应用部位" min-width="6.6%">
                                     <template slot-scope="scope">
                                         <el-tooltip :content="scope.row.part" placement="top" :enterable="false">
                                             <p>{{ scope.row.part }}</p>
@@ -248,7 +254,7 @@
                                     </template>
                                 </el-table-column>
 
-                                <el-table-column prop="explain" label="规格说明" min-width="8.2%">
+                                <el-table-column prop="explain" label="规格说明" min-width="6.6%">
                                     <template slot-scope="scope">
                                         <el-tooltip :content="scope.row.explain" placement="top" :enterable="false">
                                             <p>{{ scope.row.explain }}</p>
@@ -257,7 +263,7 @@
 
                                 </el-table-column>
 
-                                <el-table-column prop="nature" label="性质" min-width="8.2%">
+                                <el-table-column prop="nature" label="性质" min-width="6.6%">
                                     <template slot-scope="scope">
                                         <el-tooltip :content="scope.row.nature" placement="top" :enterable="false">
                                             <p>{{ scope.row.nature }}</p>
@@ -265,7 +271,23 @@
                                     </template>
                                 </el-table-column>
 
-                                <el-table-column label="操作" min-width="9.8%">
+                                <el-table-column prop="loss" label="生产损耗" min-width="6.6%">
+                                    <template slot-scope="scope">
+                                        <el-tooltip :content="(scope.row.loss+'%')" placement="top" :enterable="false">
+                                            <p>{{ scope.row.loss }}%</p>
+                                        </el-tooltip>
+                                    </template>
+                                </el-table-column>
+
+                                <el-table-column prop="isCode" label="按码算" min-width="6.6%">
+                                    <template slot-scope="scope">
+                                        <el-tooltip :content="scope.row.isCode" placement="top" :enterable="false">
+                                            <p>{{ scope.row.isCode }}</p>
+                                        </el-tooltip>
+                                    </template>
+                                </el-table-column>
+
+                                <el-table-column label="操作" min-width="8.8%">
 
                                     <template slot-scope="scope">
 
@@ -612,7 +634,7 @@ export default {
 
             total: "",
 
-            pageSize: 1,
+            pageSize: 10,
 
             pageOnOff: false,
 
@@ -1115,15 +1137,15 @@ export default {
                     if (res.data.code === 0) {
                         succ(res.data.msg);
 
-                        let params = {
-                            psn: item.psn,
+                        // let params = {
+                        //     psn: item.psn,
 
-                            count: this.pageSize,
+                        //     count: this.pageSize,
 
-                            page: 0
-                        };
+                        //     page: 0
+                        // };
 
-                        this.pageParams = params;
+                        // this.pageParams = params;
 
                         this.getPageData(this.pageParams);
                     } else {
@@ -1447,16 +1469,16 @@ export default {
                     if (res.data.code === 0) {
                         succ(res.data.msg);
 
-                        let params = {
-                            psn: form.psn,
+                        // let params = {
+                        //     psn: form.psn,
 
-                            count: this.pageSize,
+                        //     count: this.pageSize,
 
-                            page: 0
-                        };
+                        //     page: 0
+                        // };
 
-                        this.pageParams = params;
-
+                        // this.pageParams = params;
+                        // this.pageOnOff = false
                         this.getPageData(this.pageParams);
                     } else {
                         error(res.data.msg);
@@ -1480,7 +1502,7 @@ export default {
 
         getPageData(params) {
             this.list = [];
-
+            
             // this.getDesignColor(params.psn);
             this.$http
                 .post("/TPA/cMatBill/order", qs.stringify(params))
@@ -1644,6 +1666,7 @@ export default {
     overflow hidden !important
     // white-space pre-wrap
     padding 0 5px
+    cursor pointer
 .container>>>.el-table .cell p
     width 100%
     height 3.5vh
@@ -1669,6 +1692,8 @@ export default {
     overflow-x hidden
 .container>>>.el-dialog .el-select
     width 100%
+.el-checkbox__input
+    padding 0 10px    
 // 下拉框
 .firstForm>>>.el-input--suffix .el-input__inner
     width 100% !important

@@ -3,9 +3,9 @@
 
         <label v-for="(navMenu,i) in navMenus" :key="i">
             <!--只有一级菜单-->
-            <el-menu-item :key="navMenu.gsName"  :index="navMenu.gsName">
+            <el-menu-item :key="navMenu.sn"  :index="navMenu.sn">
                 <!--标题-->
-                <span slot="title">|--{{navMenu.gsName}}</span>
+                <span slot="title">|--{{navMenu.sn}}</span>
             </el-menu-item>
         </label>
 
@@ -16,12 +16,10 @@
 export default {
   name: "NavMenu", //使用递归组件必须要有
   props: ["navMenus"], // 传入子组件的数据
-  watch: {
-      navmenus(){
-          console.log(this.navMenus);
-          
-      }
-  }
+    mounted() {
+        console.log(this.navMenus);
+        
+    },
 };
 </script>
  
