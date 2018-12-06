@@ -7,6 +7,7 @@
             <button :class="{button_btn:!doAdd}" :disabled="doAdd" @click="doAdds">新增</button>
             <button :class="{button_btn:!doEdit}" :disabled="doEdit">修改</button>
             <button :class="{button_btn:!doCancel}" :disabled="doCancel" @click="doCancels">取消</button>
+            <button :class="{button_btn:!doDelete}" :disabled="doDelete" @click="doDeletes" >删除</button>
             <button :class="{button_btn:!doImport}" :disabled="doImport" @click="doImports">导入</button>
             <button :class="{button_btn:!doImport}" :disabled="doImport" @click="doExports">导出</button>
             <button class="button_btn" @click="handleSearch">查询</button>
@@ -14,7 +15,14 @@
             <button class="button_btn" @click="doOuts">退出</button>
             <button class="button_btn" @click="refresh">刷新</button>
             <div class="btn_right">
+                <button :disabled="(firstForm.sh==1||firstForm.sh=='-1'||firstForm.stopStatus==1||firstForm.closeStatus==1)" :class="{button_btn:firstForm.sh==0&&firstForm.stopStatus==0&&firstForm.closeStatus==0}" @click="doExamines">审核</button>
+                <button :disabled="(firstForm.sh==0||firstForm.sh=='-1'||firstForm.stopStatus==1||firstForm.closeStatus==1)" :class="{button_btn:firstForm.sh==1&&firstForm.stopStatus==0&&firstForm.closeStatus==0}" @click="doExamineAgains">反审</button>
 
+                <button :disabled="(firstForm.stopStatus==1||firstForm.stopStatus=='-1'||firstForm.closeStatus==1)" :class="{button_btn:firstForm.stopStatus==0&&firstForm.closeStatus==0}" @click="stop">终止</button>
+                <button :disabled="(firstForm.stopStatus==0||firstForm.stopStatus=='-1'||firstForm.closeStatus==1)" :class="{button_btn:firstForm.stopStatus==1&&firstForm.closeStatus==0}" @click="stopBack">启用</button>
+
+                <button :disabled="(firstForm.closeStatus==1||firstForm.closeStatus=='-1'||firstForm.stopStatus==1)" :class="{button_btn:firstForm.closeStatus==0&&firstForm.stopStatus==0}" @click="close">关单</button>
+                <button :disabled="(firstForm.closeStatus==0||firstForm.closeStatus=='-1'||firstForm.stopStatus==1)" :class="{button_btn:firstForm.closeStatus==1&&firstForm.stopStatus==0}" @click="closeBack">开单</button>
             </div>
         </div>
 
@@ -97,9 +105,9 @@
                 <!-- 表格内容 -->
                 <div class="order_table">
                     <el-table :data="list" stripe style="width: 100%" index @cell-dblclick="tableDbclick" >
-                        <el-table-column prop="brand" label="品类" min-width="12.5%">
+                        <el-table-column prop="lbch1Name" label="品类" min-width="12.5%">
                         </el-table-column>
-                        <el-table-column prop="clientName" label="名称" min-width="12.5%">
+                        <el-table-column prop="lbch2Name" label="名称" min-width="12.5%">
                         </el-table-column>
                         <el-table-column prop="psn" label="款号" min-width="12.5%">
                         </el-table-column>
@@ -111,10 +119,15 @@
                         </el-table-column>
                         <el-table-column fixed="right" label="操作" min-width="22%">
                             <template slot-scope="scope">
-                                <el-button :disabled="(scope.row.sh == 1)" :class="{btn:(scope.row.sh==0)}" @click="handleEdit(scope.$index, scope.row)">修改</el-button>
-                                <el-button :disabled="(scope.row.sh == 1)" :class="{btn:scope.row.sh == 0}" @click="tableDelete(scope.$index, scope.row)">删除</el-button>
-                                <el-button :disabled="(scope.row.stopStatus == 1)" :class="{btn:scope.row.stopStatus == 0}" @click="doExamines(scope.$index, scope.row)">终止</el-button>
-                                <el-button :disabled="(scope.row.closeStatus == 1)" :class="{btn:scope.row.closeStatus == 0}" @click="doExamineAgains(scope.$index, scope.row)">关款</el-button>
+                                <el-button :disabled="(firstForm.sh == 1||scope.row.stopStatus==1||scope.row.closeStatus==1)" :class="{btn:(firstForm.sh==0&&firstForm.closeStatus == 0&&firstForm.sh == 0&&scope.row.stopStatus==0&&scope.row.closeStatus==0)}" @click="handleEdit(scope.$index, scope.row)">修改</el-button>
+
+                                <el-button :disabled="(firstForm.sh == 1||scope.row.stopStatus==1||scope.row.closeStatus==1)" :class="{btn:firstForm.sh == 0&&firstForm.closeStatus == 0&&firstForm.sh == 0&&scope.row.stopStatus==0&&scope.row.closeStatus==0}" @click="tableDelete(scope.$index, scope.row)">删除</el-button>
+
+                                <el-button v-if="scope.row.stopStatus==0" :disabled="(scope.row.closeStatus==1)" :class="{btn:scope.row.closeStatus==0}" @click="tableStop(scope.$index, scope.row)">终止</el-button>
+                                <el-button v-else :disabled="(scope.row.closeStatus==1)" :class="{btn:scope.row.closeStatus==0}" @click="tableStopBack(scope.$index, scope.row)">启用</el-button>
+
+                               <el-button v-if="scope.row.closeStatus==0" :disabled="(scope.row.stopStatus==1)" :class="{btn:firstForm.closeStatus == 0&&firstForm.stopStatus == 0&&scope.row.stopStatus==0}" @click="tableClose(scope.$index, scope.row)">关款</el-button>
+                                <el-button v-else :disabled="(scope.row.stopStatus==1)" :class="{btn:scope.row.stopStatus==0}" @click="tableCloseBack(scope.$index, scope.row)">开款</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -122,9 +135,7 @@
 
             </div>      
 
-    
         </div>
-
 
         <!-- 底部页码 -->
         <div class="pageBox">
@@ -158,11 +169,10 @@
             </el-pagination>
         </div>
 
-
         <!-- 模糊搜索生产单号 -->
         <el-dialog title="生产单号" :visible.sync="oldSearch">
             <el-input v-model="search" placeholder="生产单号"></el-input>
-            <button class="button_btn" @click="vagueSellSn">查询</button>            
+            <button class="button_btn" @click="vagueSearch">查询</button>            
             <ul class="srcond_menu">
                 <li v-if="searchList.length===0">暂无数据</li>
                 <li class="clearfix" v-for="(item,i) in searchList" :key="i">
@@ -209,7 +219,16 @@
                 <el-button>取 消</el-button>
                 <el-button type="primary" plain>确 定</el-button>
             </span> 
-        </el-dialog>           
+        </el-dialog>   
+
+        <!-- table双击弹出 -->
+        <el-dialog title="查看详细信息" :visible.sync="oldLook" width="30%" class="look">
+            <el-form :model="lookObj" label-width="100px">
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button type="primary" @click="oldLook = false">确 定</el-button>
+            </span>
+        </el-dialog>                
 
         <!-- 导入弹窗 -->
         <el-dialog class="importExport" title="导入" :visible.sync="importbox" width="30%" :showClose="false" :show-file-list="false">
@@ -260,6 +279,7 @@ export default {
             doCancel: true,
             doImport: false,
             doEdit: true,
+            doDelete:true,
 
             //form的disabled
             firstFormNo: true,
@@ -288,9 +308,10 @@ export default {
 
             navMenus:[],
 
-            brand:[],
-            productUnit:[],            
+            brand:[],                       //品牌列表
+            productUnit:[],                 //生产单位列表
 
+            clientSn:"",                    //客户编号（拥有查询该客户的最近生产订单）
             firstForm: {
                 sellSn:"",              //销售订单号
                 clientSn:"",            //客户编号
@@ -321,6 +342,10 @@ export default {
 
             list: [],
 
+
+            oldLook:false,             //双击弹出窗开关
+            lookIndex:0,            //双击弹出窗下标
+            lookObj:{},             //双击弹出框数据
             //编辑弹窗开关
             editVisible: false,
             idx: 0,
@@ -330,7 +355,7 @@ export default {
             //分页：当前页码/总数量/每页显示条数
             page: 0,
             total: "",
-            pageSize: 1,
+            pageSize: 2,
             pageOnOff: false,
             //分页排序查询条件
             pageParams: {},            
@@ -353,6 +378,7 @@ export default {
             this.doCancel = true;
             this.doImport = false;
             this.doEdit = true;
+            this.doDelete = true
         },
         //按钮按下状态
         emptyBtnTo() {
@@ -360,6 +386,7 @@ export default {
             this.doCancel = false;
             this.doImport = true;
             this.doEdit = true;
+            this.doDelete = true
         },
         //表单1恢复初始空值状态
         emptyFirstForm() {
@@ -429,6 +456,7 @@ export default {
             this.disabledSecondForm()
 
             this.list = [];
+            this.clientSn = ''
         },
         //新增
         doAdds() {
@@ -444,18 +472,39 @@ export default {
 
             this.pageOnOff = false;
         },
-
+        //删除生产订单
+        doDeletes(){
+            this.$http.post('/TPA/dProductOrder/delete?id='+this.firstForm.id)
+                .then(res=>{
+                    if(res.data.code===0){
+                        this.doCancels()
+                        succ(res.data.msg)
+                        this.getnavMenus()
+                    }else{
+                        error(res.data.msg)   
+                    }
+                })
+                .catch(err=>{
+                    NetworkAnomaly()
+                })
+        },
 
         //刷新
         refresh() {
+            if(!this.clientSn){
+                this.getnavMenus();
+            }
             this.doCancels();
-            this.getnavMenus();
+            
             succ("刷新成功");
         },
         //退出
         doOuts() {
             this.$emit("getOut", this.$route.name);
-        },        
+        },    
+        
+        
+
 
         //保存
         firstFormSave(){
@@ -492,6 +541,8 @@ export default {
                             this.disabledFirstForm()
                             this.noDisabledSecondForm()
                             this.getnavMenus()
+
+                            this.doDelete = false
                         } else {
                             error(res.data.msg);
                         }
@@ -534,6 +585,30 @@ export default {
             this.search = ""
             this.oldSearch = true
             this.searchList = []
+        },
+        //选择搜索的生产订单
+        getItemSearch(item){
+            this.doCancels()
+            this.emptyBtnTo();
+            this.doAdd = false;
+            this.doDelete = false
+            this.noDisabledSecondForm()
+
+            this.oldSearch = false
+
+            this.pageOnOff = false;
+            this.page = 1
+            let params = {
+                masterSn: item.sn,
+                count: this.pageSize,
+                page: 0,
+                delStatus:0
+            };
+            this.pageParams = params;
+
+            this.getPageData(this.pageParams);   
+            this.getSellSn(item.sn)
+          
         },
         //点击销售单号查询按钮
         handleSellSn(){
@@ -588,48 +663,60 @@ export default {
         },
 
 
-        //获取导航
+        //获取导航(如何客户款号有值this.clientSn，就查询该客户下的最新20条生产订单)
         getnavMenus() {
-            this.$http
-                .post("/TPA/dProductOrder/list?colseStatus=0")
-                .then(res => {
-                    if (res.data.code === 0) {
-                        this.navMenus = res.data.data;
-                    } else {
-                        error(res.data.msg);
-                    }
-                })
-                .catch(err => {
-                    NetworkAnomaly();
-                });
+            if(this.clientSn){
+                
+            }else{
+                this.$http
+                    .post("/TPA/dProductOrder/list")
+                    .then(res => {
+                        if (res.data.code === 0) {
+                            this.navMenus = res.data.data;
+                        } else {
+                            error(res.data.msg);
+                        }
+                    })
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });
+            }
+
         },
         //导航展开查询table
         menuSelected(index) {
             this.doCancels()
             this.emptyBtnTo();
             this.doAdd = false;
+            this.doDelete = false
+            this.noDisabledSecondForm()
+            
 
+            //分页
             this.pageOnOff = false;
-            this.page = 1
+            this.page = 0
             let params = {
                 masterSn: index,
                 count: this.pageSize,
-                page: 0
+                page: 0,
+                delStatus:0
             };
             this.pageParams = params;
-
-            this.getPageData(this.pageParams);
-
+            this.getPageData(this.pageParams)
+            //根据生产单号查询销售单号
+            this.getSellSn(index)
             
         },
+
         //审核
         doExamines() {
             this.$http
-                .post("/TPA/aRepertory/auditing?status=1&gsSn=" + this.list[0].gsSn)
+                .post("/TPA/dProductOrder/auditing?status=1&id=" + this.firstForm.id)
                 .then(res => {
                     if (res.data.code === 0) {
                         succ(res.data.msg);
-                        this.getPageData(this.list[0].gsName);
+                        this.getSellSn(this.firstForm.sn)
+                        this.getPageData(this.pageParams)
                     } else {
                         error(res.data.msg);
                     }
@@ -641,11 +728,80 @@ export default {
         //反审核
         doExamineAgains() {
             this.$http
-                .post("/TPA/aRepertory/auditing?status=0&gsSn=" + this.list[0].gsSn)
+                .post("/TPA/dProductOrder/auditing?status=0&id=" + this.firstForm.id)
                 .then(res => {
                     if (res.data.code === 0) {
                         succ(res.data.msg);
-                        this.getPageData(this.list[0].gsName);
+                        this.getSellSn(this.firstForm.sn)
+                        this.getPageData(this.pageParams)
+                    } else {
+                        error(res.data.msg);
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
+        },
+        //终止
+        stop(){
+            this.$http
+                .post("/TPA/dProductOrder/stop?status=1&id=" + this.firstForm.id)
+                .then(res => {
+                    if (res.data.code === 0) {
+                        succ(res.data.msg);
+                        this.getSellSn(this.firstForm.sn)
+                        this.getPageData(this.pageParams)
+                    } else {
+                        error(res.data.msg);
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
+        },
+        //启用
+        stopBack(){
+            this.$http
+                .post("/TPA/dProductOrder/stop?status=0&id=" + this.firstForm.id)
+                .then(res => {
+                    if (res.data.code === 0) {
+                        succ(res.data.msg);
+                        this.getSellSn(this.firstForm.sn)
+                        this.getPageData(this.pageParams)
+                    } else {
+                        error(res.data.msg);
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
+        },
+        //关单
+        close(){
+            this.$http
+                .post("/TPA/dProductOrder/close?status=1&id=" + this.firstForm.id)
+                .then(res => {
+                    if (res.data.code === 0) {
+                        succ(res.data.msg);
+                        this.getSellSn(this.firstForm.sn)
+                        this.getPageData(this.pageParams)
+                    } else {
+                        error(res.data.msg);
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
+        },
+        //开单
+        closeBack(){
+            this.$http
+                .post("/TPA/dProductOrder/close?status=0&id=" + this.firstForm.id)
+                .then(res => {
+                    if (res.data.code === 0) {
+                        succ(res.data.msg);
+                        this.getSellSn(this.firstForm.sn)
+                        this.getPageData(this.pageParams)
                     } else {
                         error(res.data.msg);
                     }
@@ -655,15 +811,32 @@ export default {
                 });
         },
 
+        //通过生产单号查询对应的销售单号
+        getSellSn(sn,clientSn){
+            this.$http.post('/TPA/dProductOrder/search?sn='+sn)
+                .then(res=>{
+                    if(res.data.code===0){
+                        this.firstForm = res.data.data.list[0]
+                        this.clientSn = this.firstForm.clientSn
+                    }else{
+                        error(res.data.msg)
+                    }
+                })
+                .catch(err=>{
+                    NetworkAnomaly()
+                })
+                
+        },
         //分页-查询列表
         getPageData(params) {
             this.$http
-                .post("/TPA/dProductOrderA/search1",qs.stringify(params))
+                .post("/TPA/dProductOrderA/getByMasterSn",qs.stringify(params))
                 .then(res => {
                     if (res.data.code === 0) {
-                        this.list = res.data.data.list;
+                        this.list = res.data.data;
+                        
                         this.pageOnOff = false
-                        this.total = res.data.data.total;
+                        this.total = res.data.attachment.total;
 
                         if (this.total > this.pageSize) {
                             this.pageOnOff = true;
@@ -744,11 +917,108 @@ export default {
         currentPage(val) {
             this.page = val;
         },
+        //table单元格双击
         tableDbclick(){
+            this.oldLook = true
             console.log(0);
             
         },
-
+        //table删除
+        tableDelete(index, row){
+            this.idx = index;
+            const item = this.list[index];
+            
+            this.$http
+                .post("/TPA/dProductOrderA/delete?id="+item.id)
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.$set(this.list, this.idx, item);
+                        this.getPageData(this.pageParams)
+                        succ(res.data.msg);
+                    } else {
+                        error(res.data.msg);
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });            
+        },
+        //table终止
+        tableStop(index, row){
+            this.idx = index;
+            const item = this.list[index];
+                     
+            this.$http.post('/TPA/dProductOrderA/stop?status=1&id='+item.id)
+                .then(res=>{
+                    if (res.data.code === 0) {
+                        this.$set(this.list, this.idx, item);
+                        this.getPageData(this.pageParams)
+                        succ(res.data.msg);
+                    } else {
+                        error(res.data.msg);
+                    }
+                })  
+                .catch(err=>{
+                    NetworkAnomaly()
+                })
+        },
+        //table反终止
+        tableStopBack(index, row){
+            this.idx = index;
+            const item = this.list[index];
+                     
+            this.$http.post('/TPA/dProductOrderA/stop?status=0&id='+item.id)
+                .then(res=>{
+                    if (res.data.code === 0) {
+                        this.$set(this.list, this.idx, item);
+                        this.getPageData(this.pageParams)
+                        succ(res.data.msg);
+                    } else {
+                        error(res.data.msg);
+                    }
+                })  
+                .catch(err=>{
+                    NetworkAnomaly()
+                })
+        },
+        //table关款
+        tableClose(index, row){
+            this.idx = index;
+            const item = this.list[index];
+                     
+            this.$http.post('/TPA/dProductOrderA/close?status=1&id='+item.id)
+                .then(res=>{
+                    if (res.data.code === 0) {
+                        this.$set(this.list, this.idx, item);
+                        this.getPageData(this.pageParams)
+                        succ(res.data.msg);
+                    } else {
+                        error(res.data.msg);
+                    }
+                })  
+                .catch(err=>{
+                    NetworkAnomaly()
+                })
+        },
+        //table开款
+        tableCloseBack(index, row){
+            this.idx = index;
+            const item = this.list[index];
+                     
+            this.$http.post('/TPA/dProductOrderA/close?status=0&id='+item.id)
+                .then(res=>{
+                    if (res.data.code === 0) {
+                        this.$set(this.list, this.idx, item);
+                        this.getPageData(this.pageParams)
+                        succ(res.data.msg);
+                    } else {
+                        error(res.data.msg);
+                    }
+                })  
+                .catch(err=>{
+                    NetworkAnomaly()
+                })            
+        },
 
         //模糊查询销售单号
         vagueSellSn(){
@@ -760,7 +1030,12 @@ export default {
                 this.$http.post("/TPA/dSellOrder/search?search=" + searchStr)
                     .then(res=>{
                         if(res.data.code===0){
-                            this.sellSnList = res.data.data.list
+                            if(res.data.data.list.length>0){
+                                this.sellSnList = res.data.data.list
+                            }else{  
+                                error('暂无数据')
+                                this.sellSnList = []
+                            }
                         }else{
                             error(res.data.msg)
                         }
@@ -783,7 +1058,12 @@ export default {
                 this.$http.post("/TPA/dProductOrderA/search?masterSn=" + this.firstForm.sellSn + "&search=" + searchStr)
                     .then(res=>{
                         if(res.data.code===0){
-                            this.psnList = res.data.data.list
+                            if(res.data.data.list.length>0){
+                                this.psnList = res.data.data.list
+                            }else{
+                                error("暂无数据");
+                                this.psnList = [];
+                            }
                         }else{
                             error(res.data.msg)
                         }
@@ -796,6 +1076,34 @@ export default {
                 error('请输入查询条件')
             }
         },
+        //模糊查询生产订单
+        vagueSearch(){
+            if(this.search){
+                let search = {
+                    sn: 17 + "|" + this.search
+                };
+                let searchStr = JSON.stringify(search);  
+                this.$http.post("/TPA/dProductOrder/search?search=" + searchStr)
+                    .then(res=>{
+                        if(res.data.code===0){
+                            if(res.data.data.list.length>0){
+                                this.searchList = res.data.data.list
+                            }else{
+                                error("暂无数据");
+                                this.searchList = [];
+                            }
+                        }else{
+                            error(res.data.msg)
+                        }
+                    })
+                    .catch(err=>{
+                        NetworkAnomaly()
+                    })
+
+            }else{
+                error('请输入查询条件')
+            } 
+        }
     },
     mounted() {
         this.getnavMenus()
@@ -805,9 +1113,19 @@ export default {
     },
     watch:{
         page() {
-            this.pageParams.page = this.page - 1;
+            if(this.page>0){ this.pageParams.page = this.page - 1;}
             this.getPageData(this.pageParams);
-        },        
+        },  
+        //自动查询改编号的客户的最近生产订单
+        clientSn(){
+            if(this.clientSn){
+                console.log(this.clientSn);
+            }else{
+                this.getnavMenus()
+            }
+            
+            
+        }      
     },
     // 引入组件
     components: {
