@@ -98,7 +98,16 @@
 
         <!-- 输入查询弹出框 -->
         <el-dialog title="款号" :visible.sync="psnSearch">
+            <!-- <el-input v-model="searchXun" placeholder="请输入你要查找的款号"></el-input>
+            <ul class="srcond_menu">
+                <li v-if="searchList.length===0">暂无数据</li>
+                <li class="clearfix" v-for="(item,i) in searchList" :key="i">
+                    <span class="search" @click="getSearchItem(item)">|--{{item.pSn}}</span>
+                </li>
+            </ul> -->
+
             <el-input v-model="searchXun" placeholder="请输入你要查找的款号"></el-input>
+            <el-button @click="searchXunFun">查询</el-button>
             <ul class="srcond_menu">
                 <li v-if="searchList.length===0">暂无数据</li>
                 <li class="clearfix" v-for="(item,i) in searchList" :key="i">
@@ -547,7 +556,7 @@ export default {
     // 获取类型
     getBrand() {
       this.$http
-        .post("/TPA/aLbJb/getBySn?sn=005")
+        .post("/TPA/aLbJb/option?sn=027")
         .then(res => {
           if (res.data.code === 0) {
             this.Type = res.data.data;
@@ -592,6 +601,27 @@ export default {
     searchSn() {
       this.searchXun = "";
       this.psnSearch = true;
+    },
+
+    // 款号弹窗按钮
+    searchXunFun() {
+      if (this.searchXun.length !== 0) {
+        let search = {
+          pSn: 17 + "|" + this.searchXun
+        };
+        let searchStr = JSON.stringify(search);
+        this.$http
+          .post("/TPA/cSpda/search?sp=1&search=" + searchStr)
+          .then(res => {
+            this.searchList = res.data.data.list;
+            // console.log(res.data.data.list)
+          })
+          .catch(err => {
+            NetworkAnomaly();
+          });
+      } else {
+        this.searchList = [];
+      }
     },
 
     // 选择查询
@@ -783,25 +813,6 @@ export default {
     ...mapState(["collapse"])
   },
   watch: {
-    searchXun() {
-      if (this.searchXun.length !== 0) {
-        let search = {
-          pSn: 17 + "|" + this.searchXun
-        };
-        let searchStr = JSON.stringify(search);
-        this.$http
-          .post("/TPA/cSpda/search?sp=1&search=" + searchStr)
-          .then(res => {
-            this.searchList = res.data.data.list;
-            // console.log(res.data.data.list)
-          })
-          .catch(err => {
-            NetworkAnomaly();
-          });
-      } else {
-        this.searchList = [];
-      }
-    },
 
     page() {
       this.currentPage();
@@ -849,11 +860,26 @@ export default {
   font-size: 1.6vh
 .container>>>.el-table__empty-block
   min-height: 3.5vh
+
 // 弹出框
 .container>>>.el-dialog
-  width: 390px !important
-  height: 390px
-  overflow-x: hidden
+  width: 390px 
+  height: 460px
+  overflow-y: auto
+  .el-dialog__headerbtn
+    border none
+  .el-input
+    width 75%
+    float left
+  button
+    height 23px 
+    line-height: 23px
+    width 60px
+    background #ffffff
+    margin-left 10px 
+    border 1px solid #409EFF
+    color #409EFF  
+    padding: 0
 .container>>>.el-dialog .el-table td
   padding: 0
 .container>>>.el-dialog__body

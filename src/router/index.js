@@ -329,7 +329,15 @@ const router = new Router({
           name: "shangpinzuhe",
           component: resolve => require(['@/components/page/shangpinzuhe/shangpinzuhe'], resolve),
           meta: {
-            title: '销售订单'
+            title: '商品组合'
+          },
+        },
+        {
+          path: '/wuliaoxuqiuyunsuan',
+          name: "wuliaoxuqiuyunsuan",
+          component: resolve => require(['@/components/page/wuliaoxuqiuyunsuan/wuliaoxuqiuyunsuan'], resolve),
+          meta: {
+            title: '物料需求运算'
           },
         }
       ]

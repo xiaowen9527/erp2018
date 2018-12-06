@@ -75,10 +75,36 @@
     line-height 3vh
     font-size 1.6vh !important
 // 弹出框
-.container>>>.look .el-dialog
+.container>>>.look .el-dialog               //双击table弹出
     height 500px
-.container>>>.look .el-dialog__body
+.container>>>.look .el-dialog__body         //双击table弹出
     height 380px 
+.container>>>.addNUm .el-dialog             //添加数量
+    height 500px
+    width: 500px
+.container>>>.addNUm .el-dialog__body       //添加数量
+    height 380px 
+.container>>>.addNUm .el-dialog__body .addNumTable
+    width: 1600px     
+.addNUm>>>th, .order_table>>>.el-table td, .el-table th
+  padding: 0
+.addNUm>>>.info_form ul li, .container>>>.el-table .cell
+  height: 3.6vh
+  line-height: 3.6vh
+
+  text-align: center
+  font-size: 1.6vh
+.container>>>.el-table__empty-block
+  min-height: 3.5vh    
+// 改变saveList中的input样式
+.changeInput 
+  background: transparent
+  border: none
+  width: 100%
+  height 4vh
+  line-height: 4vh
+  text-align: center
+
 .container>>>.el-dialog
     width 400px
     height 400px
@@ -112,6 +138,24 @@
 .el-dialog__body .el-form-item .el-form-item__content .el-input
   width: 70%
 
+//弹出窗表单
+.el-form-item
+    height 4vh
+    margin-bottom: 12px !important
+.el-form-item>>>.el-form-item__label
+        width: 10% !important
+        text-align: center !important
+.el-form-item>>>.el-form-item__content
+        height 4vh !important
+        margin 0 !important
+        .el-input 
+            width: 90% !important
+            &.gui_num
+                width 20% !important
+                margin-right: 5%
+            &.gui_input
+                width: 65% !important
+        
  
 // 表格
 .order_table

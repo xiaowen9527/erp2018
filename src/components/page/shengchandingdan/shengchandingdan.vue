@@ -94,17 +94,17 @@
                         <ul class="clearfix">
                             <li>
                                 <label>款号</label>
-                                <input type="text" placeholder="请选择款号" v-model="secondForm.psn" readonly :disabled="secondFormGui" @click="handlePsn">
+                                <input type="text" placeholder="请点击选择款号" v-model="secondForm.psn" readonly :disabled="secondFormGui" @click="handlePsn">
                             </li>
-                            <button :disabled="secondFormOn" :class="{btn:!secondFormOn}" class="save" @click="secondSearch">查询</button>
-                            <button :disabled="secondFormOn" :class="{btn:!secondFormOn}" class="save" @click="secondImport">导入</button>
+                            <button :disabled="secondFormOn" :class="{btn:!secondFormOn}" class="save" @click="openSaves">查询</button>
+                            <button :disabled="secondFormGui" :class="{btn:!secondFormGui}" class="save" @click="secondImport">导入</button>
                         </ul>
                     </div>                    
                 </div>
 
                 <!-- 表格内容 -->
                 <div class="order_table">
-                    <el-table :data="list" stripe style="width: 100%" index @cell-dblclick="tableDbclick" >
+                    <el-table :data="list" stripe style="width: 100%" index @cell-dblclick="tableDbclick" :span-method="objectSpanMethod" >
                         <el-table-column prop="lbch1Name" label="品类" min-width="12.5%">
                         </el-table-column>
                         <el-table-column prop="lbch2Name" label="名称" min-width="12.5%">
@@ -206,9 +206,9 @@
         </el-dialog>     
 
         <!-- 添加数量弹窗 -->
-        <el-dialog title="添加数量" :visible.sync="saveOff" class="tableDialog">
-            <el-table :data="tableBody">
-                <el-table-column :label="tit" v-for="(tit, key) in tableTit" :key="key">
+        <el-dialog title="添加数量" :visible.sync="saveOff" class="addNUm">
+            <el-table :data="tableBody" class="addNumTable">
+                <el-table-column :label="tit" v-for="(tit, key) in tableTit" :key="key" min-width="120px">
                     <template slot-scope="scope">
                         <input class="changeInput" :disabled="(tableBody[scope.$index][key] == tableBody[scope.$index][0]) || 
                         (tableBody[scope.$index][key] == tableBody[scope.$index][1])" type="text" v-model="tableBody[scope.$index][key]" />
@@ -224,6 +224,29 @@
         <!-- table双击弹出 -->
         <el-dialog title="查看详细信息" :visible.sync="oldLook" width="30%" class="look">
             <el-form :model="lookObj" label-width="100px">
+                <el-form-item label="品牌">
+                    <el-input v-model="lookObj.technics" disabled type="text"></el-input>
+                </el-form-item>               
+                <el-form-item label="年度">
+                    <el-input v-model="lookObj.technics" disabled type="text"></el-input>
+                </el-form-item>               
+                <el-form-item label="季度">
+                    <el-input v-model="lookObj.technics" disabled type="text"></el-input>
+                </el-form-item>               
+                <el-form-item label="性别">
+                    <el-input v-model="lookObj.technics" disabled type="text"></el-input>
+                </el-form-item>               
+                <el-form-item label="单位">
+                    <el-input v-model="lookObj.technics" disabled type="text"></el-input>
+                </el-form-item>               
+                <el-form-item label="面料">
+                    <el-input v-model="lookObj.technics" disabled type="text" class="gui_num"></el-input>
+                    <el-input v-model="lookObj.technics" disabled type="text" class="gui_input"></el-input>
+                </el-form-item>                             
+                <el-form-item label="款式">
+                    <el-input v-model="lookObj.technics" disabled type="text" class="gui_num"></el-input>
+                    <el-input v-model="lookObj.technics" disabled type="text" class="gui_input"></el-input>
+                </el-form-item>                             
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button type="primary" @click="oldLook = false">确 定</el-button>
@@ -312,6 +335,7 @@ export default {
             productUnit:[],                 //生产单位列表
 
             clientSn:"",                    //客户编号（拥有查询该客户的最近生产订单）
+            oldClientSn:false,              //是否存在客户编号开关
             firstForm: {
                 sellSn:"",              //销售订单号
                 clientSn:"",            //客户编号
@@ -341,11 +365,21 @@ export default {
             },
 
             list: [],
+            rowList: [],
+            khArr: [],
+            khPosition: 0,            
 
+            tableTit: [], // 保存弹窗表头
+            tableBody: [], // 保存弹窗表格内容
+            saveOff: false, // 保存弹窗开关
+            standarPrice: "", // 结算价
+            discount: "", // 折扣
+            money: "", // 结算金额
 
             oldLook:false,             //双击弹出窗开关
             lookIndex:0,            //双击弹出窗下标
             lookObj:{},             //双击弹出框数据
+
             //编辑弹窗开关
             editVisible: false,
             idx: 0,
@@ -456,14 +490,17 @@ export default {
             this.disabledSecondForm()
 
             this.list = [];
-            this.clientSn = ''
+            
+
+            if(this.oldClientSn){this.getnavMenus()}
+            this.oldClientSn = false
+            
         },
         //新增
         doAdds() {
             this.doCancels();
             this.emptyBtnTo();
             this.noDisabledFirstForm()
-            this.noDisabledSecondForm()
 
             this.getBrand()                 //获取品牌     
             this.getProductUnit()           //获取生产单位
@@ -491,9 +528,7 @@ export default {
 
         //刷新
         refresh() {
-            if(!this.clientSn){
-                this.getnavMenus();
-            }
+            if(!this.oldClientSn){this.getnavMenus()}
             this.doCancels();
             
             succ("刷新成功");
@@ -537,6 +572,7 @@ export default {
                     )
                     .then(res => {
                         if (res.data.code === 0) {
+                            this.firstForm = res.data.data
                             succ(res.data.msg)
                             this.disabledFirstForm()
                             this.noDisabledSecondForm()
@@ -553,27 +589,96 @@ export default {
                 this.oldGsNameList = [];
             }                
         },
-        //表单查询
-        secondSearch(){
-            console.log(this.secondForm.psn);
-            
-            // if (this.spdaPsn) {
-            //     this.$http.post("/TPA/dSellOrder/order?psn=" + this.spdaPsn).then(res => {
-            //            if(res.data.code === 0) {
-            //                 this.tableTit = res.data.attachment.head;
-            //                 this.tableBody = res.data.data;
-            //                 this.saveOff = true;
-            //            } else {
-            //                error(res.data.msg);
-            //            }
-            //         })
-            //         .catch(err => {
-            //             NetworkAnomaly();
-            //         });
-            // } else {
-            //     error("请先填写款号");
-            // }
+
+        // 打开保存弹窗
+        openSaves() {
+            if (this.secondForm.psn) {
+                console.log(this.firstForm );
+                
+                this.$http.post("/TPA/dProductOrderA/getList?psn=" + this.secondForm.psn + "&id=" + this.firstForm.id).then(res => {
+                       if(res.data.code === 0) {
+                           console.log(res);
+                           
+                            this.tableTit = res.data.attachment.header;
+                            this.tableBody = res.data.data;
+                            // this.standarPrice = res.data.attachment.standarPrice;
+                            // this.discount = res.data.attachment.discount;
+                            this.saveOff = true;
+                       } else {
+                           error(res.data.msg);
+                       }
+                    })
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });
+            } else {
+                error("请先填写款号");
+            }
         },
+
+        // 保存弹窗取消
+        savesCencel() {
+            this.saveOff = false;
+        },
+
+        // 计算结算金额
+        getMoney() {
+            this.money = this.discount * this.standarPrice;
+        },
+
+        // 保存弹窗确认
+        savesCommit() {
+            //获取所有尺码的数量
+            let lists = []
+            for(let i in this.tableBody){
+                for(let j=2;j<this.tableBody[i].length;j++)
+                    lists.push(this.tableBody[i][j])
+            }
+            
+            //把款号跟颜色拿出来遍历成数组
+            let Arrs = []
+            for(let i in this.tableBody){
+                for(let j=2;j<this.tableBody[i].length;j++){
+                    let obj = {}
+                    // obj.sn = this.tableBody[i][0]
+                    obj.color = this.tableBody[i][1]
+                    Arrs.push(obj)
+                }
+            }
+
+            // 获取表头尺码名称
+            let sizeLists = []
+            for(let i in this.tableBody){
+                for(let j=2;j<this.tableTit.length;j++){
+                    sizeLists.push(this.tableTit[j])
+                }      
+            }
+            
+            //把每个尺码的数量加到数组里，并把其他字段加上
+            for(let i in Arrs){
+                Arrs[i].number = lists[i]
+                Arrs[i].size = sizeLists[i]
+                Arrs[i].masterSn =this.form.sn,
+                Arrs[i].psn =this.spdaPsn,
+                Arrs[i].standarPrice = this.standarPrice;
+                Arrs[i].discount = this.discount;
+                Arrs[i].remark = this.form.remark
+            }
+
+            this.$http.post("/TPA/dSellOrderA/insert", Arrs).then(res => {
+                if (res.data.code === 0) {
+                    this.saveOff = false;
+                    let params = {
+                        page: this.page,
+                        count: this.pageSize,
+                        sn: this.form.sn
+                    }
+                    this.pageParams = params;
+                    this.searchFun(this.pageParams);
+                }
+            })
+        },
+
         //表单导入
         secondImport(){
 
@@ -607,8 +712,9 @@ export default {
             this.pageParams = params;
 
             this.getPageData(this.pageParams);   
+            this.oldClientSn = true
             this.getSellSn(item.sn)
-          
+            
         },
         //点击销售单号查询按钮
         handleSellSn(){
@@ -665,22 +771,18 @@ export default {
 
         //获取导航(如何客户款号有值this.clientSn，就查询该客户下的最新20条生产订单)
         getnavMenus() {
-            if(this.clientSn){
-                
-            }else{
-                this.$http
-                    .post("/TPA/dProductOrder/list")
-                    .then(res => {
-                        if (res.data.code === 0) {
-                            this.navMenus = res.data.data;
-                        } else {
-                            error(res.data.msg);
-                        }
-                    })
-                    .catch(err => {
-                        NetworkAnomaly();
-                    });
-            }
+            this.$http
+                .post("/TPA/dProductOrder/list?page=0&count=20")
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.navMenus = res.data.data;
+                    } else {
+                        error(res.data.msg);
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
 
         },
         //导航展开查询table
@@ -812,12 +914,28 @@ export default {
         },
 
         //通过生产单号查询对应的销售单号
-        getSellSn(sn,clientSn){
+        getSellSn(sn){
             this.$http.post('/TPA/dProductOrder/search?sn='+sn)
                 .then(res=>{
                     if(res.data.code===0){
                         this.firstForm = res.data.data.list[0]
                         this.clientSn = this.firstForm.clientSn
+                        
+                        //查询当前客户底下的最新20个订单
+                        if(this.oldClientSn){
+                            this.$http
+                                .post("/TPA/dProductOrder/list?page=0&count=20&sn="+this.clientSn)
+                                .then(res => {
+                                    if (res.data.code === 0) {
+                                        this.navMenus = res.data.data;
+                                    } else {
+                                        error(res.data.msg);
+                                    }
+                                })
+                                .catch(err => {
+                                    NetworkAnomaly();
+                                });                            
+                        }
                     }else{
                         error(res.data.msg)
                     }
@@ -835,6 +953,12 @@ export default {
                     if (res.data.code === 0) {
                         this.list = res.data.data;
                         
+                        // 重置表格合并
+                        this.rowList = [];
+                        this.khArr = [];
+                        this.khPosition = 0;
+                        this.rowspan();
+
                         this.pageOnOff = false
                         this.total = res.data.attachment.total;
 
@@ -1103,7 +1227,33 @@ export default {
             }else{
                 error('请输入查询条件')
             } 
-        }
+        },
+        rowspan() {
+            this.list.forEach((item, index) => {
+                if (index === 0) {
+                    this.khArr.push(1);
+                    this.khPosition = 0;
+                } else {
+                    if (this.list[index].psn === this.list[index - 1].psn) {
+                        this.khArr[this.khPosition] += 1;
+                        this.khArr.push(0);
+                    } else {
+                        this.khArr.push(1);
+                        this.khPosition = index;
+                    }
+                }
+            });
+        },
+        objectSpanMethod({ row, column, rowIndex, columnIndex }) {
+            if (columnIndex === 2) {
+                const _row_2 = this.khArr[rowIndex];
+                const _col_2 = _row_2 > 0 ? 1 : 0;
+                return {
+                rowspan: _row_2,
+                colspan: _col_2
+                };
+            }
+        }      
     },
     mounted() {
         this.getnavMenus()
@@ -1116,16 +1266,8 @@ export default {
             if(this.page>0){ this.pageParams.page = this.page - 1;}
             this.getPageData(this.pageParams);
         },  
-        //自动查询改编号的客户的最近生产订单
-        clientSn(){
-            if(this.clientSn){
-                console.log(this.clientSn);
-            }else{
-                this.getnavMenus()
-            }
-            
-            
-        }      
+        //自动查询改编号的客户的最近生产订单   
+     
     },
     // 引入组件
     components: {
