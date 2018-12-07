@@ -146,8 +146,10 @@ export default {
     shengchanpici: resolve =>require(["@/components/page/shengchanpici/shengchanpici"], resolve),
     cangkushezhi: resolve =>require(["@/components/page/cangkushezhi/cangkushezhi"], resolve),
     xiaoshoudingdan: resolve =>require(["@/components/page/xiaoshoudingdan/xiaoshoudingdan"], resolve),
-    shangpinzuhe: resolve =>require(["@/components/page/shangpinzuhe/shangpinzuhe"], resolve),
-    wuliaoxuqiuyunsuan: resolve =>require(["@/components/page/wuliaoxuqiuyunsuan/wuliaoxuqiuyunsuan"], resolve),
+    shangpinzuhe: resolve =>require(["@/components/page/shangpinzuhe/shangpinzuhe"], resolve),                                                      //
+    wuliaoxuqiuyunsuan: resolve =>require(["@/components/page/wuliaoxuqiuyunsuan/wuliaoxuqiuyunsuan"], resolve),                                    //物料需求运算
+    wuliaoxuqiutiaozheng: resolve =>require(["@/components/page/wuliaoxuqiutiaozheng/wuliaoxuqiutiaozheng"], resolve),                              //物料需求调整
+    wuliaocaigouxuqiu: resolve =>require(["@/components/page/wuliaocaigouxuqiu/wuliaocaigouxuqiu"], resolve),                                       //物料采购需求
   }
 };
 </script>

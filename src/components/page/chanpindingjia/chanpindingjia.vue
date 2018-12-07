@@ -594,6 +594,7 @@ export default {
       this.doCancels();
       this.form.sn = e;
       this.formOff = false;
+      this.page = 0;
       this.saveEdit();
     },
 
@@ -715,6 +716,8 @@ export default {
             this.doPrint = false;
             this.list = res.data.data.list;
 
+            this.page = 1;
+
             // 重置表格合并
             this.rowList = [];
             this.djArr = [];
@@ -813,10 +816,15 @@ export default {
     ...mapState(["collapse"])
   },
   watch: {
-
     page() {
-      this.currentPage();
-    }
+            if (this.page > 0) {
+                this.pageParams.page = this.page - 1;
+            }
+            this.getPageData();
+        },
+    // page() {
+    //   this.currentPage();
+    // }
   },
 
   // 引入组件

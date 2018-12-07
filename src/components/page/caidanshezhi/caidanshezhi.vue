@@ -24,8 +24,8 @@
                     <li class="menuLi">
                         <label>上级菜单</label>
                         <div class="menu">
-                            <input type="text" readonly class="num" v-model="form.pidSn" :disabled='menuBtn' placeholder="顶级">
-                            <input type="text" readonly class="old_menu" v-model="form.pidName" :disabled='menuBtn' placeholder="顶级">
+                            <input type="text" readonly class="num" v-model="form.pidSn" :disabled='menuBtn' placeholder="顶级" @click="open_box">
+                            <input type="text" readonly class="old_menu" v-model="form.pidName" :disabled='menuBtn' placeholder="顶级" @click="open_box">
                             <button class="menu_btn" @click="open_box" :disabled='menuBtn'>。。。</button>
                         </div>
                     </li>

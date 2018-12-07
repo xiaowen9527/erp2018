@@ -237,7 +237,7 @@
         </el-dialog>
 
         <!-- 添加数量弹窗 -->
-        <el-dialog title="保存" :visible.sync="saveOff" class="tableDialog">
+        <el-dialog title="保存" :span-method="saveSpanMethod" :visible.sync="saveOff" class="tableDialog">
             <el-table :data="tableBody">
                 <el-table-column :label="tit" v-for="(tit, key) in tableTit" :key="key">
                     <template slot-scope="scope">
@@ -411,6 +411,10 @@ export default {
             rowList: [],
             khArr: [],
             khPosition: 0,
+            plArr: [],
+            plPosition: 0,
+            nameArr: [],
+            namePosition: 0,
 
             customerInfo: "", // 客户弹窗查询内容
             customerOff: false, // 客户弹窗开关
@@ -580,10 +584,16 @@ export default {
                 if (res.data.code === 0) {
                     this.list = res.data.data;
 
+                    this.page = 1;
+
                     // 重置表格合并
                     this.rowList = [];
                     this.khArr = [];
                     this.khPosition = 0;
+                    this.plArr = [];
+                    this.plPosition = 0;
+                    this.nameArr = [];
+                    this.namePosition = 0;
                     this.rowspan();
 
                     this.total = res.data.attachment.total;
@@ -592,6 +602,8 @@ export default {
                     } else {
                         this.pageOnOff = false;
                     }
+
+                    this.page = 1;
 
                     succ(res.data.msg);
                 } else {
@@ -612,6 +624,7 @@ export default {
                     count: this.pageSize
                 }
                 this.pageParams = params;
+                this.page = 0;
                 this.searchFun(this.pageParams);
                 // 根据订单号获取表单数据
                 this.$http.post("/TPA/dSellOrder/getBySn?sn=" + this.queryInfo).then(res => {
@@ -641,7 +654,9 @@ export default {
         },
 
         // 退出
-        doOuts() {},
+        doOuts() {
+            this.$emit("getOut", this.$route.name);
+        },
 
         // 刷新
         doRefreshs() {
@@ -1002,7 +1017,7 @@ export default {
 
         // 计算结算金额
         getMoney() {
-            this.money = this.discount * this.standarPrice;
+            this.money = Number(this.discount) * Number(this.standarPrice);
         },
 
         // 保存弹窗确认
@@ -1230,21 +1245,34 @@ export default {
 
         // 获取当前页码
         currentPage(val) {
-            console.log(val)
             this.pageParams.page = val - 1;
             this.searchFun(this.pageParams);
         },
 
+        // 表格合并
         rowspan() {
             this.list.forEach((item, index) => {
                 if (index === 0) {
                     this.khArr.push(1);
                     this.khPosition = 0;
+                    this.plArr.push(1);
+                    this.plPosition = 0;
+                    this.nameArr.push(1);
+                    this.namePosition = 0;
                 } else {
-                    if (this.list[index].psn === this.list[index - 1].psn) {
+                    // 合并品类
+                    if (this.list[index].lbch1Name === this.list[index - 1].lbch1Name && this.list[index].lbch2Name === this.list[index - 1].lbch2Name && this.list[index].psn === this.list[index - 1].psn) {
+                        this.plArr[this.plPosition] += 1;
+                        this.plArr.push(0);
+                         this.nameArr[this.namePosition] += 1;
+                        this.nameArr.push(0);
                         this.khArr[this.khPosition] += 1;
                         this.khArr.push(0);
                     } else {
+                        this.plArr.push(1);
+                        this.plPosition = index;
+                        this.nameArr.push(1);
+                        this.namePosition = index;
                         this.khArr.push(1);
                         this.khPosition = index;
                     }
@@ -1252,15 +1280,35 @@ export default {
             });
         },
         objectSpanMethod({ row, column, rowIndex, columnIndex }) {
-        //表格合并行
-        if (columnIndex === 2) {
-            const _row_2 = this.khArr[rowIndex];
-            const _col_2 = _row_2 > 0 ? 1 : 0;
-            return {
-            rowspan: _row_2,
-            colspan: _col_2
-            };
-        }
+            // 合并品类
+            if (columnIndex === 0) {
+                const _row_0 = this.khArr[rowIndex];
+                const _col_0 = _row_0 > 0 ? 1 : 0;
+                return {
+                rowspan: _row_0,
+                colspan: _col_0
+                };
+            }
+
+            // 合并名称
+            if (columnIndex === 1) {
+                const _row_1 = this.khArr[rowIndex];
+                const _col_1 = _row_1 > 0 ? 1 : 0;
+                return {
+                rowspan: _row_1,
+                colspan: _col_1
+                };
+            }
+
+            // 合并款号
+            if (columnIndex === 2) {
+                const _row_2 = this.khArr[rowIndex];
+                const _col_2 = _row_2 > 0 ? 1 : 0;
+                return {
+                rowspan: _row_2,
+                colspan: _col_2
+                };
+            }
         }
     },
 
@@ -1271,6 +1319,12 @@ export default {
     },
 
     watch: {
+        page() {
+            if (this.page > 0) {
+                this.pageParams.page = this.page - 1;
+            }
+            this.searchFun(this.pageParams);
+        }
     },
 
     computed: {
