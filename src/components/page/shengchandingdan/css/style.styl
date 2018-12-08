@@ -88,9 +88,26 @@
     width: 1600px     
 .container>>>.importAddNUm .el-dialog               //导入款号
     width: 800px
-    height 500px
+    height 600px
+.container>>>.importAddNUm .el-dialog__body  
+    height 450px   
+.container>>>.oldSee .el-dialog__body            //导入查看详细
+    height 270px 
+    p
+        width: 50%
+        float left
+        &:hover
+            background: #d2d2d2
+        label
+            display: block
+            width: 50%
+            float left
+            font-size: 14px
+            line-height: 30px
+            text-align: center
+            cursor pointer            
 .container>>>.importAddNUm .el-table .cell,.container>>>.importAddNUm .el-table td
-    padding: 0 
+    padding: 0 .5vh
     height: 4vh
     line-height: 4vh    
     button
@@ -199,8 +216,8 @@
 //鼠标覆盖显示全部内容
 .container>>>.el-table .cell p
   width 100%
-  height 3.5vh
-  line-height 3.5vh
+  height 4vh
+  line-height 4vh
   word-break normal
   white-space: nowrap!important;
   text-overflow: ellipsis!important;

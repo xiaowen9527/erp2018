@@ -311,7 +311,7 @@
                         <ul class="clearfix mainColor" v-for="(item,i) in list" :key="i">
                             <li v-for="(items,j) in item.attachment.color" :key="j">
                                 <P>
-                                    <span>{{items.colorSn}}-{{items.color}}</span>
+                                    <span>{{items.colorSn}}-{{items.color}}</span>                                    
                                     <span>
                                         <el-button type="text" @click="addItem(item,items)">添加</el-button>
                                         <el-button type="text" @click="deleteItem(items)">删除</el-button>

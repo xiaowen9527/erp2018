@@ -92,9 +92,9 @@ export default {
     methods: {
         // 查询
         doSearchs() {
-            this.$http.post("/TPA/schedule/erp?sn=" + this.queryInfo).then(res => {
+            this.$http.post("/TPA/vMrp/search?orderSn=" + this.queryInfo).then(res => {
                 if (res.data.code === 0) {
-                    this.list = res.data.data;
+                    this.list = res.data.data.list;
                 }
             })
         },

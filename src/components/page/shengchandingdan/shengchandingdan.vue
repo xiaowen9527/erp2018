@@ -97,7 +97,7 @@
                                 <input type="text" placeholder="请点击选择款号" v-model="secondForm.psn" readonly :disabled="secondFormGui" @click="handlePsn">
                             </li>
                             <button :disabled="secondFormOn" :class="{btn:!secondFormOn}" class="save" @click="openSaves">查询</button>
-                            <button :disabled="secondFormGui" :class="{btn:!secondFormGui}" class="save" @click="secondImport">导入</button>
+                            <button :disabled="secondFormNo" :class="{btn:!secondFormNo}" class="save" @click="secondImport">导入</button>
                         </ul>
                     </div>                    
                 </div>
@@ -223,31 +223,44 @@
 
         <!-- 导入款号 -->
         <el-dialog title="导入款号" :visible.sync="importPsn" class="importAddNUm">
-            <div class="table">
-                <el-table :data="importPsnList" stripe style="width: 100%" index @cell-dblclick="tableDbclick" class="addNumTable" >
-                    <el-table-column type="selection" label="名称" width="55">
-                    </el-table-column>
-                    <el-table-column prop="lbch2Name" label="名称" min-width="120px">
-                    </el-table-column>
-                    <el-table-column prop="psn" label="款号" min-width="120px">
-                    </el-table-column>
-                    <el-table-column prop="colorName" label="颜色" min-width="120px">
-                    </el-table-column>
-                    <el-table-column prop="size" label="尺码" min-width="120px">
-                        <template slot-scope="scope">
-                            <el-button size="small">查 看</el-button>
-                        </template>
-                    </el-table-column>
-                </el-table>
-            </div>
-            
+            <el-table :data="importPsnList" stripe style="width: 100%" index class="addNumTable" @selection-change="handleSelectionChange">
+                <el-table-column type="selection" label="名称" width="55">
+                </el-table-column>
+                <el-table-column prop="lbch2Name" label="名称" min-width="120px">
+                </el-table-column>
+                <el-table-column prop="psn" label="款号" min-width="120px">
+                </el-table-column>
+                <el-table-column prop="colorName" label="颜色" min-width="120px">
+                    <template slot-scope="scope">
+                        <el-tooltip :content="scope.row.colorName" placement="top" :enterable="false">
+                            <p>{{ scope.row.colorName}}</p>
+                        </el-tooltip>
+                    </template>                    
+                </el-table-column>
+                <el-table-column prop="size" label="尺码" min-width="120px">
+                    <template slot-scope="scope">
+                        <el-button size="small" @click="handleSee(scope.$index, scope.row)">查 看</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
             <span slot="footer" class="dialog-footer">
             <el-pagination @current-change="currentImportPage" :current-page='importPage' v-if="importPageOnOff" background :page-size="importPageSize" :pager-count="5" :total="importTotal">
             </el-pagination>                
                 <el-button @click="importPsn = false">取 消</el-button>
                 <el-button type="primary" @click="savesImportPsn" plain>确 定</el-button>
             </span>
-        </el-dialog>           
+        </el-dialog>   
+
+        <!-- 导入查看详细尺码 -->
+        <el-dialog title="查看详细尺码" :visible.sync="oldSee" width="30%" class="oldSee">
+            <p v-for="(item,i) in seeList" :key="i">
+                <label>尺码:</label>
+                <label>{{item}}</label>
+            </p>
+            <span slot="footer" class="dialog-footer">
+                <el-button type="primary" @click="oldSee = false">确 定</el-button>
+            </span>
+        </el-dialog>                
 
         <!-- 修改弹窗 -->
         <el-dialog title="修改" :visible.sync="editVisible" class="addNUm">
@@ -293,7 +306,7 @@
             <span slot="footer" class="dialog-footer">
                 <el-button type="primary" @click="oldLook = false">确 定</el-button>
             </span>
-        </el-dialog>                
+        </el-dialog>    
 
         <!-- 导入弹窗 -->
         <el-dialog class="importExport" title="导入" :visible.sync="importbox" width="30%" :showClose="false" :show-file-list="false">
@@ -365,24 +378,24 @@ export default {
             oldPsn:false,                   //款号开关
             psnList:[],                     //款号列表
 
-            tableTit: [], // 保存弹窗表头
-            tableBody: [], // 保存弹窗表格内容
-            saveOff: false, // 保存弹窗开关   
+            tableTit: [],                   // 保存弹窗表头
+            tableBody: [],                  // 保存弹窗表格内容
+            saveOff: false,                 // 保存弹窗开关   
 
-            importPsn:false,            //导入款号开关
-            importPsnList:[],           //导入款号列表
-            multipleSelection:[],       //导入表格选择集合
+            importPsn:false,                //导入款号开关
+            importPsnList:[],               //导入款号列表
+            multipleSelection:[],           //导入表格选择集合
             
-            oldSee:false,               //尺码查看开关
-            seeList:[],                 //尺码查看列表
+            oldSee:false,                   //尺码查看开关
+            seeList:[],                     //尺码查看列表
                      
-            oldLook:false,             //双击弹出窗开关
-            lookIndex:0,            //双击弹出窗下标
-            lookObj:{},             //双击弹出框数据    
+            oldLook:false,                  //双击弹出窗开关
+            lookIndex:0,                    //双击弹出窗下标
+            lookObj:{},                     //双击弹出框数据    
             
-            updateTit: [], // 保存弹窗表头
-            updateBody: [], // 保存弹窗表格内容
-            editVisible: false, // 修改弹窗显示/隐藏
+            updateTit: [],                  // 保存弹窗表头
+            updateBody: [],                 // 保存弹窗表格内容
+            editVisible: false,             // 修改弹窗显示/隐藏
             idx: 0,            
 
             navMenus:[],
@@ -393,28 +406,28 @@ export default {
             clientSn:"",                    //客户编号（拥有查询该客户的最近生产订单）
             oldClientSn:false,              //是否存在客户编号开关
             firstForm: {
-                sellSn:"",              //销售订单号
-                clientSn:"",            //客户编号
-                clientName:"",          //客户名称
-                deliveryDate:"",        //交货日期
-                date:"",                //订单日期
-                brand:"",               //品牌
-                sn:"",                  //生产订单号
-                inDate:"",              //入库日期
-                productUnitSn:"",       //生产单位编码
-                productUnit:"",         //生产单位
-                repertory:"",           //仓库
-                originSn:"",           //来源单号
-                remark:"",              //备注
-                sh:"-1",                //审核
-                stopStatus:"-1",         //终止
-                closeStatus:"-1",        //关单
-                addDate: "", //编制日期
-                addUser: "", //编制人
-                updateUser: "", //修改用户
-                updateDate: "", //修改时间
-                shUser: "", //审核人
-                shDate: "", //审核日期                                                
+                sellSn:"",                  //销售订单号
+                clientSn:"",                //客户编号
+                clientName:"",              //客户名称
+                deliveryDate:"",            //交货日期
+                date:"",                    //订单日期
+                brand:"",                   //品牌
+                sn:"",                      //生产订单号
+                inDate:"",                  //入库日期
+                productUnitSn:"",           //生产单位编码
+                productUnit:"",             //生产单位
+                repertory:"",               //仓库
+                originSn:"",                //来源单号
+                remark:"",                  //备注
+                sh:"-1",                    //审核
+                stopStatus:"-1",            //终止
+                closeStatus:"-1",           //关单
+                addDate: "",                //编制日期
+                addUser: "",                //编制人
+                updateUser: "",             //修改用户
+                updateDate: "",             //修改时间
+                shUser: "",                 //审核人
+                shDate: "",                 //审核日期                                                
             },
             secondForm: {
                 psn: "" //款号
@@ -434,7 +447,7 @@ export default {
             //导入分页：当前页码/总数量/每页显示条数
             importPage: 0,
             importTotal: "",
-            importPageSize: 5,
+            importPageSize: 10,
             importPageOnOff: false,
             importPageParams: {}, 
             //分页：当前页码/总数量/每页显示条数
@@ -447,13 +460,13 @@ export default {
 
             //导入弹出开关
             importbox: false,
-            importZhe: false, //导入遮罩
-            isCover: false, //默认导入不覆盖
-            project: "", //错误文件名
+            importZhe: false,                   //导入遮罩
+            isCover: false,                     //默认导入不覆盖
+            project: "",                        //错误文件名
             //上传的文件
             fileList: [],
-            Tips: "", //错误提示
-            tipOffON: false //错误文件下载开关
+            Tips: "",                           //错误提示
+            tipOffON: false                     //错误文件下载开关
         };
     },
     methods: {
@@ -526,7 +539,7 @@ export default {
         },
         //开放表单secondForm
         noDisabledSecondForm() {
-            this.secondFormNo = true;
+            this.secondFormNo = false;
             this.secondFormOn = true;
             this.secondFormGui = false;
         },
@@ -588,9 +601,6 @@ export default {
         doOuts() {
             this.$emit("getOut", this.$route.name);
         },    
-        
-        
-
 
         //保存
         firstFormSave(){
@@ -640,7 +650,6 @@ export default {
                 this.oldGsNameList = [];
             }                
         },
-
         // 打开保存弹窗
         openSaves() {
             if (this.secondForm.psn) {
@@ -807,8 +816,6 @@ export default {
 
         //导入按钮
         secondImport(){
-            console.log(this.firstForm.sellSn);
-            
             // 分页
             this.importPageOnOff = false;
             this.importPage = 0
@@ -847,13 +854,58 @@ export default {
         //统计导入表格多选集合
         handleSelectionChange(val) {
             this.multipleSelection = val;
-        },        
+        },
+        //查看详细尺码   
+        handleSee(index,row){
+            const item = this.importPsnList[index];            
+            this.$http.post('/TPA/dProductOrderA/getSize?psn='+item.psn)
+                .then(res=>{
+                    if(res.data.code===0){
+                        this.seeList = res.data.data
+                        this.oldSee = true
+                    }else{
+                        error(res.data.msg)
+                    }
+                })
+                .catch(err=>{
+                    NetworkAnomaly()
+                })
+            
+        },     
         //保存导入
         savesImportPsn(){
-            console.log(this.multipleSelection);
-            
+            if(this.multipleSelection.length>0){
+                for(let i in this.multipleSelection){
+                    this.multipleSelection[i].masterSn = this.firstForm.sn
+                    this.multipleSelection[i].color = this.multipleSelection[i].colorName
+                }
+                this.$http.post('/TPA/dProductOrderA/insertImport',this.multipleSelection)
+                    .then(res=>{
+                        if(res.data.code===0){
+                            succ(res.data.msg)
+                            //分页
+                            this.pageOnOff = false;
+                            this.page = 0
+                            let params = {
+                                masterSn: this.firstForm.sn,
+                                count: this.pageSize,
+                                page: 0,
+                                delStatus:0
+                            };
+                            this.pageParams = params;
+                            this.getPageData(this.pageParams)
+                            this.importPsn = false
+                        }else{
+                            error(res.data.msg)
+                        }
+                    })
+                    .catch(err=>{
+                        NetworkAnomaly()
+                    })
+            }else{
+                error('请选择导入内容！')
+            }
         },
-
 
         //点击头部搜索
         handleSearch(){
@@ -912,9 +964,8 @@ export default {
             this.secondForm.psn = item.psn
             this.oldPsn = false
             this.secondFormOn = false
-            this.secondFormGui = true
+            this.secondFormNo = true
         },
-
 
         //获取品牌
         getBrand(){
@@ -938,7 +989,6 @@ export default {
                     }
                 })                
         },
-
 
         //获取导航(如何客户款号有值this.clientSn，就查询该客户下的最新20条生产订单)
         getnavMenus() {
@@ -1206,7 +1256,6 @@ export default {
         doExports() {
             window.location.href = "/TPA/aRepertory/exportExcel";
         },
-
 
         //获取页码
         currentPage(val) {
@@ -1490,7 +1539,13 @@ export default {
         importPage(){
             if(this.importPage>0){ this.importPageParams.page = this.importPage - 1;}
             this.getImportPageDate(this.importPageParams);            
-        }  
+        },
+        psn(){
+            if(!this.psn){
+                this.secondForm.psn = ""
+                this.noDisabledSecondForm()
+            }
+        }
      
     },
     // 引入组件

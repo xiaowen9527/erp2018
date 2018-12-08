@@ -1,0 +1,61 @@
+// 查询内容label
+.label_Info
+    float left
+    height: 4vh
+    line-height: 4vh
+    font-size: 1.4vh
+    padding: 0 2vh
+    margin: 0.3vh 0.3vh
+// 查询内容
+.queryInfo
+    padding: 0 2vh
+    height: 3.5vh
+    line-height: 3.5vh
+    border: 0.1vh solid #d9d9d9
+    background: #ffffff
+    margin: 0.3vh 0.3vh
+    font-size: 1.4vh
+    display: block
+    float: left
+    cursor: pointer
+    border-radius: 4px
+
+// 表格
+.set_box
+    width: 99%
+    overflow: auto
+.order_table
+  width: 2000px
+  margin: 5px auto 0
+  max-height: 550px
+  .el-button
+    padding: 0.4vh 2vh
+    margin-top: 0.4vh
+    color: #409eff
+    font-size: 1.6vh
+    &.btn
+      color: #d2d2d2
+.container>>>th, .order_table>>>.el-table td, .el-table th
+  padding: 0
+.container>>>.info_form ul li, .container>>>.el-table .cell
+  line-height: 4vh
+  text-align: center
+  font-size: 1.6vh
+.container>>>.el-table__empty-block
+  min-height: 4vh
+
+// 修改表格边框和表头背景色
+.container>>>.el-table th
+    background-color: #2d8cf0
+    color: #FFF
+.container>>>.el-table tr
+    background-color: #f1f1f1
+.container>>>.el-table, .container>>>tr, .container>>>td, .container>>>.el-table th
+    border : 0.5px solid #ccc
+.container>>>.el-table th
+    border-left: 0
+.container>>>.el-table th
+    &:last-child
+        border-right: 0
+    &:first-child
+        border-left: 1px solid #ccc

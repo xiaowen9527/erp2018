@@ -237,7 +237,7 @@
         </el-dialog>
 
         <!-- 添加数量弹窗 -->
-        <el-dialog title="保存" :span-method="saveSpanMethod" :visible.sync="saveOff" class="tableDialog">
+        <el-dialog title="保存" :visible.sync="saveOff" class="tableDialog">
             <el-table :data="tableBody">
                 <el-table-column :label="tit" v-for="(tit, key) in tableTit" :key="key">
                     <template slot-scope="scope">
@@ -583,7 +583,6 @@ export default {
             this.$http.post("/TPA/dSellOrderA/search", qs.stringify(params)).then(res => {
                 if (res.data.code === 0) {
                     this.list = res.data.data;
-
                     this.page = 1;
 
                     // 重置表格合并
@@ -602,8 +601,6 @@ export default {
                     } else {
                         this.pageOnOff = false;
                     }
-
-                    this.page = 1;
 
                     succ(res.data.msg);
                 } else {
@@ -624,7 +621,6 @@ export default {
                     count: this.pageSize
                 }
                 this.pageParams = params;
-                this.page = 0;
                 this.searchFun(this.pageParams);
                 // 根据订单号获取表单数据
                 this.$http.post("/TPA/dSellOrder/getBySn?sn=" + this.queryInfo).then(res => {
@@ -874,6 +870,7 @@ export default {
             }
             this.pageParams = params;
             this.searchFun(this.pageParams);
+            console.log(this.page)
             this.$http.post("/TPA/dSellOrder/getBySn?sn=" + e).then(res => {
                 this.form = res.data.data;
             })
@@ -1245,8 +1242,9 @@ export default {
 
         // 获取当前页码
         currentPage(val) {
-            this.pageParams.page = val - 1;
-            this.searchFun(this.pageParams);
+            this.page = val;
+            // this.pageParams.page = val;
+            // this.searchFun(this.pageParams);
         },
 
         // 表格合并
