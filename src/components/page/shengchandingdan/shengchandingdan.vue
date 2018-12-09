@@ -828,6 +828,7 @@ export default {
             this.getImportPageDate(this.importPageParams)
             this.importPsn = true
         },
+        //导入数据分页
         getImportPageDate(params){
             this.$http
                 .post("/TPA/dProductOrderA/getBy",qs.stringify(params))
@@ -877,8 +878,10 @@ export default {
             if(this.multipleSelection.length>0){
                 for(let i in this.multipleSelection){
                     this.multipleSelection[i].masterSn = this.firstForm.sn
+                    this.multipleSelection[i].sellSn = this.firstForm.sellSn
                     this.multipleSelection[i].color = this.multipleSelection[i].colorName
                 }
+                
                 this.$http.post('/TPA/dProductOrderA/insertImport',this.multipleSelection)
                     .then(res=>{
                         if(res.data.code===0){
