@@ -161,7 +161,7 @@ export default {
             pageSize: 15,
             total: 0,
             pageParams: {},
-            pageOnOff: true
+            pageOnOff: false
         }
     },
 
@@ -196,10 +196,16 @@ export default {
         },
 
         // 取消
-        doCancels() {},
+        doCancels() {
+            this.queryInfo = "",
+            this.list = [];
+            this.pageOnOff = false;
+        },
 
         // 退出
-        doOuts() {},
+        doOuts() {
+            this.$emit("getOut", this.$route.name);
+        },
 
         currentPage(val) {
             this.page = val;

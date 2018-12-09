@@ -505,6 +505,7 @@ export default {
             };
             this.spdaPsn = "";
             this.list = [];
+            this.pageOnOff = false;
         },
 
         // 修改
@@ -583,7 +584,7 @@ export default {
             this.$http.post("/TPA/dSellOrderA/search", qs.stringify(params)).then(res => {
                 if (res.data.code === 0) {
                     this.list = res.data.data;
-                    this.page = 1;
+                    this.pageOnOff = false;
 
                     // 重置表格合并
                     this.rowList = [];
@@ -615,9 +616,10 @@ export default {
         // 查询
         doSearchs() {
             if (this.queryInfo != "") {
+                this.page = 1;
                 let params = {
                     sn: this.queryInfo,
-                    page: this.page,
+                    page: this.page - 1,
                     count: this.pageSize
                 }
                 this.pageParams = params;
@@ -863,8 +865,9 @@ export default {
         // 点击左侧导航
         menuSelected(e) {
             this.doCancels();
+            this.page = 1;
             let params = {
-                page: this.page,
+                page: this.page - 1,
                 count: this.pageSize,
                 sn: e
             }
@@ -1059,8 +1062,9 @@ export default {
             this.$http.post("/TPA/dSellOrderA/insert", Arrs).then(res => {
                 if (res.data.code === 0) {
                     this.saveOff = false;
+                    this.page = 1;
                     let params = {
-                        page: this.page,
+                        page: this.page - 1,
                         count: this.pageSize,
                         sn: this.form.sn
                     }

@@ -339,23 +339,18 @@ export default {
         return {
             doCancel: true,
             doAdd: true,
-
             psn: "",
             orderSn: "",
             list: [],
-
             search: "",
             oldSearch: false,
             searchList: [],
-
             oldMateria: false,
             materiaList: [],
-
             editVisible: false, //编辑弹窗开关
             idx: 0,
             dialog: {}, //编辑弹出框数据
             type:[],            //类别列表
-
             //分页：当前页码/总数量/每页显示条数
             page: 0,
             total: "",
@@ -363,7 +358,6 @@ export default {
             pageOnOff: false,
             //分页排序查询条件
             pageParams: {},
-
             //物料列表分页
             materialpage: 0,
             materiaTotal: "",
@@ -406,16 +400,13 @@ export default {
                     if (res.data.code === 0) {
                         this.oldMateria = true;
                         this.materiaList = [];
-
                         if (res.data.data.list.length > 0) {
                             this.materiaList = res.data.data.list;
                         } else {
                             error("暂无可添加物料！");
                         }
-
                         this.materialpageOnOff = false;
                         this.materiaTotal = res.data.data.total;
-
                         if (this.materiaTotal > this.materialpageSize) {
                             this.materialpageOnOff = true;
                         } else {
@@ -429,7 +420,6 @@ export default {
                     NetworkAnomaly();
                 });
         },
-
         //点击搜索
         handleSearch() {
             this.oldSearch = true;
@@ -464,7 +454,6 @@ export default {
             this.oldSearch = false;
             this.psn = item.psn;
             this.orderSn = item.masterSn;
-
             //分页
             this.pageOnOff = false;
             this.page = 0;
@@ -477,7 +466,6 @@ export default {
             this.pageParams = params;
             this.getPageData(this.pageParams);
         },
-
         //添加物料列表
         tableAdd(row) {
             this.$http
@@ -494,7 +482,6 @@ export default {
                 .catch(err => {
                     NetworkAnomaly();
                 });
-
             // this.$http.post('/TPA/dProductOrderA/getByPsn?psn='+row.psn)
             //     .then(res=>{
             //         if(res.data.code===0){
@@ -508,7 +495,6 @@ export default {
             //         NetworkAnomaly()
             //     })
         },
-
         //修改
         handleEdit(index, row) {
             this.getType()
@@ -547,7 +533,6 @@ export default {
                 id: item.id,
                 status: 1
             };
-
             this.$http
                 .post("/TPA/eMatDemand/auditing", qs.stringify(form))
                 .then(res => {
@@ -570,7 +555,6 @@ export default {
                 id: item.id,
                 status: 0
             };
-
             this.$http
                 .post("/TPA/eMatDemand/auditing", qs.stringify(form))
                 .then(res => {
@@ -601,7 +585,6 @@ export default {
                     NetworkAnomaly();
                 });
         },
-
         //获取类别
         getType(){
             this.$http.post('/TPA/aLbJb/getBySn?sn=030')
@@ -636,7 +619,6 @@ export default {
                         }
                         this.pageOnOff = false;
                         this.total = res.data.data.total;
-
                         if (this.total > this.pageSize) {
                             this.pageOnOff = true;
                         } else {

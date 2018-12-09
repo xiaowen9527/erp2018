@@ -80,3 +80,35 @@
         border-right: 0
     &:first-child
         border-left: 1px solid #ccc
+
+.container>>>.el-dialog
+    width 400px
+    height 400px
+.container>>>.el-dialog__body
+    cursor pointer !important
+    line-height 2.5vh
+    font-weight bold
+    padding 1vh 2vh
+    height 340px
+    overflow-y: auto
+    .el-input
+        width 80%
+        float left
+    button
+        height 40px 
+        width 55px
+        text-align: center
+        background #ffffff
+        margin-left 10px  
+        border 1px solid #409EFF
+        color #409EFF
+        padding: 0    
+    li  
+        :hover
+            background: #d2d2d2
+        span 
+            padding-left: 2vh        
+
+// 底部页码
+.container>>>.el-pagination
+  width: 40%
