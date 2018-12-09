@@ -17,7 +17,7 @@
             <el-table :data="list" stripe style="width: 100%" index>
                 <el-table-column type="index" width="80px" label="顺序" fixed="left">
                 </el-table-column>
-               <el-table-column prop="psn" label="款号" width="110px">
+                <el-table-column prop="psn" label="款号" width="110px">
                     <template slot-scope="scope">
                         <el-tooltip :content="scope.row.psn" placement="top" :enterable="false">
                             <p>{{ scope.row.psn }}</p>
@@ -70,7 +70,7 @@
                         <el-tooltip :content="String(scope.row.dosage)" placement="top" :enterable="false">
                             <p>{{ scope.row.dosage }}</p>
                         </el-tooltip>
-                    </template>                    
+                    </template>
                 </el-table-column>
                 <el-table-column prop="amount" label="开发用量" width="110px">
                     <template slot-scope="scope">
@@ -135,7 +135,7 @@
                     <template slot-scope="scope">
                         <el-button :disabled='(scope.row.sh==1)' :class="{btn:(scope.row.sh==0)}" type="text" @click="handleEdit(scope.$index, scope.row)">修改</el-button>
 
-                        <el-button v-if="scope.row.sh==0"  class="btn" type="text" @click="tableSh(scope.$index, scope.row)">审核</el-button>
+                        <el-button v-if="scope.row.sh==0" class="btn" type="text" @click="tableSh(scope.$index, scope.row)">审核</el-button>
                         <el-button v-else class="btn" type="text" @click="tableShBack(scope.$index, scope.row)">反审</el-button>
 
                         <el-button :disabled='(scope.row.sh==1)' :class="{btn:(scope.row.sh==0)}" type="text" @click="tableDelete(scope.$index, scope.row)">删除</el-button>
@@ -164,9 +164,9 @@
 
         <!-- 添加-->
         <el-dialog title="物料列表" :visible.sync="oldMateria" class="oldmenu">
-            <el-table :data="materiaList" stripe index border style="width: 100%"  >
+            <el-table :data="materiaList" stripe index border style="width: 100%">
                 <el-table-column type="index" width="80px" label="顺序" fixed="left">
-                </el-table-column>                
+                </el-table-column>
                 <el-table-column prop="psn" label="款号" width="110px">
                     <template slot-scope="scope">
                         <el-tooltip :content="scope.row.psn" placement="top" :enterable="false">
@@ -220,7 +220,7 @@
                         <el-tooltip :content="String(scope.row.dosage)" placement="top" :enterable="false">
                             <p>{{ scope.row.dosage }}</p>
                         </el-tooltip>
-                    </template>                    
+                    </template>
                 </el-table-column>
                 <el-table-column prop="amount" label="开发用量" width="110px">
                     <template slot-scope="scope">
@@ -283,16 +283,43 @@
                 </el-table-column>
                 <el-table-column prop="remark" label="操作" width="80px" fixed="right">
                     <template slot-scope="scope">
-                        <el-button :disabled='(scope.row.sh==1)' :class="{btn:(scope.row.sh==0)}" type="text" @click="tableAdd(scope.row)">添加</el-button>                       
+                        <el-button :disabled='(scope.row.sh==1)' :class="{btn:(scope.row.sh==0)}" type="text" @click="tableAdd(scope.row)">添加</el-button>
                     </template>
                 </el-table-column>
             </el-table>
             <span slot="footer" class="dialog-footer">
-            <el-pagination @current-change="materiaCurrentPage" :current-page='materialpage' v-if="materialpageOnOff" background :page-size="materialpageSize" :pager-count="5" :total="materiaTotal">
-            </el-pagination>                
+                <el-pagination @current-change="materiaCurrentPage" :current-page='materialpage' v-if="materialpageOnOff" background :page-size="materialpageSize" :pager-count="5" :total="materiaTotal">
+                </el-pagination>
                 <el-button type="primary" @click="oldMateria = false" plain>确 定</el-button>
             </span>
         </el-dialog>
+
+        <!-- 编辑弹出框 -->
+        <el-dialog title="编辑" :visible.sync="editVisible" width="30%" class="edit">
+            <el-form :model="dialog" label-width="100px">
+                <el-form-item label="用量需求量">
+                    <el-input v-model="dialog.demand" type="text" placeholder="必填"></el-input>
+                </el-form-item>
+                <el-form-item label="采购需求量">
+                    <el-input v-model="dialog.purchase" type="text" placeholder="必填"></el-input>
+                </el-form-item>
+                <el-form-item label="类别">
+                    <el-select v-model="dialog.type" placeholder="请选择(必选)">
+                        <el-option v-for="item in this.type" :key="item.name" :label="item.name" :value="item.name">
+                        </el-option>
+                    </el-select>                    
+                </el-form-item>
+                <el-form-item label="说明">
+                    <el-input v-model="dialog.remark" placeholder="必填(最多200字符)" type="textarea" maxlength="200"></el-input>
+                </el-form-item>
+
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="editVisible = false">取 消</el-button>
+                <el-button type="primary" @click="saveEdit">确 定</el-button>
+            </span>
+        </el-dialog>
+
     </div>
 </template>
 
@@ -327,6 +354,7 @@ export default {
             editVisible: false, //编辑弹窗开关
             idx: 0,
             dialog: {}, //编辑弹出框数据
+            type:[],            //类别列表
 
             //分页：当前页码/总数量/每页显示条数
             page: 0,
@@ -334,15 +362,15 @@ export default {
             pageSize: 15,
             pageOnOff: false,
             //分页排序查询条件
-            pageParams: {},                
+            pageParams: {},
 
             //物料列表分页
             materialpage: 0,
             materiaTotal: "",
             materialpageSize: 10,
-            materialpageOnOff: false,   
+            materialpageOnOff: false,
             //物料列表分页查询条件
-            materialpageParams: {},                         
+            materialpageParams: {}
         };
     },
     methods: {
@@ -357,44 +385,42 @@ export default {
             this.orderSn = "";
         },
         //添加
-        doAdds(){
-
+        doAdds() {
             // 物料分页
             this.materialpageOnOff = false;
-            this.materialpage = 0
+            this.materialpage = 0;
             let materialparams = {
                 orderSn: this.orderSn,
-                psn:this.psn,
+                psn: this.psn,
                 count: this.materialpageSize,
-                page: 0,
+                page: 0
             };
             this.materialpageParams = materialparams;
-            this.getmaterialpageData(this.materialpageParams)      
-
-            
+            this.getmaterialpageData(this.materialpageParams);
         },
         //物料分页
-        getmaterialpageData(params){
-            this.$http.post("/TPA/vMrp/getBy",qs.stringify(params))
+        getmaterialpageData(params) {
+            this.$http
+                .post("/TPA/vMrp/getBy", qs.stringify(params))
                 .then(res => {
                     if (res.data.code === 0) {
-                        this.oldMateria = true
-                        this.materiaList = []                        
-                        
-                        if(res.data.data.list.length>0){
+                        this.oldMateria = true;
+                        this.materiaList = [];
+
+                        if (res.data.data.list.length > 0) {
                             this.materiaList = res.data.data.list;
-                        }else{
-                            error('暂无数据！')
+                        } else {
+                            error("暂无数据！");
                         }
-                        
-                        this.materialpageOnOff = false
-                        this.materiaTotal = res.data.data.total
+
+                        this.materialpageOnOff = false;
+                        this.materiaTotal = res.data.data.total;
 
                         if (this.materiaTotal > this.materialpageSize) {
                             this.materialpageOnOff = true;
                         } else {
                             this.materialpageOnOff = false;
-                        }                        
+                        }
                     } else {
                         error(res.data.msg);
                     }
@@ -402,71 +428,73 @@ export default {
                 .catch(err => {
                     NetworkAnomaly();
                 });
-        },        
+        },
 
         //点击搜索
-        handleSearch(){
-            this.oldSearch = true
-            this.search = ""
-            this.searchList = []
+        handleSearch() {
+            this.oldSearch = true;
+            this.search = "";
+            this.searchList = [];
         },
         //精准查询生产单号
-        accurateSearch(){
-            if(this.search){
-                this.$http.post('/TPA/dProductOrderA/search1?masterSn='+this.search)
-                    .then(res=>{
-                        if(res.data.code===0){
-                            if(res.data.data.list.length>0){
-                                this.searchList = res.data.data.list
-                            }else{
-                                error('暂无数据')
+        accurateSearch() {
+            if (this.search) {
+                this.$http
+                    .post("/TPA/dProductOrderA/search1?masterSn=" + this.search)
+                    .then(res => {
+                        if (res.data.code === 0) {
+                            if (res.data.data.list.length > 0) {
+                                this.searchList = res.data.data.list;
+                            } else {
+                                error("暂无数据");
                             }
-                        }else{
-                            error(res.data.msg)
+                        } else {
+                            error(res.data.msg);
                         }
                     })
-                    .catch(err=>{
-                        NetworkAnomaly()
-                    })
-            }else{
-                error('请输入生产单号！')
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });
+            } else {
+                error("请输入生产单号！");
             }
         },
         //选择搜索
         getItemSearch(item) {
-            this.oldSearch = false
-            this.psn = item.psn
-            this.orderSn = item.masterSn
+            this.oldSearch = false;
+            this.psn = item.psn;
+            this.orderSn = item.masterSn;
 
             //分页
             this.pageOnOff = false;
-            this.page = 0
+            this.page = 0;
             let params = {
                 orderSn: this.orderSn,
-                psn:this.psn,   
+                psn: this.psn,
                 count: this.pageSize,
-                page: 0,
+                page: 0
             };
             this.pageParams = params;
-            this.getPageData(this.pageParams)            
+            this.getPageData(this.pageParams);
         },
 
         //添加物料列表
-        tableAdd(row){
-            this.$http.post('/TPA/eMatDemand/insert',qs.stringify(row))
-                .then(res=>{
-                    if(res.data.code===0){
-                        succ(res.data.msg)
-                        this.getmaterialpageData(this.materialpageParams)   
-                        this.getPageData(this.pageParams)
-                    }else{
-                        error(res.data.msg)
+        tableAdd(row) {
+            this.$http
+                .post("/TPA/eMatDemand/insert", qs.stringify(row))
+                .then(res => {
+                    if (res.data.code === 0) {
+                        succ(res.data.msg);
+                        this.getmaterialpageData(this.materialpageParams);
+                        this.getPageData(this.pageParams);
+                    } else {
+                        error(res.data.msg);
                     }
                 })
-                .catch(err=>{
-                    NetworkAnomaly()
-                })
-            
+                .catch(err => {
+                    NetworkAnomaly();
+                });
+
             // this.$http.post('/TPA/dProductOrderA/getByPsn?psn='+row.psn)
             //     .then(res=>{
             //         if(res.data.code===0){
@@ -478,20 +506,45 @@ export default {
             //     })
             //     .catch(err=>{
             //         NetworkAnomaly()
-            //     })            
+            //     })
         },
 
         //修改
-        handleEdit(index, row) {},
+        handleEdit(index, row) {
+            this.idx = index;
+            const item = this.list[index];       
+            this.dialog = item 
+            this.editVisible = true    
+        },
+        //保存修改
+        saveEdit() {
+            let terms = this.dialog.demand&&this.dialog.purchase&&this.dialog.type&&this.dialog.remark
+
+            if (terms) {
+                this.$http.post('/TPA/eMatDemand/update',qs.stringify(this.dialog))
+                    .then(res=>{
+                        if(res.data.code===0){
+                            
+                        }else{
+                            error(res.data.msg)
+                        }
+                    })
+                    .catch(err=>{
+                        NetworkAnomaly()
+                    })
+            } else {
+                error("请完善表单必填项");
+            }
+        },
         //审核
         tableSh(index, row) {
             this.idx = index;
             const item = this.list[index];
             let form = {
-                id:item.id,
-                status:1
-            }
-            
+                id: item.id,
+                status: 1
+            };
+
             this.$http
                 .post("/TPA/eMatDemand/auditing", qs.stringify(form))
                 .then(res => {
@@ -504,17 +557,17 @@ export default {
                 })
                 .catch(err => {
                     NetworkAnomaly();
-                });            
+                });
         },
         //反审
         tableShBack(index, row) {
             this.idx = index;
             const item = this.list[index];
             let form = {
-                id:item.id,
-                status:0
-            }
-            
+                id: item.id,
+                status: 0
+            };
+
             this.$http
                 .post("/TPA/eMatDemand/auditing", qs.stringify(form))
                 .then(res => {
@@ -527,24 +580,23 @@ export default {
                 })
                 .catch(err => {
                     NetworkAnomaly();
-                });             
+                });
         },
         //删除
         tableDelete(index, row) {
-            
             this.$http
-                .post("/TPA/eMatDemand/delete?id="+row.id)
+                .post("/TPA/eMatDemand/delete?id=" + row.id)
                 .then(res => {
                     if (res.data.code === 0) {
                         succ(res.data.msg);
-                        this.getPageData(this.pageParams) 
+                        this.getPageData(this.pageParams);
                     } else {
                         error(res.data.msg);
                     }
                 })
                 .catch(err => {
                     NetworkAnomaly();
-                });             
+                });
         },
 
         //获取当前页码
@@ -560,10 +612,10 @@ export default {
                 .post("/TPA/eMatDemand/search", qs.stringify(params))
                 .then(res => {
                     if (res.data.code === 0) {
-                        if(res.data.data.list.length>0){
+                        if (res.data.data.list.length > 0) {
                             this.list = res.data.data.list;
-                        }else{
-                            error('暂无数据！')
+                        } else {
+                            error("暂无数据！");
                         }
                         this.pageOnOff = false;
                         this.total = res.data.data.total;
@@ -590,23 +642,23 @@ export default {
             this.pageParams.page = this.page - 1;
             this.getPageData(this.pageParams);
         },
-        materialpage(){
+        materialpage() {
             this.materialpageParams.page = this.materialpage - 1;
-            this.getmaterialpageData(this.materialpageParams);            
+            this.getmaterialpageData(this.materialpageParams);
         },
         orderSn() {
             if (this.psn && this.orderSn) {
                 this.doAdd = false;
-                this.doCancel = false
+                this.doCancel = false;
             } else {
                 this.doAdd = true;
             }
         },
-        search(){
-            if(!this.search){
-                this.psn = ""
-                this.orderSn = ""
-                this.list = []
+        search() {
+            if (!this.search) {
+                this.psn = "";
+                this.orderSn = "";
+                this.list = [];
             }
         }
     }
