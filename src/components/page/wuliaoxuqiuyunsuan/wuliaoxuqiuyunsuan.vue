@@ -12,59 +12,130 @@
             <button class="button_btn" @click="doOuts">退出</button>
         </div>
 
-        <div class="set_box">
-            <div class="order_table">
-                <el-table :data="list" stripe style="width: 100%">
-                    <el-table-column prop="psn" label="款号" min-width="3%">
-                    </el-table-column>
-                    <el-table-column prop="psnColor" label="产品颜色" min-width="5%">
-                    </el-table-column>
-                    <el-table-column prop="number" label="订单数" min-width="3%">
-                    </el-table-column>
-                    <el-table-column prop="materialSn" label="物料编码" min-width="4%">
-                    </el-table-column>
-                    <el-table-column prop="lbch2Name" label="名称" min-width="5%">
-                    </el-table-column>
-                    <el-table-column prop="kz" label="克重" min-width="3%">
-                    </el-table-column>
-                    <el-table-column prop="size" label="布宽" min-width="3%">
-                    </el-table-column>
-                    <el-table-column prop="colorSn" label="色号" min-width="4%">
-                    </el-table-column>
-                    <el-table-column prop="color" label="色号名称" min-width="4%">
-                    </el-table-column>
-                    <el-table-column prop="isCode" label="按码算" min-width="4%">
-                    </el-table-column>
-                    <el-table-column prop="dosageUnit" label="用量单位" min-width="4%">
-                    </el-table-column>
-                    <el-table-column prop="amount" label="开发用量" min-width="4%">
-                    </el-table-column>
-                    <el-table-column prop="dosage" label="大货用量" min-width="4%">
-                    </el-table-column>
-                    <el-table-column prop="loss" label="生产损耗" min-width="4%">
-                    </el-table-column>
-                    <el-table-column prop="purchaseUnit" label="采购单位" min-width="4%">
-                    </el-table-column>
-                    <el-table-column prop="zhxs" label="转换系数" min-width="4%">
-                    </el-table-column>
-                    <el-table-column prop="demand" label="用量需求数量" min-width="5%">
-                    </el-table-column>
-                    <el-table-column prop="purchase" label="采购需求数量" min-width="5%">
-                    </el-table-column>
-                    <el-table-column prop="func" label="领用部门" min-width="4%">
-                    </el-table-column>
-                    <el-table-column prop="part" label="应用部位" min-width="8%">
-                    </el-table-column>
-                    <el-table-column prop="" label="规格说明" min-width="4%">
-                    </el-table-column>
-                    <el-table-column prop="" label="性质" min-width="4%">
-                    </el-table-column>
-                    <el-table-column prop="" label="类别" min-width="4%">
-                    </el-table-column>
-                    <el-table-column prop="" label="说明" min-width="4%">
-                    </el-table-column>
-                </el-table>
-            </div>
+        <div class="order_table">
+            <el-table :data="list" stripe style="width: 100%">
+                 <el-table-column type="index" width="80px" label="顺序" fixed="left">
+                </el-table-column>
+                <el-table-column prop="psn" label="款号" min-width="110px">
+                </el-table-column>
+                <el-table-column prop="psnColor" label="产品颜色" min-width="110px">
+                    <template slot-scope="scope">
+                        <el-tooltip :content="scope.row.psnColor" placement="top" :enterable="false">
+                            <p>{{ scope.row.psnColor }}</p>
+                        </el-tooltip>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="number" label="订单数" min-width="110px">
+                    <template slot-scope="scope">
+                        <el-tooltip :content="String(scope.row.number)" placement="top" :enterable="false">
+                            <p>{{ scope.row.number }}</p>
+                        </el-tooltip>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="materialSn" label="物料编码" min-width="110px">
+                    <template slot-scope="scope">
+                        <el-tooltip :content="String(scope.row.materialSn)" placement="top" :enterable="false">
+                            <p>{{ scope.row.materialSn }}</p>
+                        </el-tooltip>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="lbch2Name" label="名称" min-width="110px">
+                    <template slot-scope="scope">
+                        <el-tooltip :content="scope.row.lbch2Name" placement="top" :enterable="false">
+                            <p>{{ scope.row.lbch2Name }}</p>
+                        </el-tooltip>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="kz" label="克重" min-width="110px">
+                </el-table-column>
+                <el-table-column prop="size" label="布宽" min-width="110px">
+                </el-table-column>
+                <el-table-column prop="colorSn" label="色号" min-width="110px">
+                </el-table-column>
+                <el-table-column prop="color" label="色号名称" min-width="110px">
+                    <template slot-scope="scope">
+                        <el-tooltip :content="scope.row.colorSn" placement="top" :enterable="false">
+                            <p>{{ scope.row.colorSn }}</p>
+                        </el-tooltip>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="isCode" label="按码算" min-width="110px">
+                </el-table-column>
+                <el-table-column prop="dosageUnit" label="用量单位" min-width="110px">
+                </el-table-column>
+                <el-table-column prop="amount" label="开发用量" min-width="110px">
+                    <template slot-scope="scope">
+                        <el-tooltip :content="String(scope.row.amount)" placement="top" :enterable="false">
+                            <p>{{ scope.row.amount }}</p>
+                        </el-tooltip>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="dosage" label="大货用量" min-width="110px">
+                    <template slot-scope="scope">
+                        <el-tooltip :content="String(scope.row.dosage)" placement="top" :enterable="false">
+                            <p>{{ scope.row.dosage }}</p>
+                        </el-tooltip>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="loss" label="生产损耗" min-width="110px">
+                </el-table-column>
+                <el-table-column prop="purchaseUnit" label="采购单位" min-width="110px">
+                </el-table-column>
+                <el-table-column prop="zhxs" label="转换系数" min-width="110px">
+                </el-table-column>
+                <el-table-column prop="demand" label="用量需求数量" min-width="110px">
+                    <template slot-scope="scope">
+                        <el-tooltip :content="String(scope.row.demand)" placement="top" :enterable="false">
+                            <p>{{ scope.row.demand }}</p>
+                        </el-tooltip>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="purchase" label="采购需求数量" min-width="110px">
+                    <template slot-scope="scope">
+                        <el-tooltip :content="String(scope.row.purchase)" placement="top" :enterable="false">
+                            <p>{{ scope.row.purchase }}</p>
+                        </el-tooltip>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="func" label="领用部门" min-width="110px">
+                    <template slot-scope="scope">
+                        <el-tooltip :content="scope.row.func" placement="top" :enterable="false">
+                            <p>{{ scope.row.func }}</p>
+                        </el-tooltip>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="part" label="应用部位" min-width="110px">
+                    <template slot-scope="scope">
+                        <el-tooltip :content="scope.row.part" placement="top" :enterable="false">
+                            <p>{{ scope.row.part }}</p>
+                        </el-tooltip>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="pattern" label="规格说明" min-width="110px">
+                    <template slot-scope="scope">
+                        <el-tooltip :content="scope.row.pattern" placement="top" :enterable="false">
+                            <p>{{ scope.row.pattern }}</p>
+                        </el-tooltip>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="nature" label="性质" min-width="110px">
+                </el-table-column>
+                <el-table-column prop="type" label="类别" min-width="110px">
+                </el-table-column>
+                <el-table-column prop="remark" label="说明" min-width="110px">
+                    <template slot-scope="scope">
+                        <el-tooltip :content="scope.row.remark" placement="top" :enterable="false">
+                            <p>{{ scope.row.remark }}</p>
+                        </el-tooltip>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </div>
+
+
+        <div class="pageBox">
+            <el-pagination @current-change="currentPage" :current-page='page' v-if="pageOnOff" background :page-size="pageSize" :pager-count="5" :total="total">
+            </el-pagination>
         </div>
     </div>
 </template>
@@ -85,17 +156,42 @@ export default {
     data() {
         return {
             queryInfo: "",
-            list: []
+            list: [],
+            page: 0,
+            pageSize: 15,
+            total: 0,
+            pageParams: {},
+            pageOnOff: true
         }
     },
 
     methods: {
         // 查询
         doSearchs() {
-            this.$http.post("/TPA/vMrp/search?orderSn=" + this.queryInfo).then(res => {
+            this.page = 0;
+            let params = {
+                page: this.page,
+                count: this.pageSize,
+                orderSn: this.queryInfo
+            }
+            this.pageParams = params;
+            this.$http.post("/TPA/vMrp/search", qs.stringify(this.pageParams)).then(res => {
                 if (res.data.code === 0) {
+                    succ(res.data.msg)
                     this.list = res.data.data.list;
+
+                    this.total = res.data.data.total;
+                    if (this.total > this.pageSize) {
+                        this.pageOnOff = true;
+                    } else {
+                        this.pageOnOff = false;
+                    }
+                } else {
+                    error(res.data.msg)
                 }
+            })
+            .catch(err => {
+                NetworkAnomaly();
             })
         },
 
@@ -103,12 +199,44 @@ export default {
         doCancels() {},
 
         // 退出
-        doOuts() {}
+        doOuts() {},
+
+        currentPage(val) {
+            this.page = val;
+        }
     },
 
     computed: {
         ...mapState(["collapse"])
     },
+
+    watch: {
+        page() {
+            if(this.page > 0) {
+                let params = {
+                    page: this.page - 1,
+                    count: this.pageSize,
+                    orderSn: this.queryInfo
+                }
+                this.pageParams = params;
+                this.$http.post("/TPA/vMrp/search", qs.stringify(this.pageParams)).then(res => {
+                    if (res.data.code === 0) {
+                        succ(res.data.msg)
+                        this.list = res.data.data.list;
+
+                        this.total = res.data.data.total;
+                        if (this.total > this.pageSize) {
+                            this.pageOnOff = true;
+                        } else {
+                            this.pageOnOff = false;
+                        }
+                    } else {
+                        error(res.data.msg)
+                    }
+                })
+            }
+        }
+    }
 }
 </script>
 

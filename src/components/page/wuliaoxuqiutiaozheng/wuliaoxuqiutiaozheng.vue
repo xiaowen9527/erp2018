@@ -410,7 +410,7 @@ export default {
                         if (res.data.data.list.length > 0) {
                             this.materiaList = res.data.data.list;
                         } else {
-                            error("暂无数据！");
+                            error("暂无可添加物料！");
                         }
 
                         this.materialpageOnOff = false;
@@ -511,6 +511,7 @@ export default {
 
         //修改
         handleEdit(index, row) {
+            this.getType()
             this.idx = index;
             const item = this.list[index];       
             this.dialog = item 
@@ -519,12 +520,14 @@ export default {
         //保存修改
         saveEdit() {
             let terms = this.dialog.demand&&this.dialog.purchase&&this.dialog.type&&this.dialog.remark
-
             if (terms) {
                 this.$http.post('/TPA/eMatDemand/update',qs.stringify(this.dialog))
                     .then(res=>{
                         if(res.data.code===0){
-                            
+                            this.$set(this.list, this.idx, this.dialog);
+                            this.editVisible = false;
+                            succ(res.data.msg);
+                            // this.getPageData(this.pageParams);
                         }else{
                             error(res.data.msg)
                         }
@@ -599,6 +602,20 @@ export default {
                 });
         },
 
+        //获取类别
+        getType(){
+            this.$http.post('/TPA/aLbJb/getBySn?sn=030')
+                .then(res=>{
+                    if(res.data.code===0){
+                        this.type = res.data.data
+                    }else{
+                        error(res.data.msg)
+                    }
+                })
+                .catch(err=>{
+                    NetworkAnomaly()
+                })
+        },
         //获取当前页码
         currentPage(val) {
             this.page = val;
