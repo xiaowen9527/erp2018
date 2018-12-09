@@ -858,8 +858,15 @@ export default {
         },
         //查看详细尺码   
         handleSee(index,row){
-            const item = this.importPsnList[index];            
-            this.$http.post('/TPA/dProductOrderA/getSize?psn='+item.psn)
+            const item = this.importPsnList[index];   
+            let params = {
+                sellSn:this.firstForm.sellSn,
+                psn:item.psn,
+                colorName:item.colorName
+            } 
+
+                    
+            this.$http.post('/TPA/dProductOrderA/getSize',qs.stringify(params))
                 .then(res=>{
                     if(res.data.code===0){
                         this.seeList = res.data.data
