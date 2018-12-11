@@ -242,7 +242,7 @@
                 <el-table-column :label="tit" v-for="(tit, key) in tableTit" :key="key" width="150px">
                     <template slot-scope="scope">
                         <input class="changeInput" :disabled="(tableBody[scope.$index][key] == tableBody[scope.$index][0]) || 
-                        (tableBody[scope.$index][key] == tableBody[scope.$index][1])" type="text" v-model="tableBody[scope.$index][key]" />
+                        (tableBody[scope.$index][key] == tableBody[scope.$index][1]) || (!Number(updateBody[scope.$index][key]+1))" type="text" v-model="tableBody[scope.$index][key]" />
                     </template>
                 </el-table-column>
             </el-table>
@@ -1050,17 +1050,21 @@ export default {
             }
             
             //把每个尺码的数量加到数组里，并把其他字段加上
+            let B = [];
             for(let i in Arrs){
-                Arrs[i].number = lists[i]
-                Arrs[i].size = sizeLists[i]
-                Arrs[i].masterSn =this.form.sn,
-                Arrs[i].psn =this.spdaPsn,
-                Arrs[i].standarPrice = this.standarPrice;
-                Arrs[i].discount = this.discount;
-                Arrs[i].remark = this.form.remark
+                if (Number(lists[i]+1)) {
+                    Arrs[i].number = lists[i]
+                    Arrs[i].size = sizeLists[i]
+                    Arrs[i].masterSn =this.form.sn,
+                    Arrs[i].psn = psn,
+                    Arrs[i].standarPrice = this.standarPrice;
+                    Arrs[i].discount = this.discount;
+                    Arrs[i].remark = this.form.remark
+                    B.push(Arrs[i])
+                }
             }
 
-            this.$http.post("/TPA/dSellOrderA/insert", Arrs).then(res => {
+            this.$http.post("/TPA/dSellOrderA/insert", B).then(res => {
                 if (res.data.code === 0) {
                     this.saveOff = false;
                     this.page = 1;
@@ -1149,7 +1153,6 @@ export default {
                     B.push(Arrs[i])
                 }
             }
-            console.log(B)
 
             this.$http.post("/TPA/dSellOrderA/update", B).then(res => {
                 if (res.data.code === 0) {
