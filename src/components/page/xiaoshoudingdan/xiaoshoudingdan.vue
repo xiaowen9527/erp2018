@@ -239,7 +239,7 @@
         <!-- 添加数量弹窗 -->
         <el-dialog title="保存" :visible.sync="saveOff" class="tableDialog">
             <el-table :data="tableBody">
-                <el-table-column :label="tit" v-for="(tit, key) in tableTit" :key="key">
+                <el-table-column :label="tit" v-for="(tit, key) in tableTit" :key="key" width="150px">
                     <template slot-scope="scope">
                         <input class="changeInput" :disabled="(tableBody[scope.$index][key] == tableBody[scope.$index][0]) || 
                         (tableBody[scope.$index][key] == tableBody[scope.$index][1])" type="text" v-model="tableBody[scope.$index][key]" />
@@ -269,10 +269,10 @@
         <!-- 修改弹窗 -->
         <el-dialog title="修改" :visible.sync="editVisible" class="tableDialog">
             <el-table :data="updateBody">
-                <el-table-column :label="tit" v-for="(tit, key) in updateTit" :key="key">
+                <el-table-column :label="tit" v-for="(tit, key) in updateTit" :key="key"  width="150px">
                     <template slot-scope="scope">
                         <input class="changeInput" :disabled="(updateBody[scope.$index][key] == updateBody[scope.$index][0]) || 
-                        (updateBody[scope.$index][key] == updateBody[scope.$index][1])" type="text" v-model="updateBody[scope.$index][key]" />
+                        (updateBody[scope.$index][key] == updateBody[scope.$index][1]) || (!Number(updateBody[scope.$index][key]+1))" type="text" v-model="updateBody[scope.$index][key]" />
                     </template>
                 </el-table-column>
             </el-table>
@@ -881,7 +881,9 @@ export default {
 
         // 点击弹出客户弹窗
         customerFun() {
+            this.customerInfo = "";
             this.customerOff = true;
+            this.customerList = [];
         },
 
         // 客户弹窗模糊查询
@@ -958,7 +960,8 @@ export default {
         // 打开款号查询弹窗
         searchspdaPsnFun() {
             this.spdaPsnSearchOff = true;
-            this.customerList = [];
+            this.searchSpdaPsn = "";
+            this.searchSpdaPsnList = [];
         },
 
         // 款号弹窗模糊查询
@@ -982,8 +985,6 @@ export default {
 
         // 款号查询弹窗选择
         getspdaPsnItem(item) {
-            this.searchSpdaPsn = "";
-            this.customerList = [];
             this.spdaPsnSearchOff = false;
             this.spdaPsn = item.psn;
         },
@@ -1070,7 +1071,12 @@ export default {
                     }
                     this.pageParams = params;
                     this.searchFun(this.pageParams);
+                } else {
+                    error(res.data.msg);
                 }
+            })
+            .catch(err => {
+                NetworkAnomaly();
             })
         },
 
@@ -1082,7 +1088,6 @@ export default {
             localStorage.setItem("psn", item.psn);
 
             this.$http.post("/TPA/dSellOrder/order?psn=" + item.psn + "&id=" + this.form.id).then(res => {
-                    console.log(res)
                    if(res.data.code === 0) {
                         this.updateTit = res.data.attachment.head;
                         this.updateBody = res.data.data;
@@ -1106,8 +1111,9 @@ export default {
             //获取所有尺码的数量
             let lists = []
             for(let i in this.updateBody){
-                for(let j=2;j<this.updateBody[i].length;j++)
+                for(let j=2;j<this.updateBody[i].length;j++){
                     lists.push(this.updateBody[i][j])
+                }
             }
             
             //把款号跟颜色拿出来遍历成数组
@@ -1130,27 +1136,38 @@ export default {
             }
             
             //把每个尺码的数量加到数组里，并把其他字段加上
+            let B = [];
             for(let i in Arrs){
-                Arrs[i].number = lists[i]
-                Arrs[i].size = sizeLists[i]
-                Arrs[i].masterSn =this.form.sn,
-                Arrs[i].psn =psn,
-                Arrs[i].standarPrice = this.standarPrice;
-                Arrs[i].discount = this.discount;
-                Arrs[i].remark = this.form.remark
+                if (Number(lists[i]+1)) {
+                    Arrs[i].number = lists[i]
+                    Arrs[i].size = sizeLists[i]
+                    Arrs[i].masterSn =this.form.sn,
+                    Arrs[i].psn = psn,
+                    Arrs[i].standarPrice = this.standarPrice;
+                    Arrs[i].discount = this.discount;
+                    Arrs[i].remark = this.form.remark
+                    B.push(Arrs[i])
+                }
             }
+            console.log(B)
 
-            this.$http.post("/TPA/dSellOrderA/update", Arrs).then(res => {
+            this.$http.post("/TPA/dSellOrderA/update", B).then(res => {
                 if (res.data.code === 0) {
                     this.editVisible = false;
+                    this.page = 1;
                     let params = {
-                        page: this.page,
+                        page: this.page - 1,
                         count: this.pageSize,
                         sn: this.form.sn
                     }
                     this.pageParams = params;
                     this.searchFun(this.pageParams);
+                } else {
+                    error(res.data.msg)
                 }
+            })
+            .catch(err => {
+                NetworkAnomaly();
             })
         },
 

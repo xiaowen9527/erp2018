@@ -354,7 +354,7 @@ export default {
             //分页：当前页码/总数量/每页显示条数
             page: 0,
             total: "",
-            pageSize: 15,
+            pageSize: 10,
             pageOnOff: false,
             //分页排序查询条件
             pageParams: {},
@@ -404,6 +404,7 @@ export default {
                             this.materiaList = res.data.data.list;
                         } else {
                             error("暂无可添加物料！");
+                            this.materiaList = []
                         }
                         this.materialpageOnOff = false;
                         this.materiaTotal = res.data.data.total;
@@ -482,18 +483,6 @@ export default {
                 .catch(err => {
                     NetworkAnomaly();
                 });
-            // this.$http.post('/TPA/dProductOrderA/getByPsn?psn='+row.psn)
-            //     .then(res=>{
-            //         if(res.data.code===0){
-            //             this.lookObj = res.data.data[0]
-            //             this.oldLook = true
-            //         }else{
-            //             error(res.data.msg)
-            //         }
-            //     })
-            //     .catch(err=>{
-            //         NetworkAnomaly()
-            //     })
         },
         //修改
         handleEdit(index, row) {
@@ -572,7 +561,7 @@ export default {
         //删除
         tableDelete(index, row) {
             this.$http
-                .post("/TPA/eMatDemand/delete?id=" + row.id)
+                .post("/TPA/eMatDemand/delete?status=1&id=" + row.id)
                 .then(res => {
                     if (res.data.code === 0) {
                         succ(res.data.msg);
@@ -616,6 +605,7 @@ export default {
                             this.list = res.data.data.list;
                         } else {
                             error("暂无数据！");
+                            this.list = []
                         }
                         this.pageOnOff = false;
                         this.total = res.data.data.total;
@@ -638,11 +628,14 @@ export default {
     },
     watch: {
         page() {
-            this.pageParams.page = this.page - 1;
+            if(this.page>0){this.pageParams.page = this.page - 1;}
+            
             this.getPageData(this.pageParams);
         },
         materialpage() {
-            this.materialpageParams.page = this.materialpage - 1;
+            if(this.materialpage>0){this.materialpageParams.page = this.materialpage - 1;}
+            console.log(this.materialpageParams);
+            
             this.getmaterialpageData(this.materialpageParams);
         },
         orderSn() {

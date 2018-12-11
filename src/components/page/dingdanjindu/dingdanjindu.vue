@@ -6,43 +6,75 @@
             <button class="button_btn" @click="doOuts">退出</button>
         </div>
 
-                <!-- 表格内容 -->
-                <div class="order_table">
-                    <el-table :data="psnList" stripe style="width: 100%" index>
-                        <el-table-column prop="activeDate" label="订单号" min-width="30%">
-                        </el-table-column>
-                        <el-table-column prop="clientName" label="订数" min-width="15%">
-                        </el-table-column>
-                        <el-table-column prop="spdaPsn" label="入数" min-width="15%">
-                        </el-table-column>
-                        <el-table-column prop="psn" label="欠数" min-width="15%">
-                        </el-table-column>
-                        <el-table-column fixed="right" label="操作" min-width="25%">
-                            <template slot-scope="scope">
-                            </template>
-                        </el-table-column>
-                    </el-table>
-                </div>
-                <!-- 表格内容 -->
-                <div class="order_table">
-                    <el-table :data="snList" stripe style="width: 100%" index>
-                        <el-table-column prop="activeDate" label="款号" min-width="20%">
-                        </el-table-column>
-                        <el-table-column prop="clientName" label="颜色" min-width="15%">
-                        </el-table-column>
-                        <el-table-column prop="clientName" label="订数" min-width="15%">
-                        </el-table-column>
-                        <el-table-column prop="spdaPsn" label="入数" min-width="15%">
-                        </el-table-column>
-                        <el-table-column prop="psn" label="欠数" min-width="15%">
-                        </el-table-column>
-                        <el-table-column fixed="right" label="操作" min-width="20%">
-                            <template slot-scope="scope">
-                            </template>
-                        </el-table-column>
-                    </el-table>
-                </div>
+
+        <div class="main clearfix">
+            <!-- 表格内容 -->
+            <div class="order_table">
+                <el-table :data="snList" stripe style="width: 100%" index>
+                    <el-table-column prop="name" label="销售单号" min-width="20%">
+                    <template slot-scope="scope">
+                        <el-tooltip :content="scope.row.name" placement="top" :enterable="false">
+                            <p>{{ scope.row.name }}</p>
+                        </el-tooltip>
+                    </template>                        
+                    </el-table-column>
+                    <el-table-column prop="clientName" label="订数" min-width="15%">
+                    </el-table-column>
+                    <el-table-column prop="spdaPsn" label="入数" min-width="15%">
+                    </el-table-column>
+                    <el-table-column prop="psn" label="欠数" min-width="15%">
+                    </el-table-column>
+                    <el-table-column fixed="right" label="操作" min-width="20%">
+                        <template slot-scope="scope">
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </div>
+
+            <!-- 表格内容 -->
+            <div class="order_table">
+                <el-table :data="snList" stripe style="width: 100%" index>
+                    <el-table-column prop="name" label="生产单号" min-width="20%">
+                    </el-table-column>
+                    <el-table-column prop="clientName" label="订数" min-width="15%">
+                    </el-table-column>
+                    <el-table-column prop="spdaPsn" label="入数" min-width="15%">
+                    </el-table-column>
+                    <el-table-column prop="psn" label="欠数" min-width="15%">
+                    </el-table-column>
+                    <el-table-column fixed="right" label="操作" min-width="20%">
+                        <template slot-scope="scope">
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </div>
+            
+            <!-- 表格内容 -->
+            <div class="order_table">
+                <el-table :data="snList" stripe style="width: 100%" index>
+                    <el-table-column prop="name" label="款号" min-width="20%">
+                    </el-table-column>
+                    <el-table-column prop="clientName" label="颜色" min-width="15%">
+                    </el-table-column>
+                    <el-table-column prop="clientName" label="订数" min-width="15%">
+                    </el-table-column>
+                    <el-table-column prop="spdaPsn" label="入数" min-width="15%">
+                    </el-table-column>
+                    <el-table-column prop="psn" label="欠数" min-width="15%">
+                    </el-table-column>
+                    <el-table-column fixed="right" label="操作" min-width="20%">
+                        <template slot-scope="scope">
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </div>            
+        </div>
         
+        <!-- 底部页码 -->
+        <div class="pageBox">
+            <el-pagination @current-change="currentPage" :current-page='page' v-if="pageOnOff" background :page-size="pageSize" :pager-count="5" :total="total">
+            </el-pagination>
+        </div>
 
         <!-- 查询框 -->
         <el-dialog title="查询生产订单号" :visible.sync="oldSearch">
@@ -54,7 +86,9 @@
                     <span @click="getItemSearch(item)">{{item.name}}</span>
                 </li>
             </ul>
-        </el-dialog>        
+        </el-dialog>    
+
+
     </div>
 </template>
 
@@ -75,7 +109,14 @@ export default {
             psnList: [
                 {}
             ],
-            snList: [],
+            snList: [
+                {name:"aaaaaaaaaaaaaaaaaaaaaaa"},
+                {name:"aaaaaaaaaaaaaaaaaaaaaaa"},
+                {name:"aaaaaaaaaaaaaaaaaaaaaaa"},
+                {name:"aaaaaaaaaaaaaaaaaaaaaaa"},
+                {name:"aaaaaaaaaaaaaaaaaaaaaaa"},
+                {name:"aaaaaaaaaaaaaaaaaaaaaaa"},
+            ],
 
             oldSearch: false,
             search: "",

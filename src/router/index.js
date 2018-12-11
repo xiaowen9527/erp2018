@@ -300,14 +300,7 @@ const router = new Router({
                 title: '生产订单'
             },
         },
-        {
-            path: '/shengchanpici',
-            name: "shengchanpici",
-            component: resolve => require(['@/components/page/shengchanpici/shengchanpici'], resolve),
-            meta: {
-                title: '生产批次'
-            },
-        },
+
         {
             path: '/cangkushezhi',
             name: "cangkushezhi",
@@ -330,6 +323,14 @@ const router = new Router({
             component: resolve => require(['@/components/page/shangpinzuhe/shangpinzuhe'], resolve),
             meta: {
                 title: '商品组合'
+            },
+        },
+        {
+            path: '/shangpintiaojia',
+            name: "shangpintiaojia",
+            component: resolve => require(['@/components/page/shangpintiaojia/shangpintiaojia'], resolve),
+            meta: {
+                title: '商品调价'
             },
         },
         {

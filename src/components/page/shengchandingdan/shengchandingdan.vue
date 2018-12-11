@@ -200,7 +200,7 @@
             <ul class="srcond_menu">
                 <li v-if="psnList.length===0">暂无数据</li>
                 <li class="clearfix" v-for="(item,i) in psnList" :key="i">
-                    <span @click="getItemPsn(item)">|--{{item.psn}}</span>
+                    <span @click="getItemPsn(item)">|--{{item.psn}}--{{item.color}}--{{item.size}}</span>
                 </li>
             </ul>
         </el-dialog>     
@@ -211,7 +211,7 @@
                 <el-table-column :label="tit" v-for="(tit, key) in tableTit" :key="key" min-width="120px">
                     <template slot-scope="scope">
                         <input class="changeInput" :disabled="(tableBody[scope.$index][key] == tableBody[scope.$index][0]) || 
-                        (tableBody[scope.$index][key] == tableBody[scope.$index][1])" type="text" v-model="tableBody[scope.$index][key]" />
+                        (tableBody[scope.$index][key] == tableBody[scope.$index][1]) || (!Number(tableBody[scope.$index][key]))" type="text" v-model="tableBody[scope.$index][key]" />
                     </template>
                 </el-table-column>
             </el-table>
@@ -268,7 +268,7 @@
                 <el-table-column :label="tit" v-for="(tit, key) in updateTit" :key="key" min-width="120px">
                     <template slot-scope="scope">
                         <input class="changeInput" :disabled="(updateBody[scope.$index][key] == updateBody[scope.$index][0]) || 
-                        (updateBody[scope.$index][key] == updateBody[scope.$index][1])" type="text" v-model="updateBody[scope.$index][key]" />
+                        (updateBody[scope.$index][key] == updateBody[scope.$index][1]) || (!Number(updateBody[scope.$index][key]+1))" type="text" v-model="updateBody[scope.$index][key]" />
                     </template>
                 </el-table-column>
             </el-table>
@@ -704,17 +704,20 @@ export default {
             }
             
             //把每个尺码的数量加到数组里，并把其他字段加上
+            let B = []
             for(let i in Arrs){
-                Arrs[i].number = lists[i]
-                Arrs[i].size = sizeLists[i]
-                Arrs[i].masterSn =this.firstForm.sn,
-                Arrs[i].psn =this.secondForm.psn,
-                Arrs[i].remark = this.firstForm.remark
+                if (Number(lists[i]+1)) {
+                    Arrs[i].number = lists[i]
+                    Arrs[i].size = sizeLists[i]
+                    Arrs[i].masterSn =this.firstForm.sn,
+                    Arrs[i].psn =this.secondForm.psn,
+                    Arrs[i].remark = this.firstForm.remark                  
+                    B.push(Arrs[i])
+                }
             }
-            console.log(Arrs);
             
             
-            this.$http.post("/TPA/dProductOrderA/insert", Arrs).then(res => {
+            this.$http.post("/TPA/dProductOrderA/insert", B).then(res => {
                 if (res.data.code === 0) {
                     this.saveOff = false;
                     succ(res.data.msg)
@@ -786,17 +789,18 @@ export default {
             }
             
             //把每个尺码的数量加到数组里，并把其他字段加上
+            let B = []
             for(let i in Arrs){
-                Arrs[i].number = lists[i]
-                Arrs[i].size = sizeLists[i]
-                Arrs[i].masterSn =this.firstForm.sn,
-                Arrs[i].psn =psn,
-                Arrs[i].standarPrice = this.standarPrice;
-                Arrs[i].discount = this.discount;
-                Arrs[i].remark = this.firstForm.remark
+                if (Number(lists[i]+1)) {
+                    Arrs[i].number = lists[i]
+                    Arrs[i].size = sizeLists[i]
+                    Arrs[i].masterSn =this.firstForm.sn,
+                    Arrs[i].psn =psn,
+                    B.push(Arrs[i])
+                }
             }
-
-            this.$http.post("/TPA/dSellOrderA/update", Arrs).then(res => {
+            
+            this.$http.post("/TPA/dProductOrderA/insert", B).then(res => {
                 if (res.data.code === 0) {
                     this.editVisible = false;
                     //分页
@@ -1396,7 +1400,7 @@ export default {
                     sn: 17 + "|" + this.sellSn
                 };
                 let searchStr = JSON.stringify(search);  
-                this.$http.post("/TPA/dSellOrder/search?search=" + searchStr)
+                this.$http.post("/TPA/dSellOrder/search?stopStatus=0&sh=1&colseStatus=0&search=" + searchStr)
                     .then(res=>{
                         if(res.data.code===0){
                             if(res.data.data.list.length>0){

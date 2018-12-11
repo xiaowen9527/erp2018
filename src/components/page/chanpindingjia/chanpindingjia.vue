@@ -880,8 +880,8 @@ export default {
     width 75%
     float left
   button
-    height 23px 
-    line-height: 23px
+    height 3.5vh 
+    line-height: 3.5vh
     width 60px
     background #ffffff
     margin-left 10px 
