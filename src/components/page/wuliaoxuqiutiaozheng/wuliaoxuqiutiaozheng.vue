@@ -354,7 +354,7 @@ export default {
             //分页：当前页码/总数量/每页显示条数
             page: 0,
             total: "",
-            pageSize: 10,
+            pageSize: 15,
             pageOnOff: false,
             //分页排序查询条件
             pageParams: {},
