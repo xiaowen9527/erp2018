@@ -139,8 +139,8 @@
         </div>
 
          <!-- 搜索生产单号 -->
-        <el-dialog title="搜索生产订单下的款号" :visible.sync="oldSearch">
-            <el-input v-model="search" placeholder="生产单号"></el-input>
+        <el-dialog title="请输入生产订单号进行搜索" :visible.sync="oldSearch">
+            <el-input v-model="search" placeholder="生产订单号"></el-input>
             <button class="button_btn" @click="accurateSearch">查询</button>
             <ul class="srcond_menu">
                 <li v-if="searchList.length===0">暂无数据</li>
@@ -187,7 +187,7 @@ export default {
         // 款号查询
         psnSearchs() {
             this.oldSearch = true
-            this.search = ""
+            this.search = this.snInfo;
             this.searchList = []
         },
 

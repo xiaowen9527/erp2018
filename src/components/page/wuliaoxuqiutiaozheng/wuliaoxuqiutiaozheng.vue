@@ -3,10 +3,11 @@
         <!-- 页面标题 -->
         <p class="page_title">物料需求调整</p>
         <div class="btn-box">
+            <label>生产单号</label>
+            <input type="text" class="doSearch" v-model="orderSn" readonly placeholder="请选择" @click="handleSearch">            
             <label>款号</label>
             <input type="text" class="doSearch" readonly v-model="psn" placeholder="请选择" @click="handleSearch">
-            <label>生产单号</label>
-            <input type="text" class="doSearch" v-model="orderSn" readonly placeholder="请选择" @click="handleSearch">
+
             <button :disabled="doAdd" :class="{button_btn:!doAdd}" @click="doAdds">添加</button>
             <button class="button_btn" @click="doOuts">退出</button>
             <button :class="{button_btn:!doCancel}" :disabled="doCancel" @click="doCancels">取消</button>
