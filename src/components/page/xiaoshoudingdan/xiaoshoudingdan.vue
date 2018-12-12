@@ -242,7 +242,7 @@
                 <el-table-column :label="tit" v-for="(tit, key) in tableTit" :key="key" width="150px">
                     <template slot-scope="scope">
                         <input class="changeInput" :disabled="(tableBody[scope.$index][key] == tableBody[scope.$index][0]) || 
-                        (tableBody[scope.$index][key] == tableBody[scope.$index][1]) || (!Number(updateBody[scope.$index][key]+1))" type="text" v-model="tableBody[scope.$index][key]" />
+                        (tableBody[scope.$index][key] == tableBody[scope.$index][1]) || (!Number(tableBody[scope.$index][key]+1))" type="text" v-model="tableBody[scope.$index][key]" />
                     </template>
                 </el-table-column>
             </el-table>
@@ -1056,7 +1056,7 @@ export default {
                     Arrs[i].number = lists[i]
                     Arrs[i].size = sizeLists[i]
                     Arrs[i].masterSn =this.form.sn,
-                    Arrs[i].psn = psn,
+                    Arrs[i].psn = this.spdaPsn,
                     Arrs[i].standarPrice = this.standarPrice;
                     Arrs[i].discount = this.discount;
                     Arrs[i].remark = this.form.remark

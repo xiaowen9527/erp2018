@@ -8,7 +8,7 @@
             <button :class="{button_btn:!doEdit}" :disabled="doEdit">修改</button>
             <button :class="{button_btn:!doCancel}" :disabled="doCancel" @click="doCancels">取消</button>
             <button :class="{button_btn:!doDelete}" :disabled="doDelete" @click="doDeletes" >删除</button>
-            <button :class="{button_btn:!doImport}" :disabled="doImport" @click="doImports">导入</button>
+            <!-- <button :class="{button_btn:!doImport}" :disabled="doImport" @click="doImports">导入</button> -->
             <button :class="{button_btn:!doImport}" :disabled="doImport" @click="doExports">导出</button>
             <button class="button_btn" @click="handleSearch">查询</button>
             <input type="text" class="doSearch" readonly placeholder="请选择" @click="handleSearch">
@@ -732,6 +732,8 @@ export default {
                     };
                     this.pageParams = params;
                     this.getPageData(this.pageParams)
+                }else{
+                    error(res.data.msg);
                 }
             })
         },
@@ -1268,7 +1270,7 @@ export default {
         },
         //导出
         doExports() {
-            window.location.href = "/TPA/aRepertory/exportExcel";
+            window.location.href = "/TPA/dProductOrder/exportExcel";
         },
 
         //获取页码

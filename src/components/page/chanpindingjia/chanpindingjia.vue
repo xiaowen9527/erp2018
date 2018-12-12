@@ -903,7 +903,7 @@ export default {
       float: left
       padding-left: 15%
       float: left
-      dispaly: block
+      display: block
       line-height: 3vh
       &.search
         width: 33%

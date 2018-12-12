@@ -15,12 +15,18 @@
   cursor: pointer
   border-radius: 4px
 
+// 日期
+.container>>> .el-date-editor.el-input
+  width: 70%
+  font-size: 1.4vh
+.container>>> .el-input__icon
+  height: auto
+  line-height: 3.5vh
+.container>>>.el-date-editor
+  float: left
+  width: 70%
 .info_form
-  width: 99%
-  border: 1px solid #f1f1f1
-  box-sizing: border-box
-  padding: 5px
-  margin: 5px
+  width: 100%
   ul
     width: 100%
   li
@@ -52,17 +58,30 @@
       text-align: center
       border-radius: 5px
       cursor: pointer
-  // 客户款号li
-  li.menuLi
-    width: 35%
-    label
-      width: 15%
-    input
-      width: 40%
-    .first
-      width: 25%
-      margin-right: 5px
-.save
+  li.date
+    width: 30%
+  .formQuery
+    width: 30%
+  .save
+    padding: 0 2vh
+    height: 3.5vh
+    line-height: 3.5vh
+    border: 0.1vh solid #d9d9d9
+    background: #ffffff
+    margin-top: 1.3vh
+    margin-left: 1.5vh
+    font-size: 1.2vh
+    display: block
+    float: left
+    text-align: center
+    text-decoration: underline
+    cursor: pointer
+    border-radius: 4px
+    &.button_btn
+      border: 0.1vh solid #409EFF
+      font-weight: bold
+      color: #409EFF
+
     padding: 0 2vh
     height: 3.5vh
     line-height: 3.5vh
