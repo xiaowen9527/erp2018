@@ -131,7 +131,7 @@
                             <label for="">款号</label>
                             <input type="text" v-model="spdaPsn" @click="searchspdaPsnFun" :disabled="spdaPsnOff">
                         </li>
-                        <button class="save" :disabled="spdaPsnOff" @click="openSaves" :class="{button_btn:!spdaPsnOff}">查询</button>
+                        <button class="save" :disabled="spdaPsnOff" @click="openSaves" :class="{button_btn:!spdaPsnOff}">新增</button>
                     </ul>
                 </div>
 
@@ -262,7 +262,7 @@
                     </li>
                 </ul>
                 <el-button @click="savesCencel">取 消</el-button>
-                <el-button type="primary" @click="savesCommit" plain>确 定</el-button>
+                <el-button type="primary" @click="savesCommit" plain>保 存</el-button>
             </span> 
         </el-dialog>
 

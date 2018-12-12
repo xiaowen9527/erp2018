@@ -201,6 +201,7 @@ export default {
                                 this.searchList = res.data.data.list
                             }else{
                                 error('暂无数据')
+                                this.searchList = [];
                             }
                         }else{
                             error(res.data.msg)

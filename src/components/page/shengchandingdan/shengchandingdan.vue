@@ -96,7 +96,7 @@
                                 <label>款号</label>
                                 <input type="text" placeholder="请点击选择款号" v-model="secondForm.psn" readonly :disabled="secondFormGui" @click="handlePsn">
                             </li>
-                            <button :disabled="secondFormOn" :class="{btn:!secondFormOn}" class="save" @click="openSaves">查询</button>
+                            <button :disabled="secondFormOn" :class="{btn:!secondFormOn}" class="save" @click="openSaves">新增</button>
                             <button :disabled="secondFormNo" :class="{btn:!secondFormNo}" class="save" @click="secondImport">导入</button>
                         </ul>
                     </div>                    
@@ -217,7 +217,7 @@
             </el-table>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="savesCencel">取 消</el-button>
-                <el-button type="primary" @click="savesCommit" plain>确 定</el-button>
+                <el-button type="primary" @click="savesCommit" plain>保 存</el-button>
             </span> 
         </el-dialog> 
 
