@@ -103,7 +103,7 @@
 
                 <!-- 表格内容 -->
                 <div class="order_table">
-                    <el-table :data="list" stripe style="width: 100%" index @cell-dblclick="tableDbclick" :span-method="objectSpanMethod" height="46vh" >
+                    <el-table :data="list" stripe style="width: 100%" index @cell-dblclick="tableDbclick" :span-method="objectSpanMethod">
                         <el-table-column prop="lbch1Name" label="品类" min-width="12.5%">
                         </el-table-column>
                         <el-table-column prop="lbch2Name" label="名称" min-width="12.5%">

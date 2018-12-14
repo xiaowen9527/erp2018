@@ -161,7 +161,6 @@
                 <el-form-item label="生效日期">
                     <el-date-picker v-model="dialog.activeDate" type="date" placeholder="选择日期" format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd"> </el-date-picker>
                 </el-form-item>
-                </el-form-item>
                 <el-form-item label="颜色" style="height:4.5vh">
                     <el-select v-model="dialog.color" placeholder="必选" style="width:88%">
                         <el-option v-for="item in color" :key="item.color" :label="item.color" :value="item.color"> </el-option>
@@ -291,7 +290,7 @@ export default {
             //分页：当前页码/总数量/每页显示条数
             page: 0,
             total: "",
-            pageSize: 10,
+            pageSize: 15,
             pageOnOff: false,
             //分页排序查询条件
             pageParams: {},
@@ -430,7 +429,9 @@ export default {
         doCancels() {
             this.emptyBtn();
             this.emptyFirstForm();
+            this.emptySecondForm()
             this.disabledFirstForm();
+            this.disabledSecondForm()
 
             this.list = [];
             this.search = "";
@@ -607,12 +608,12 @@ export default {
         },
         //导航展开查询table
         menuSelected(index) {
+            this.doCancels();
             this.noDisabledSecondForm()
             this.pageOnOff = false;
-            this.doCancels();
             this.oldSearch = false;
             let params = {
-                psn: this.firstForm.fictPsn,
+                psn: index,
                 page: 0,
                 count: this.pageSize
             };
@@ -668,6 +669,9 @@ export default {
                     if (res.data.code === 0) {
                         this.list = res.data.data.list;
                         this.total = res.data.data.total;
+                        
+                        this.firstForm = res.data.attachment
+
                         if (this.total > this.pageSize) {
                             this.pageOnOff = true;
                         } else {

@@ -14,7 +14,7 @@
         </div>
 
         <div class="order_table">
-            <el-table :data="list" stripe style="width: 100%">
+            <el-table :data="list" stripe style="width: 100%" height="74vh" :span-method="objectSpanMethod">
                  <el-table-column type="index" width="80px" label="顺序" fixed="left">
                 </el-table-column>
                 <el-table-column prop="psn" label="款号" min-width="110px">
@@ -158,6 +158,11 @@ export default {
         return {
             queryInfo: "",
             list: [],
+            rowList: [],
+            ysArr: [],
+            khArr: [],
+            ysPosition: 0,
+            khPosition: 0,
             page: 0,
             pageSize: 15,
             total: 0,
@@ -180,6 +185,14 @@ export default {
                 if (res.data.code === 0) {
                     succ(res.data.msg)
                     this.list = res.data.data.list;
+
+                    // 重置表格合并
+                    this.rowList = [];
+                    this.ysArr = [];
+                    this.ysPosition = 0;
+                    this.khArr = [];
+                    this.khPosition = 0;
+                    this.rowspan();
 
                     this.total = res.data.data.total;
                     if (this.total > this.pageSize) {
@@ -220,6 +233,54 @@ export default {
 
         currentPage(val) {
             this.page = val;
+        },
+
+        rowspan() {
+            this.list.forEach((item, index) => {
+                if (index === 0) {
+                    this.ysArr.push(1);
+                    this.ysPosition = 0;
+                    this.khArr.push(1);
+                    this.khPosition = 0;
+                } else {
+                    if (
+                        this.list[index].psn === this.list[index - 1].psn
+                    ) {
+                        this.khArr[this.khPosition] += 1;
+                        this.khArr.push(0);
+                    } else {
+                        this.khArr.push(1);
+                        this.khPosition = index;
+                    }
+                    if (this.list[index].psnColor === this.list[index - 1].psnColor) {
+                        this.ysArr[this.ysPosition] += 1;
+                        this.ysArr.push(0);
+                    } else {
+                        this.ysArr.push(1);
+                        this.ysPosition = index;
+                    }
+                }
+            });
+        },
+        objectSpanMethod({ row, column, rowIndex, columnIndex }) {
+            //表格合并行
+            if (columnIndex === 1) {
+                // 第一列合并单号
+                const _row_1 = this.khArr[rowIndex];
+                const _col_1 = _row_1 > 0 ? 1 : 0;
+                return {
+                rowspan: _row_1,
+                colspan: _col_1
+                };
+            }
+            if (columnIndex === 2) {
+                const _row_2 = this.ysArr[rowIndex];
+                const _col_2 = _row_2 > 0 ? 1 : 0;
+                return {
+                rowspan: _row_2,
+                colspan: _col_2
+                };
+            }
         }
     },
 
@@ -240,6 +301,14 @@ export default {
                     if (res.data.code === 0) {
                         succ(res.data.msg)
                         this.list = res.data.data.list;
+
+                        // 重置表格合并
+                        this.rowList = [];
+                        this.ysArr = [];
+                        this.ysPosition = 0;
+                        this.khArr = [];
+                        this.khPosition = 0;
+                        this.rowspan();
 
                         this.total = res.data.data.total;
                         if (this.total > this.pageSize) {

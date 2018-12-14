@@ -5,6 +5,7 @@
 
         <!-- 顶部操作按钮 -->
         <div class="btn-box">
+            <button class="save button_btn" @click="newOrderFun">新建单号</button>
             <button :disabled='doExport' :class="{button_btn:!doExport}" @click="doExports">导出</button>
             <button :disabled='doImport' :class="{button_btn:!doImport}" @click="doImports">导入</button>
             <button :disabled='doPrint' :class="{button_btn:!doPrint}" @click="doPrints">打印</button>
@@ -56,15 +57,14 @@
                         </li>
                         <button class="save" @click="doSaves" :class="{button_btn:!formOff}" :disabled="formOff">保存</button>
                         <button class="save" @click="doCancels" :class="{button_btn:!formOff}" :disabled="formOff">取消</button>
-                        <button class="save button_btn" @click="newOrderFun">新建单号</button>
                     </ul>
                 </div>
 
                 <!-- 表格内容 -->
                 <div class="order_table">
                     <el-table :data="list" :span-method="objectSpanMethod" border style="width: 100%" ref="multipleTable" tooltip-effect="dark" @selection-change="handleSelectionChange" @sort-change='sortChange' :default-sort="{prop: 'psn', order: 'ascending'}">
-                        <el-table-column type="selection" min-width="6%">
-                        </el-table-column>
+                        <!-- <el-table-column type="selection" min-width="6%">
+                        </el-table-column> -->
                         <el-table-column prop="sn" label="单据单号" min-width="12%">
                         </el-table-column>
                         <el-table-column prop="psn" label="款号" min-width="12%" sortable='custom'>
@@ -81,8 +81,8 @@
                             <template slot-scope="scope">
                                 <el-button :disabled="(scope.row.sh == 1)" :class="{btn:scope.row.sh == 1}" type="text" @click="handleEdit(scope.$index, scope.row)">修改</el-button>
                                 <el-button :disabled="(scope.row.sh == 1)" :class="{btn:scope.row.sh == 1}" type="text" @click="tableDelete(scope.$index, scope.row)">删除</el-button>
-                                <el-button v-if="(scope.row.sh == 1)" disabled class="btn">已审</el-button>
-                                <el-button v-else-if="(scope.row.sh == 0)" disabled class="btn">未审</el-button>
+                                <!-- <el-button v-if="(scope.row.sh == 1)" disabled class="btn">已审</el-button>
+                                <el-button v-else-if="(scope.row.sh == 0)" disabled class="btn">未审</el-button> -->
                             </template>
                         </el-table-column>
                     </el-table>
@@ -452,7 +452,8 @@ export default {
           .then(res => {
             if (res.data.code === 0) {
               this.pageParams.sn = res.data.data.sn;
-              this.pageParams.page = this.page;
+              this.page = 1;
+              this.pageParams.page = this.page - 1;
               this.pageParams.count = this.pageSize;
               this.getPageData();
               this.getnavMenu();
@@ -594,7 +595,6 @@ export default {
       this.doCancels();
       this.form.sn = e;
       this.formOff = false;
-      this.page = 0;
       this.saveEdit();
     },
 
@@ -670,7 +670,8 @@ export default {
       } else {
         // 查询条件
         params.orderBy = "type";
-        params.page = this.page;
+        this.page = 1;
+        params.page = this.page - 1;
         params.count = this.pageSize;
         this.pageParams = params;
         this.searchFormShow = false;
@@ -716,7 +717,8 @@ export default {
             this.doPrint = false;
             this.list = res.data.data.list;
 
-            this.page = 1;
+            // this.page = 1;
+            this.pageOnOff = false;
 
             // 重置表格合并
             this.rowList = [];
@@ -731,6 +733,7 @@ export default {
             }
             this.total = res.data.data.total;
             if (this.total > this.pageSize) {
+              console.log(this.page)
               this.pageOnOff = true;
             } else {
               this.pageOnOff = false;
@@ -749,8 +752,8 @@ export default {
 
     //获取当前页码
     currentPage(val) {
-      this.pageParams.page = val - 1;
-      //   this.rowspan();
+      this.page = val;
+      this.pageParams.page = this.page - 1;
       this.getPageData();
     },
 
@@ -789,21 +792,21 @@ export default {
     },
     objectSpanMethod({ row, column, rowIndex, columnIndex }) {
       //表格合并行
-      if (columnIndex === 1) {
+      if (columnIndex === 0) {
         // 第一列合并单号
-        const _row_1 = this.djArr[rowIndex];
+        const _row_0 = this.djArr[rowIndex];
+        const _col_0 = _row_0 > 0 ? 1 : 0;
+        return {
+          rowspan: _row_0,
+          colspan: _col_0
+        };
+      }
+      if (columnIndex === 1) {
+        const _row_1 = this.khArr[rowIndex];
         const _col_1 = _row_1 > 0 ? 1 : 0;
         return {
           rowspan: _row_1,
           colspan: _col_1
-        };
-      }
-      if (columnIndex === 2) {
-        const _row_2 = this.khArr[rowIndex];
-        const _col_2 = _row_2 > 0 ? 1 : 0;
-        return {
-          rowspan: _row_2,
-          colspan: _col_2
         };
       }
     }

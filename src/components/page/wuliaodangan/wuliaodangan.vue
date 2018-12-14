@@ -120,7 +120,7 @@
                         <ul class="clearfix">
                             <li class="gui">
                                 <label>色号及名称</label>
-                                <input :disabled="secondFormOn" v-model="secondForm.yscmSn" class="guiNum" disabled  type="text" placeholder="自动生成" >
+                                <input v-model="secondForm.yscmSn" class="guiNum" disabled  type="text" placeholder="自动生成" >
                                 <input :disabled="secondFormOn" v-model="secondForm.yscmName" class="guiName"  type="text" >
                             </li>
                             <li>

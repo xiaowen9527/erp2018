@@ -93,16 +93,41 @@
             <!-- 表格内容 -->
             <div class="order_table">
                 <span>款号</span>
-                <el-table :data="snList" stripe style="width: 100%" index height="60vh">
+                <el-table :data="snList" stripe style="width: 100%" index>
                     <el-table-column prop="psn" label="款号" min-width="20%">
+                        <template slot-scope="scope">
+                            <el-tooltip :content="scope.row.psn" placement="top" :enterable="false">
+                                <p>{{ scope.row.psn }}</p>
+                            </el-tooltip>
+                        </template>                          
                     </el-table-column>
                     <el-table-column prop="color" label="颜色" min-width="20%">
+                        <template slot-scope="scope">
+                            <el-tooltip :content="scope.row.color" placement="top" :enterable="false">
+                                <p>{{ scope.row.color }}</p>
+                            </el-tooltip>
+                        </template>                          
                     </el-table-column>
                     <el-table-column prop="number" label="订数" min-width="20%">
+                        <template slot-scope="scope">
+                            <el-tooltip :content="String(scope.row.number)" placement="top" :enterable="false">
+                                <p>{{ scope.row.number }}</p>
+                            </el-tooltip>
+                        </template>                              
                     </el-table-column>
                     <el-table-column prop="closeNumber" label="入数" min-width="20%">
+                        <template slot-scope="scope">
+                            <el-tooltip :content="String(scope.row.closeNumber)" placement="top" :enterable="false">
+                                <p>{{ scope.row.closeNumber }}</p>
+                            </el-tooltip>
+                        </template>                              
                     </el-table-column>
                     <el-table-column prop="number2" label="欠数" min-width="20%">
+                        <template slot-scope="scope">
+                            <el-tooltip :content="String(scope.row.number2)" placement="top" :enterable="false">
+                                <p>{{ scope.row.number2 }}</p>
+                            </el-tooltip>
+                        </template>                              
                     </el-table-column>
                 </el-table>
             </div>            

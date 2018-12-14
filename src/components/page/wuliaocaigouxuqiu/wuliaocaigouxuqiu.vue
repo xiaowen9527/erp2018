@@ -18,7 +18,7 @@
         </div>
 
         <div class="order_table">
-            <el-table :data="list" stripe style="width: 100%" index>
+            <el-table :data="list" stripe style="width: 100%" height="74vh" index>
                 <el-table-column type="index" width="80px" label="顺序" fixed="left">
                 </el-table-column>
                 <el-table-column prop="psn" label="款号" min-width="110px">

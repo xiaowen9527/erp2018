@@ -7,7 +7,7 @@
         <div class="btn-box">
             <button class="button_btn" @click="doAdds">新增</button>
             <button class="button_btn" @click="doCancels">取消</button>
-            <button class="btn" :class="{button_btn: form.sn}" :disabled="!form.sn" @click="doChanges">修改</button>
+            <button class="btn" :class="{button_btn: form.sh == 0 && form.stopStatus == 0 && form.closeStatus == 0}" :disabled="(form.sh != 0 || form.stopStatus != 0 || form.closeStatus != 0)" @click="doChanges">修改</button>
             <button class="button_btn" @click="doImports">导入</button>
             <button class="button_btn" @click="doPrints">打印</button>
             <button class="button_btn" @click="doExports">导出</button>
@@ -129,7 +129,7 @@
                     <ul class="clearfix">
                         <li>
                             <label for="">款号</label>
-                            <input type="text" v-model="spdaPsn" @click="searchspdaPsnFun" :disabled="spdaPsnOff">
+                            <input type="text" v-model="spdaPsn" :disabled="spdaPsnOff">
                         </li>
                         <button class="save" :disabled="spdaPsnOff" @click="openSaves" :class="{button_btn:!spdaPsnOff}">新增</button>
                     </ul>
@@ -512,7 +512,7 @@ export default {
         doChanges() {
             this.formOff = true;
             this.formChange = false;
-            this.spdaPsnOff = true;
+            this.spdaPsnOff = false;
         },
 
         //导入按纽
