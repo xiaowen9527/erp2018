@@ -63,8 +63,8 @@
                 <!-- 表格内容 -->
                 <div class="order_table">
                     <el-table :data="list" :span-method="objectSpanMethod" border style="width: 100%" ref="multipleTable" tooltip-effect="dark" @selection-change="handleSelectionChange" @sort-change='sortChange' :default-sort="{prop: 'psn', order: 'ascending'}">
-                        <!-- <el-table-column type="selection" min-width="6%">
-                        </el-table-column> -->
+                        <el-table-column type="selection" min-width="6%">
+                        </el-table-column>
                         <el-table-column prop="sn" label="单据单号" min-width="12%">
                         </el-table-column>
                         <el-table-column prop="psn" label="款号" min-width="12%" sortable='custom'>
@@ -81,8 +81,8 @@
                             <template slot-scope="scope">
                                 <el-button :disabled="(scope.row.sh == 1)" :class="{btn:scope.row.sh == 1}" type="text" @click="handleEdit(scope.$index, scope.row)">修改</el-button>
                                 <el-button :disabled="(scope.row.sh == 1)" :class="{btn:scope.row.sh == 1}" type="text" @click="tableDelete(scope.$index, scope.row)">删除</el-button>
-                                <!-- <el-button v-if="(scope.row.sh == 1)" disabled class="btn">已审</el-button>
-                                <el-button v-else-if="(scope.row.sh == 0)" disabled class="btn">未审</el-button> -->
+                                <el-button v-if="(scope.row.sh == 1)" disabled class="btn">已审</el-button>
+                                <el-button v-else-if="(scope.row.sh == 0)" disabled class="btn">未审</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -733,7 +733,6 @@ export default {
             }
             this.total = res.data.data.total;
             if (this.total > this.pageSize) {
-              console.log(this.page)
               this.pageOnOff = true;
             } else {
               this.pageOnOff = false;
@@ -792,21 +791,21 @@ export default {
     },
     objectSpanMethod({ row, column, rowIndex, columnIndex }) {
       //表格合并行
-      if (columnIndex === 0) {
-        // 第一列合并单号
-        const _row_0 = this.djArr[rowIndex];
-        const _col_0 = _row_0 > 0 ? 1 : 0;
-        return {
-          rowspan: _row_0,
-          colspan: _col_0
-        };
-      }
       if (columnIndex === 1) {
-        const _row_1 = this.khArr[rowIndex];
+        // 第一列合并单号
+        const _row_1 = this.djArr[rowIndex];
         const _col_1 = _row_1 > 0 ? 1 : 0;
         return {
           rowspan: _row_1,
           colspan: _col_1
+        };
+      }
+      if (columnIndex === 2) {
+        const _row_2 = this.khArr[rowIndex];
+        const _col_2 = _row_2 > 0 ? 1 : 0;
+        return {
+          rowspan: _row_2,
+          colspan: _col_2
         };
       }
     }
