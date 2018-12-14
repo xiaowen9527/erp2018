@@ -93,7 +93,7 @@
             <!-- 表格内容 -->
             <div class="order_table">
                 <span>款号</span>
-                <el-table :data="snList" stripe style="width: 100%" index>
+                <el-table :data="snList" stripe style="width: 100%" index height="60vh">
                     <el-table-column prop="psn" label="款号" min-width="20%">
                     </el-table-column>
                     <el-table-column prop="color" label="颜色" min-width="20%">

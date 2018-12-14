@@ -259,14 +259,14 @@ export default {
                 var params = {
                     page: this.page - 1,
                     count: this.pageSize,
-                    sn: this.snInfo,
+                    orderSn: this.snInfo,
                     psn: this.psnInfo
                 }
             } else {
                 var params = {
                     page: this.page - 1,
                     count: this.pageSize,
-                    sn: this.snInfo
+                    orderSn: this.snInfo
                 }
             }
             this.allOrDeatil = true;
@@ -317,14 +317,14 @@ export default {
                 var params = {
                     page: this.page - 1,
                     count: this.pageSize,
-                    sn: this.snInfo,
+                    orderSn: this.snInfo,
                     psn: this.psnInfo
                 }
                 } else {
                     var params = {
                         page: this.page - 1,
                         count: this.pageSize,
-                        sn: this.snInfo
+                        orderSn: this.snInfo
                     }
                 }
                 this.pageParams = params;

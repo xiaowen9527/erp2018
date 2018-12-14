@@ -1,317 +1,162 @@
 <template>
     <div class="container" :class="{container_collapse:collapse}">
-    
         <p class="page_title">组织架构</p>
-    
         <div class="btn-box">
-    
             <button :disabled='doAdd' :class="{button_btn:!doAdd}" @click="doAdds">新增</button>
-    
             <button :disabled='doSave' :class="{button_btn:!doSave}" @click="doSaves">保存</button>
-    
             <button :disabled='doEdit' :class="{button_btn:!doEdit}" @click="doEdits">修改</button>
-    
             <button :disabled='doOut' :class="{button_btn:!doOut}" @click="doOuts">退出</button>
-    
             <button :disabled='doCancel' :class="{button_btn:!doCancel}" @click="doCancels">取消</button>
-    
             <button class="button_btn" @click="refresh">刷新</button>
-    
             <div class="btn_right">
-    
                 <button :disabled='doImport' :class="{button_btn:!doImport}" @click="doImports">导入</button>
-    
                 <button :disabled='doExport' :class="{button_btn:!doExport}" @click="doExports">导出</button>
-    
                 <button :disabled='(this.form.status==1||this.form.status==3)' :class="{button_btn:(this.form.status==0)}" @click="doEffectives">有效</button>
-    
                 <button :disabled='(this.form.status==0||this.form.status==3)' :class="{button_btn:(this.form.status==1)}" @click="doInvalids">无效</button>
-    
                 <button :disabled='doDelete' :class="{button_btn:!doDelete}" @click="doDeletes">删除</button>
-    
             </div>
-    
         </div>
-    
         <div class="set_box">
-    
             <div class="menu_box">
-    
                 <el-menu unique-opened @select="menuSelected" @open="menuSelected" background-color="#f2f2f2" text-color="#303133" active-text-color="#303133">
-    
                     <nav-menu :navMenus="navMenus"></nav-menu>
-    
                 </el-menu>
-    
             </div>
-    
             <div class="set_info">
-    
                 <ul>
-    
                     <li>
-    
                         <label>编号</label>
-    
                         <input type="text" v-model="form.sn" :disabled='addAgain'>
-    
                     </li>
-    
                     <li>
-    
                         <label>排序</label>
-    
                         <input type="number" v-model="form.sort" :disabled='formOnOff' placeholder="只允许输入数字且不能为空">
-    
                     </li>
-    
                     <li>
-    
                         <label>部门名称</label>
-    
                         <input type="text" v-model="form.name" :disabled='addAgain'>
-    
                     </li>
                     <li class="zhineng">
-    
                         <label>生产职能</label>
-                        <input type="text" v-if='addAgain' disabled>
+                        <input type="text" v-model="func" v-if='addAgain' :disabled='formOnOff' readonly placeholder="请选择">
                         <el-select v-model="func" multiple placeholder="请选择" v-if='!addAgain' >
                             <el-option v-for="item in funcList" :key="item.name" :label="item.name" :value="item.name"></el-option>
                         </el-select>
-    
                     </li>
-    
                     <li class="company">
-    
                         <label>归属公司</label>
-    
                         <input @click="open_box" type="text" readonly class="companyNum" v-model="form.gsSn" :disabled='gui' placeholder="顶级">
-    
                         <input @click="open_box" type="text" readonly class="companyName" v-model="form.gsName" :disabled='gui' placeholder="顶级">
-    
                         <button @click="open_box" :disabled='gui'>。。。</button>
-    
                     </li>
-    
+
                     <li class="company">
-    
                         <label>归属部门</label>
-    
                         <input @click="open_boxs" type="text" readonly class="companyNum" v-model="form.pidSn" :disabled='gui' placeholder="顶级">
-    
                         <input @click="open_boxs" type="text" readonly class="companyName" v-model="form.pidName" :disabled='gui' placeholder="顶级">
-    
                         <button @click="open_boxs" :disabled='gui'>。。。</button>
-    
                     </li>
-    
+
                     <li class="zt">
-    
                         <label>状态</label>
-    
                         <el-radio label="1" v-model="form.status" :disabled="doZt">有效</el-radio>
-    
                         <el-radio label="0" v-model="form.status" :disabled="doZt">无效</el-radio>
-    
                     </li>
-    
+
                     <li class="radio">
-    
                         <el-checkbox v-model="form.cgzz" :disabled="formOnOff">采购组织</el-checkbox>
-    
                         <el-checkbox v-model="form.xqzz" :disabled="formOnOff">销售组织</el-checkbox>
-    
                         <el-checkbox v-model="form.kczz" :disabled="formOnOff">库存组织</el-checkbox>
-    
                         <el-checkbox v-model="form.sczz" :disabled="formOnOff">生产组织</el-checkbox>
-    
                         <el-checkbox v-model="form.hszz" :disabled="formOnOff">核算</el-checkbox>
-    
                         <el-checkbox v-model="form.zjzz" :disabled="formOnOff">资金</el-checkbox>
-    
                     </li>
-    
                 </ul>
-    
-    
-    
             </div>
-    
         </div>
-    
         <div class="pageBox" :class="{collapse:collapse}">
-    
             <ul>
-    
                 <li>
-    
                     <span>编制人：</span>
-    
                     <span>{{this.form.addUser}}</span>
-    
                 </li>
-    
                 <li>
-    
                     <span>编制日期：</span>
-    
                     <span>{{this.form.addDate}}</span>
-    
                 </li>
-    
                 <li>
-    
                     <span>修改人：</span>
-    
                     <span>{{this.form.updateUser}}</span>
-    
                 </li>
-    
                 <li>
-    
                     <span>修改日期：</span>
-    
                     <span>{{this.form.updateDate}}</span>
-    
                 </li>
-    
             </ul>
-    
         </div>
-    
-    
-    
+
         <el-dialog title="归属公司" :visible.sync="oldMenu">
-    
             <ul>
-    
                 <li v-if="navMenus.length===0">暂无数据</li>
-    
                 <li v-for="(item,i) in navMenus" :key="i">
-    
                     <span @click="getCompanyName(item)">{{item.entity.name}}</span>
-    
                 </li>
-    
             </ul>
-    
         </el-dialog>
-    
+
         <el-dialog title="归属部门" :visible.sync="oldMenus">
-    
             <ul class="srcond_menu">
-    
                 <li v-if="lists.length===0">暂无数据</li>
-    
                 <li v-for="(item,i) in lists" :key="i">
-    
                     <span @click="getDepartmentName(item)">|--{{item.entity.name}}</span>
-    
                     <div class="second" v-for="(items,i) in item.childs" :key="i">
-    
                         <p @click="getDepartmentName(items)">|--{{items.entity.name}}</p>
-    
                         <div class="second" v-for="(itemss,i) in items.childs" :key="i">
-    
                             <p @click="getDepartmentName(itemss)">|--{{itemss.entity.name}}</p>
-    
                             <div class="second" v-for="(itemsss,i) in itemss.childs" :key="i">
-    
                                 <p @click="getDepartmentName(itemsss)">|--{{itemsss.entity.name}}</p>
-    
                                 <div class="second" v-for="(itemssss,i) in itemsss.childs" :key="i">
-    
                                     <p @click="getDepartmentName(itemssss)">|--{{itemssss.entity.name}}</p>
-    
                                     <div class="second" v-for="(itemsssss,i) in itemssss.childs" :key="i">
-    
                                         <p @click="getDepartmentName(itemsssss)">|--{{itemsssss.entity.name}}</p>
-    
                                     </div>
-    
                                 </div>
-    
                             </div>
-    
                         </div>
-    
                     </div>
-    
                 </li>
-    
             </ul>
-    
         </el-dialog>
-    
-    
-    
+
         <!-- 导入弹窗 -->
-    
+
         <el-dialog class="importExport" title="导入" :visible.sync="importbox" width="30%" :showClose="false" :show-file-list="false">
-    
             <a class="down" href="/TPA/aGsZzjg/downExcel">下载导入模板</a>
-    
             <el-upload name="file" class="upload-demo" ref="upload" action="" :file-list="fileList" :http-request="uploadFile" :auto-upload="false" accept=".xls,.xlsx,.csv">
-    
                 <el-button slot="trigger" size="small" type="primary" plain>选取文件</el-button>
-    
                 <div slot="tip" class="el-upload__tip">只能上传excel文件</div>
-    
             </el-upload>
-    
             <span slot="footer" class="dialog-footer">
-    
-            <el-button @click="importCancel">取 消</el-button>
-    
-            <el-button
-    
-              type="primary"
-    
-              @click="submitUpload"
-    
-              plain
-    
-            >确 定</el-button>
-    
-          </span>
-    
-        </el-dialog>
-    
-        <div class="importZhe" v-if="importZhe" v-loading="true" element-loading-text="正在上传中..." element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)"></div>
-    
-        <!-- 下载错误文件 -->
-    
-        <el-dialog title="错误提示" :visible.sync="tipOffON">
-    
-            <ul class="srcond_menu">
-    
-                <li>
-    
-                    <el-alert :title="Tips" type="error"></el-alert>
-    
-                    <span style="margin-top:5vh">是否下载错误提示文件</span>
-    
-                </li>
-    
-                <span slot="footer" class="dialog-footer">
-    
-              <el-button @click="tipOffON = importbox = false">取 消</el-button>
-    
-              <el-button
-    
-                type="primary"
-    
-                @click="importErr"
-    
-              >下载</el-button>
-    
+                <el-button @click="importCancel">取 消</el-button>
+                <el-button type="primary" @click="submitUpload" plain>确 定</el-button>
             </span>
-    
-            </ul>
-    
         </el-dialog>
-    
+        <div class="importZhe" v-if="importZhe" v-loading="true" element-loading-text="正在上传中..." element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)"></div>
+
+        <!-- 下载错误文件 -->
+
+        <el-dialog title="错误提示" :visible.sync="tipOffON">
+            <ul class="srcond_menu">
+                <li>
+                    <el-alert :title="Tips" type="error"></el-alert>
+                    <span style="margin-top:5vh">是否下载错误提示文件</span>
+                </li>
+                <span slot="footer" class="dialog-footer">
+                    <el-button @click="tipOffON = importbox = false">取 消</el-button>
+                    <el-button type="primary" @click="importErr">下载</el-button>
+                </span>
+            </ul>
+        </el-dialog>
     </div>
 </template>
 
@@ -366,7 +211,7 @@ export default {
             form: {
                 id: "", //id
                 gsSn: "", //归属公司编号
-                func:"",
+                func: "",
                 gsName: "", //归属公司名称
                 pidSn: "", //部门编号
                 pidName: "", //部门名称
@@ -387,8 +232,8 @@ export default {
                 updateDate: "", //修改日期
                 status: "3"
             },
-            func:[],
-            funcList:[],
+            func: [],
+            funcList: [],
             //归属公司编号，用来选择归属公司下的归属部门
             gsSn: "",
             //弹出框公司列表
@@ -471,6 +316,7 @@ export default {
             this.emptyform();
             this.emptybtn();
             this.getNavmenus();
+            this.func = []
             succ("刷新成功");
         },
         //新增按钮
@@ -482,8 +328,9 @@ export default {
             this.emptyform();
             this.gui = false;
             this.addAgain = false;
+            this.func = []
 
-            this.getFuncList()
+            this.getFuncList();
         },
         //保存按钮
         doSaves() {
@@ -509,7 +356,7 @@ export default {
                     this.form.sczz = this.elCheckboxs(this.form.sczz);
                     this.form.hszz = this.elCheckboxs(this.form.hszz);
                     this.form.zjzz = this.elCheckboxs(this.form.zjzz);
-                    this.form.func =  this.func.join(",")            
+                    this.form.func = this.func.join(",");
                     this.$http
                         .post("/TPA/aGsZzjg/insert", qs.stringify(this.form))
                         .then(res => {
@@ -528,7 +375,7 @@ export default {
                                 succ(res.data.msg);
                                 this.gui = true;
 
-                                this.func = []
+                                this.func = [];
                             } else {
                                 error(res.data.msg);
                             }
@@ -568,12 +415,24 @@ export default {
                                 this.form.addDate = addDate;
                                 this.form.sn = sn;
                                 this.form.name = name;
-                                this.form.cgzz = this.elCheckbox(this.form.cgzz);
-                                this.form.xqzz = this.elCheckbox(this.form.xqzz);
-                                this.form.kczz = this.elCheckbox(this.form.kczz);
-                                this.form.sczz = this.elCheckbox(this.form.sczz);
-                                this.form.hszz = this.elCheckbox(this.form.hszz);
-                                this.form.zjzz = this.elCheckbox(this.form.zjzz);
+                                this.form.cgzz = this.elCheckbox(
+                                    this.form.cgzz
+                                );
+                                this.form.xqzz = this.elCheckbox(
+                                    this.form.xqzz
+                                );
+                                this.form.kczz = this.elCheckbox(
+                                    this.form.kczz
+                                );
+                                this.form.sczz = this.elCheckbox(
+                                    this.form.sczz
+                                );
+                                this.form.hszz = this.elCheckbox(
+                                    this.form.hszz
+                                );
+                                this.form.zjzz = this.elCheckbox(
+                                    this.form.zjzz
+                                );
                                 this.getNavmenus();
                                 this.emptyBtnTo();
                                 this.doAdd = false;
@@ -601,6 +460,10 @@ export default {
             this.addEdit = false;
             this.formOnOff = false;
             this.doDelete = false;
+            this.addAgain = false;
+
+            this.getFuncList();
+            
         },
         //退出按钮
         doOuts() {
@@ -610,6 +473,7 @@ export default {
         doCancels() {
             this.emptybtn();
             this.emptyform();
+            this.func = []
             this.form.status = "3";
         },
         //有效
@@ -697,28 +561,51 @@ export default {
                             this.doInvalid = false;
                             this.doDelete = false;
                             this.doAdd = false;
+                            
 
                             this.form = res.data.data;
-                            this.form.cgzz = this.elCheckbox(res.data.data.cgzz);
-                            this.form.xqzz = this.elCheckbox(res.data.data.xqzz);
-                            this.form.kczz = this.elCheckbox(res.data.data.kczz);
-                            this.form.sczz = this.elCheckbox(res.data.data.sczz);
-                            this.form.hszz = this.elCheckbox(res.data.data.hszz);
-                            this.form.zjzz = this.elCheckbox(res.data.data.zjzz);
-                            if(this.form.func){
-                                this.func = this.form.func.split(',')
-                            }
+                            this.func = this.form.func
+                            console.log(this.func);
                             
+                            this.form.cgzz = this.elCheckbox(
+                                res.data.data.cgzz
+                            );
+                            this.form.xqzz = this.elCheckbox(
+                                res.data.data.xqzz
+                            );
+                            this.form.kczz = this.elCheckbox(
+                                res.data.data.kczz
+                            );
+                            this.form.sczz = this.elCheckbox(
+                                res.data.data.sczz
+                            );
+                            this.form.hszz = this.elCheckbox(
+                                res.data.data.hszz
+                            );
+                            this.form.zjzz = this.elCheckbox(
+                                res.data.data.zjzz
+                            );
+                            if (this.form.func) {
+                                this.func = this.form.func.split(",");
+                            }
 
                             this.gsSn = this.form.gsSn;
 
                             //遍历公司获取当前的所属公司名
                             for (let i = 0; i < this.navMenus.length; i++) {
-                                if (this.navMenus[i].entity.sn === this.form.gsSn) {
-                                    this.form.gsName = this.navMenus[i].entity.name;
+                                if (
+                                    this.navMenus[i].entity.sn ===
+                                    this.form.gsSn
+                                ) {
+                                    this.form.gsName = this.navMenus[
+                                        i
+                                    ].entity.name;
                                 }
                             }
-                        } else if (res.data.code === 1 && res.data.msg == "不存在") {
+                        } else if (
+                            res.data.code === 1 &&
+                            res.data.msg == "不存在"
+                        ) {
                             this.formOnOff = true;
                             this.emptyform();
                             this.emptybtn();
@@ -778,18 +665,19 @@ export default {
                     NetworkAnomaly();
                 });
         },
-        getFuncList(){
-            this.$http.post('/TPA/aLbJb/getBySn?sn=026')
-                .then(res=>{
-                    if(res.data.code===0){
-                        this.funcList = res.data.data
-                    }else{
-                        error(res.data.msg)
+        getFuncList() {
+            this.$http
+                .post("/TPA/aLbJb/getBySn?sn=026")
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.funcList = res.data.data;
+                    } else {
+                        error(res.data.msg);
                     }
-                })  
-                .catch(err=>{
-                    NetworkAnomaly()
                 })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
         },
         //点击归属部门列表item获取归属部门的编号和名称
         getDepartmentName(item) {
@@ -848,7 +736,7 @@ export default {
             this.form = {
                 id: "", //id
                 gsSn: "", //归属公司编号
-                func:"",
+                func: "",
                 gsName: "", //归属公司名称
                 pidSn: "", //部门编号
                 pidName: "", //部门名称
@@ -911,143 +799,97 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
-.container>>>.el-submenu__title, .container>>>.el-menu-item {
-  height: 3vh;
-  line-height: 3vh;
-  font-size: 1.6vh !important;
-  font-weight: bold;
-}
-
-.container>>>th, .order_table>>>.el-table td, .el-table th {
-  padding: 0;
-}
-
-.container>>>.el-table .cell {
-  height: 4vh;
-  line-height: 4vh;
-  text-align: center;
-  font-size: 1.6vh;
-}
-
-.container>>>.el-dialog {
-  width: 400px;
-  height: 400px;
-  overflow-x: hidden;
-}
-
-.container>>>.el-dialog__body {
-  cursor: pointer !important;
-  line-height: 2.5vh;
-  font-weight: bold;
-  padding: 1vh 2vh;
-}
-
-.container>>>.el-radio__label {
-  font-size: 1.6vh;
-}
-
-.container>>>.el-checkbox__label {
-  font-size: 1.6vh;
-}
-
-.menu_box {
-  width: 20%;
-  overflow: auto !important;
-}
-
-.set_info {
-  width: 80%;
-
-  li {
-    float: left;
-    width: 32%;
-    margin: 1vh 0;
-    height: 3.5vh;
-    &.zhineng{
-        width 96%
-        height auto
-        label{
-            width 10%
-        }
-        .el-select,input{
-            width 90%
-        }
-    }
-        
-    &.radio {
-      width: 70%;
-
-      label {
-        width: auto;
-        padding: 0 1vh;
-        margin: 0 0.5vh;
-      }
-    }
-
-    &.company {
-      width: 45%;
-
-      label {
-        width: 22%;
-      }
-    }
-
-    label {
-      width: 30%;
-      display: block;
-      float: left;
-      height: 3.5vh;
-      line-height: 3.5vh;
-      padding-left: 1vh;
-      text-align: left;
-    }
-
-    input {
-      width: 70%;
-      line-height: 3.5vh;
-      float: left;
-      height: 3.5vh;
-      padding-left: 1vh;
-      border: 0.1vh solid #d2d2d2;
-
-      &.companyNum {
-        width: 18%;
-        margin-right: 1vh;
-      }
-
-      &.companyName {
-        width: 36%;
-        margin-right: 1vh;
-      }
-    }
-
-    .el-radio {
-      margin: 0 !important;
-      width: auto;
-      padding: 0 1vh;
-    }
-
-    button {
-      width: 50px;
-      height: 3.5vh;
-      border: 0.1vh solid #d2d2d2;
-      background: none;
-      margin-right: 0.5vh;
-      line-height: 3.5vh;
-      text-align: center;
-      border-radius: 0.5vh;
-      cursor: pointer;
-      margin-top: 2px;
-    }
-
-    &.zt {
-      width: 22%;
-      margin-left: 20px;
-
-      label {
-        text-align: center;
-      }
-    }
-  }
-}
+.container>>>.el-submenu__title, .container>>>.el-menu-item
+    height 3vh
+    line-height 3vh
+    font-size 1.6vh !important
+    font-weight bold
+.container>>>th, .order_table>>>.el-table td, .el-table th
+    padding 0
+.container>>>.el-table .cell
+    height 4vh
+    line-height 4vh
+    text-align center
+    font-size 1.6vh
+.container>>>.el-dialog
+    width 400px
+    height 400px
+    overflow-x hidden
+.container>>>.el-dialog__body
+    cursor pointer !important
+    line-height 2.5vh
+    font-weight bold
+    padding 1vh 2vh
+.container>>>.el-radio__label
+    font-size 1.6vh
+.container>>>.el-checkbox__label
+    font-size 1.6vh
+.menu_box
+    width 20%
+    overflow auto !important
+.set_info
+    width 80%
+    li
+        float left
+        width 32%
+        margin 1vh 0
+        height 3.5vh
+        &.zhineng
+            width 96%
+            height auto
+            label
+                width 10%
+            .el-select, input
+                width 90%
+        &.radio
+            width 70%
+            label
+                width auto
+                padding 0 1vh
+                margin 0 0.5vh
+        &.company
+            width 45%
+            label
+                width 22%
+        label
+            width 30%
+            display block
+            float left
+            height 3.5vh
+            line-height 3.5vh
+            padding-left 1vh
+            text-align left
+        input
+            width 70%
+            line-height 3.5vh
+            float left
+            height 3.5vh
+            padding-left 1vh
+            border 0.1vh solid #d2d2d2
+            &.companyNum
+                width 18%
+                margin-right 1vh
+            &.companyName
+                width 36%
+                margin-right 1vh
+        .el-radio
+            margin 0 !important
+            width auto
+            padding 0 1vh
+        button
+            width 50px
+            height 3.5vh
+            border 0.1vh solid #d2d2d2
+            background none
+            margin-right 0.5vh
+            line-height 3.5vh
+            text-align center
+            border-radius 0.5vh
+            cursor pointer
+            margin-top 2px
+        &.zt
+            width 22%
+            margin-left 20px
+            label
+                text-align center
 </style>

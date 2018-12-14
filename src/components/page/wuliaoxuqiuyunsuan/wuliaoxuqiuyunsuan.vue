@@ -9,6 +9,7 @@
             <input class="queryInfo" type="text" v-model="queryInfo" />
             <button @click="doSearchs" class="button_btn">查询</button>
             <button class="button_btn" @click="doCancels">取消</button>
+            <button class="button_btn" @click="doExports">导出</button>
             <button class="button_btn" @click="doOuts">退出</button>
         </div>
 
@@ -200,6 +201,16 @@ export default {
             this.queryInfo = "",
             this.list = [];
             this.pageOnOff = false;
+        },
+
+        //导出
+        doExports() {
+            if (this.queryInfo != "") {
+                window.location.href = "/TPA/vMrp/exportExcel?orderSn=" + this.queryInfo;
+            } else {
+                // window.location.href = "/TPA/vMrp/exportExcel";
+                error("请先输入生产订单")
+            }
         },
 
         // 退出

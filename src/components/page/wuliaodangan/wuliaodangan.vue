@@ -1,90 +1,48 @@
 <template>
     <div class="container" :class="{container_collapse:collapse}">
-    
         <p class="page_title">物料档案</p>
-    
         <div class="btn-box">
-    
             <button :disabled='doAdd' :class="{button_btn:!doAdd}" @click="doAdds">新增</button>
-    
             <button :disabled='doCancel' :class="{button_btn:!doCancel}" @click="doCancels">取消</button>
-    
             <button :disabled='(firstForm.sh==1||firstForm.sh=="-1")' :class="{button_btn:firstForm.sh==0}" @click="doEdits">修改</button>
-    
             <button @click="doSearchs" class="button_btn">查询</button>
-    
             <input type="text" placeholder="请选择" class="doSearch" @click="doSearchs" readonly v-model="search">
-    
             <button class="button_btn" @click="doOuts">退出</button>
-    
             <button class="button_btn" @click="refresh">刷新</button>
-    
             <div class="btn_right">
-    
                 <button :disabled='doImport' :class="{button_btn:!doImport}" @click="doImports">导入</button>
-    
                 <button :disabled='doExport' :class="{button_btn:!doExport}" @click="doExports">导出</button>
-    
                 <button :disabled='(firstForm.sh==1||firstForm.sh==-1)' :class="{button_btn:(firstForm.sh==0)}" @click="doExamines">审核</button>
-    
                 <button :disabled='(firstForm.sh==0||firstForm.sh==-1)' :class="{button_btn:(firstForm.sh==1)}" @click="doExamineAgains">反审</button>
-    
             </div>
-    
         </div>
     
         <div class="set_box">
-    
             <div class="menu_box">
-    
                 <el-menu @select="menuSelected" unique-opened background-color="#f2f2f2" text-color="#303133" active-text-color="#303133">
-    
                     <nav-menu :navMenus="this.navMenus"></nav-menu>
-    
                 </el-menu>
-    
             </div>
-    
             <div class="set_info">
-    
-    
-    
                 <div class="left">
-    
                     <div class="orderList">
-    
                         <el-table :data="tableList" border style="width: 100%" height="18vh">
-    
                             <el-table-column prop="sn" label="编号" min-width="15%">
-    
                             </el-table-column>
-    
                             <el-table-column prop="name" label="名称" min-width="15%">
-    
                             </el-table-column>
-    
                             <el-table-column prop="pattern" label="花形或说明" min-width="15%" class="explain">
-    
                             </el-table-column>
-    
                             <el-table-column prop="typeName" label="一级" min-width="15%" class="explain">
-    
                             </el-table-column>
-    
                             <el-table-column prop="fatherName" label="二级" min-width="15%" class="explain">
-    
                             </el-table-column>
-    
                             <el-table-column prop="grandFather" label="三级" min-width="15%" class="explain">
-    
                             </el-table-column>
-    
                             <el-table-column label="操作" min-width="10%">
-    
                                 <template slot-scope="scope">
-    
                                         <el-button @click="checkChilds(scope.$index, scope.row)" class="btn" type="text">查看</el-button>
-</template>
+                                </template>
                             </el-table-column>
                         </el-table>
                     </div>
@@ -162,7 +120,7 @@
                         <ul class="clearfix">
                             <li class="gui">
                                 <label>色号及名称</label>
-                                <input :disabled="secondFormOn" v-model="secondForm.yscmSn" class="guiNum"  type="text" >
+                                <input :disabled="secondFormOn" v-model="secondForm.yscmSn" class="guiNum" disabled  type="text" placeholder="自动生成" >
                                 <input :disabled="secondFormOn" v-model="secondForm.yscmName" class="guiName"  type="text" >
                             </li>
                             <li>

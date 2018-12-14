@@ -5,7 +5,7 @@
         <!-- 顶部操作按钮 -->
         <div class="btn-box">
             <button :class="{button_btn:!doAdd}" :disabled="doAdd" @click="doAdds">新增</button>
-            <button :class="{button_btn:!doEdit}" :disabled="doEdit">修改</button>
+            <button :class="{button_btn:firstForm.sh == 0}" :disabled="(firstForm.sh == '-1' || firstForm.sh == 1)" @click="doEdits">修改</button>
             <button :class="{button_btn:!doCancel}" :disabled="doCancel" @click="doCancels">取消</button>
             <button :class="{button_btn:!doDelete}" :disabled="doDelete" @click="doDeletes" >删除</button>
             <!-- <button :class="{button_btn:!doImport}" :disabled="doImport" @click="doImports">导入</button> -->
@@ -60,20 +60,19 @@
                             <label>生产单号</label>
                             <input type="text" v-model="firstForm.sn" readonly disabled placeholder="自动生成">
                         </li>
+                        <li>
+                            <label>品牌</label>
+                            <input type="text" v-model="firstForm.brand" readonly disabled class="gui_input">
+                        </li>                        
                         <li class="date">
                             <label>订单日期</label>
-                            <el-date-picker :disabled="firstFormOn" v-model="firstForm.date" type="date" placeholder="必选" format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd"> </el-date-picker>
+                            <el-date-picker :disabled="firstFormNo" v-model="firstForm.date" type="date" placeholder="必选" format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd"> </el-date-picker>
                         </li>                      
                         <li class="date">
                             <label>入库日期</label>
-                            <el-date-picker :disabled="firstFormOn" v-model="firstForm.inDate" type="date" placeholder="必选" format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd"> </el-date-picker>
+                            <el-date-picker :disabled="firstFormNo" v-model="firstForm.inDate" type="date" placeholder="必选" format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd"> </el-date-picker>
                         </li>
-                        <li>
-                            <label>品牌</label>
-                            <el-select class="size" v-model="firstForm.brand" :disabled="firstFormOn" placeholder="必选">
-                                <el-option v-for="item in brand" :key="item.name" :label="item.name" :value="item.name"> </el-option>
-                            </el-select>
-                        </li>
+
                         <li>
                             <label>生产单位</label>
                             <el-select class="size" v-model="firstForm.productUnit" :disabled="firstFormOn" placeholder="必选">
@@ -86,7 +85,7 @@
                         </li>
                         <li>
                             <label>来源单号</label>
-                            <input type="text" v-model="firstForm.originSn" :disabled="firstFormOn" class="gui_input">
+                            <input type="text" v-model="firstForm.originSn" :disabled="firstFormNo" class="gui_input">
                         </li>
                         <button :disabled="firstFormOn" :class="{btn:!firstFormOn}" class="save" @click="firstFormSave">保存</button>                                               
                     </ul>
@@ -104,7 +103,7 @@
 
                 <!-- 表格内容 -->
                 <div class="order_table">
-                    <el-table :data="list" stripe style="width: 100%" index @cell-dblclick="tableDbclick" :span-method="objectSpanMethod" >
+                    <el-table :data="list" stripe style="width: 100%" index @cell-dblclick="tableDbclick" :span-method="objectSpanMethod" height="46vh" >
                         <el-table-column prop="lbch1Name" label="品类" min-width="12.5%">
                         </el-table-column>
                         <el-table-column prop="lbch2Name" label="名称" min-width="12.5%">
@@ -276,7 +275,7 @@
                 <el-button @click="editVisible=false">取 消</el-button>
                 <el-button type="primary" @click="saveRevise" plain>确 定</el-button>
             </span>             
-        </el-dialog>        
+        </el-dialog>                
 
         <!-- table双击弹出 -->
         <el-dialog title="查看详细信息" :visible.sync="oldLook" width="30%" class="look">
@@ -377,6 +376,9 @@ export default {
             psn:"",                         //款号
             oldPsn:false,                   //款号开关
             psnList:[],                     //款号列表
+
+            addEdit:true,                  //保存修改状态开关
+
 
             tableTit: [],                   // 保存弹窗表头
             tableBody: [],                  // 保存弹窗表格内容
@@ -533,7 +535,7 @@ export default {
         },
         //开放表单firstForm
         noDisabledFirstForm() {
-            this.firstFormOn = true
+            this.firstFormNo = false
             this.firstFormOn = false
             this.firstFormGui = false
         },
@@ -554,19 +556,25 @@ export default {
             this.disabledSecondForm()
 
             this.list = [];
-            
+            this.pageOnOff = false
 
             if(this.oldClientSn){this.getnavMenus()}
             this.oldClientSn = false
             
         },
+        //修改订单
+        doEdits(){
+            this.firstFormOn = false
+            this.getProductUnit()           //获取生产单位
+        },
+
         //新增
         doAdds() {
+            this.addEdit = true
             this.doCancels();
             this.emptyBtnTo();
             this.noDisabledFirstForm()
 
-            this.getBrand()                 //获取品牌     
             this.getProductUnit()           //获取生产单位
 
             
@@ -626,28 +634,54 @@ export default {
             if (!terms) {
                 error("请完善表单必填项！");
             } else {
-                this.$http
-                    .post(
-                        "/TPA/dProductOrder/insert",
-                        qs.stringify(this.firstForm)
-                    )
-                    .then(res => {
-                        if (res.data.code === 0) {
-                            this.firstForm = res.data.data
-                            succ(res.data.msg)
-                            this.disabledFirstForm()
-                            this.noDisabledSecondForm()
-                            this.getnavMenus()
+                if(this.addEdit){
+                    this.$http
+                        .post(
+                            "/TPA/dProductOrder/insert",
+                            qs.stringify(this.firstForm)
+                        )
+                        .then(res => {
+                            if (res.data.code === 0) {
+                                this.firstForm = res.data.data
+                                succ(res.data.msg)
+                                this.disabledFirstForm()
+                                this.noDisabledSecondForm()
+                                this.getnavMenus()
 
-                            this.doDelete = false
-                        } else {
-                            error(res.data.msg);
-                        }
-                    })
-                    .catch(err => {
-                        NetworkAnomaly();
-                    });
-                this.oldGsNameList = [];
+                                this.doDelete = false
+                            } else {
+                                error(res.data.msg);
+                            }
+                        })
+                        .catch(err => {
+                            NetworkAnomaly();
+                        });
+                    this.oldGsNameList = [];
+                }else{
+                    this.$http
+                        .post(
+                            "/TPA/dProductOrder/update",
+                            qs.stringify(this.firstForm)
+                        )
+                        .then(res => {
+                            if (res.data.code === 0) {
+                                this.firstForm = res.data.data
+                                succ(res.data.msg)
+                                this.disabledFirstForm()
+                                this.noDisabledSecondForm()
+                                this.getnavMenus()
+
+                                this.doDelete = false
+                            } else {
+                                error(res.data.msg);
+                            }
+                        })
+                        .catch(err => {
+                            NetworkAnomaly();
+                        });
+                    this.oldGsNameList = [];
+                }
+
             }                
         },
         // 打开保存弹窗
@@ -968,6 +1002,7 @@ export default {
             this.firstForm.clientSn = item.clientSn
             this.firstForm.deliveryDate = item.deliveryDate
             this.firstForm.repertory = item.repertory
+            this.firstForm.brand = item.brand
         },
         //点击款号输入框
         handlePsn(){
@@ -981,18 +1016,6 @@ export default {
             this.oldPsn = false
             this.secondFormOn = false
             this.secondFormNo = true
-        },
-
-        //获取品牌
-        getBrand(){
-            this.$http.post('/TPA/aLbJb/getBySn?sn=003')
-                .then(res=>{
-                    if(res.data.code===0){
-                        this.brand = res.data.data
-                    }else{
-                        error(res.data.msg)
-                    }
-                })
         },
         //获取生产单位
         getProductUnit(){   

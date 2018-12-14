@@ -112,6 +112,61 @@
       width: 25%
       margin-right: 5px
 
+.customer
+  display: flex
+  align-items: center
+  margin: 6px
+// 添客户按钮
+.customer_btn
+  padding: 0 2vh
+  height: 3.5vh
+  line-height: 3.5vh
+  border-radius: 4px
+  background: #ffffff
+  border: 0.1vh solid #409EFF
+  font-weight: bold
+  color: #409EFF
+// 添加的客户
+.customer_box
+  width: 60%
+  height 7vh
+  box-sizing: border-box
+  padding: 4px
+  padding-right: 10px
+  margin-left: 14px
+  border: 1px solid #d9d9d9
+  word-break: break-all
+  overflow: auto
+  overflow-x: hidden
+  span
+    margin-right: 4px
+    margin-bottom: 4px
+    height 3vh
+    line-height: 3vh
+
+// 客户弹窗表格
+.customer_mask
+  width: 96%
+  height 300px
+  margin-top: 6px
+  overflow: auto
+  overflow-x: hidden
+
+// 添加客户按钮
+.addCustomer
+  padding: 0 2vh
+  height: 3.5vh
+  line-height: 3.5vh
+  border-radius: 4px
+  background: #ffffff
+  border: 0.1vh solid #409EFF
+  font-weight: bold
+  color: #409EFF
+  float: right 
+  margin-right: 5%
+  margin-top: 10px
+
+
 // 表格
 .order_table
   width: 99%
@@ -155,6 +210,7 @@
 .container>>>.el-table tr
     background-color: #f1f1f1
 .container>>>.el-table, .container>>>tr, .container>>>td, .container>>>.el-table th
+    padding: 0
     border : 0.5px solid #ccc
 .container>>>.el-table th
     border-left: 0

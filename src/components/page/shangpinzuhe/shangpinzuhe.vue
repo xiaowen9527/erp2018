@@ -407,7 +407,17 @@ export default {
                         succ(res.data.msg)
                         this.emptySecondForm();
                         this.noDisabledSecondForm();
+                        
+                        this.pageOnOff = false
+                        let params = {
+                            psn: this.firstForm.fictPsn,
+                            page: 0,
+                            count: this.pageSize
+                        };
+                        this.pageParams = params;                        
                         this.getPageData(this.pageParams);
+
+                        this.getnavMenus()
                     } else {
                         error(res.data.msg);
                     }
@@ -597,10 +607,10 @@ export default {
         },
         //导航展开查询table
         menuSelected(index) {
+            this.noDisabledSecondForm()
             this.pageOnOff = false;
             this.doCancels();
             this.oldSearch = false;
-            this.firstForm.fictPsn = index;
             let params = {
                 psn: this.firstForm.fictPsn,
                 page: 0,

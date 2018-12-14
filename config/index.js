@@ -12,7 +12,9 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       '/TPA': {
+        // target: 'http://218.16.212.90:16460',
         target: 'http://218.16.212.90:16452',
+        // target: 'http://desktop-cj8e755:8080',
         //http://desktop-cj8e755:8080
         //http://218.16.212.90:16452    
         //http://10.1.1.98:8087          

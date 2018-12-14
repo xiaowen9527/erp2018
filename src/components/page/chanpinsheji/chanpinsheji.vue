@@ -19,6 +19,8 @@
                 <button :disabled='(firstForm.sh==0||firstForm.sh==-1)' :class="{button_btn:(firstForm.sh==1)}" @click="doExamineAgains">反审</button>
                 <button :disabled='(firstForm.sp==1||firstForm.sp==-1)' :class="{button_btn:(firstForm.sp==0)}" @click="doApprovals">审批</button>
                 <button :disabled='(firstForm.sp==0||firstForm.sp==-1)' :class="{button_btn:(firstForm.sp==1)}" @click="doApprovalAgains">反审批</button>
+                <button :disabled='(firstForm.sp==0||firstForm.sp==-1||firstForm.qr==1||firstForm.qr==-1)' :class="{button_btn:(firstForm.sp==1&&firstForm.qr==0)}" @click="qr">大货</button>
+                <button :disabled='(firstForm.sp==0||firstForm.sp==-1||firstForm.qr==0||firstForm.qr==-1)' :class="{button_btn:(firstForm.sp==1&&firstForm.qr==1)}" @click="qrBack">非大货</button>
 
             </div>
         </div>
@@ -139,9 +141,6 @@
                         <el-checkbox-group v-model="firstForm.psnXz" :disabled="secondFormOn" class="checkbox">
                             <el-checkbox label="虚拟款号"></el-checkbox>
                         </el-checkbox-group>
-                        <el-checkbox-group v-model="firstForm.qr" :disabled="secondFormOn" class="checkbox">
-                            <el-checkbox label="大货"></el-checkbox>
-                        </el-checkbox-group>
                         <button style="margin-top:.5vh;margin-left:1vh" :disabled="secondFormOn" :class="{button_btn:!secondFormOn}" @click="secondSave" class="button">保存</button>
                         <li class="upload">
                             <button style="margin-top:.5vh;margin-left:1vh" :disabled="pic" :class="{button_btn:!pic}" @click="dodesigns" class="button">上传设计图</button>
@@ -225,7 +224,6 @@
 
         <el-dialog title="企划需求" :visible.sync="oldMenu">
             <el-input v-model="searchSecondTable" placeholder="请输入你要查找的企划需求"></el-input>
-            <button class="button_btn" @click="vagueSearch">查询</button>
             <ul class="qihua_menu">
                 <li v-if="list.length===0">暂无数据</li>
                 <li v-for="(item,i) in list" :key="i" @click="getQihuaItem(item)" class="clearfix">
@@ -249,7 +247,6 @@
 
         <el-dialog title="颜色" :visible.sync="oldColor" class="mohu">
             <el-input v-model="searchColor" placeholder="请输入你要查找的颜色"></el-input>
-            <button class="button_btn" @click="vagueColor">查询</button>
             <ul class="srcond_menu">
                 <li v-if="color.length===0">暂无数据</li>
                 <li class="clearfix" v-for="(item,i) in color" :key="i">
@@ -261,7 +258,6 @@
 
         <el-dialog title="尺码" :visible.sync="oldSize" class="mohu">
             <el-input v-model="searchSize" placeholder="请输入你要查找的尺码"></el-input>
-            <button class="button_btn" @click="vagueSize">查询</button>
             <ul class="srcond_menu">
                 <li v-if="size.length===0">暂无数据</li>
                 <li class="clearfix" v-for="(item,i) in size" :key="i">
@@ -413,7 +409,7 @@ export default {
                 designer: "", //设计师
                 designerSn: "", //设计师工号
                 unit:"",
-                qr: false, //大货
+                qr: "-1", //大货
                 // originPsn: "" // 来源款号
             },
             oldMenu: false,
@@ -505,7 +501,7 @@ export default {
                 layoutId: "", //企划项Id
                 pSn: "", //款号
                 psnXz: false, //款号性质
-                qr: false, //大货
+                qr: "-1", //大货
                 plksSn: "", //款式编号
                 plksName: "", //款式名称
                 colorSn: "", //色号
@@ -601,7 +597,6 @@ export default {
                 this.firstForm.designer
             );
             this.firstForm.psnXz = this.elCheckboxs(this.firstForm.psnXz);
-            this.firstForm.qr = this.elCheckboxs(this.firstForm.qr);
             // console.log(typeof(this.firstForm.plksSn),typeof(this.firstForm.colorSn),typeof(this.firstForm.sizeSn),typeof(this.firstForm.designer))
             // let terms =
             //     this.firstForm.plksSn.length === 0 
@@ -627,7 +622,7 @@ export default {
                                 this.firstForm.sizePidName = "";
                                 this.firstForm.designer = "";
                                 this.firstForm.designerSn = "";
-                                this.firstForm.qr = false;
+                                this.firstForm.qr = "-1";
                             } else {
                                 error(res.data.msg);
                             }
@@ -822,7 +817,36 @@ export default {
                     NetworkAnomaly();
                 });
         },
-
+        //大货
+        qr(){
+            this.$http.post('/TPA/cSpda/qr?status=1&id='+this.firstForm.id)
+                .then(res=>{
+                    if(res.data.code===0){
+                        this.firstForm.qr = "1";
+                        succ(res.data.msg);                        
+                    }else{
+                        error(res.data.msg)
+                    }
+                })
+                .catch(err=>{
+                    NetworkAnomaly()
+                })
+        },
+        //非大货
+        qrBack(){
+            this.$http.post('/TPA/cSpda/qr?status=0&id='+this.firstForm.id)
+                .then(res=>{
+                    if(res.data.code===0){
+                        this.firstForm.qr = "0";
+                        succ(res.data.msg);                        
+                    }else{
+                        error(res.data.msg)
+                    }
+                })
+                .catch(err=>{
+                    NetworkAnomaly()
+                })
+        },
         //上传设计图
         dodesigns() {
             this.designbox = true;
@@ -1454,96 +1478,7 @@ export default {
             }
             return name;
         },
-        //模糊搜索
-        vagueSearch(){
-            this.list = []
-            if(this.searchSecondTable){
-                this.$http
-                    .post("/TPA/cSpqhA/getBySn?sn=" + this.searchSecondTable)
-                    .then(res => {
-                        if (res.data.code === 0) {
-                            if(res.data.data.length>0){
-                                this.list = res.data.data
-                            }else{
-                                error('暂无数据')  
-                                 this.list = []                            
-                            }
-                        } else {
-                            error(res.data.msg);
-                        }
-                    })
-                    .catch(err => {
-                        NetworkAnomaly();
-                    });                
-            }else{
-                error('请输入搜索条件！')     
-            }
-        },
-        //模糊查询颜色
-        vagueColor(){
-            this.color = []
-            if(this.searchColor){
-                let search = {
-                    pidSn: "9|1",
-                    name: 17 + "|" + this.searchColor
-                };
-                let searchStr = JSON.stringify(search);
-                this.$http
-                    .post(
-                        "/TPA/aYscm/searchColor?status=1&&delStatus=0&&search=" + searchStr
-                    )
-                    .then(res => {
-                        if (res.data.code === 0) {
-                            if(res.data.data.list.length>0){
-                                this.color = res.data.data.list;
-                            }else{
-                                error('暂无数据')   
-                                 this.color = []                              
-                            }
-                        } else {
-                            error(res.data.msg);
-                        }
-                    })
-                    .catch(err => {
-                        NetworkAnomaly();
-                    });             
-            }else{
-                error('请输入搜索条件！')     
-            }
-        },       
-        //模糊查询尺码
-        vagueSize(){
-            this.searchList = []
-            if(this.searchSize){
-                let search = {
-                    pidSn: "9|1",
-                    name: 17 + "|" + this.searchSize
-                };
-                let searchStr = JSON.stringify(search);
-                this.$http
-                    .post(
-                        "/TPA/aYscm/searchSize?status=1&&delStatus=0&&search=" +
-                            searchStr
-                    )
-                    .then(res => {
-                        if (res.data.code === 0) {
-                            if(res.data.data.list.length>0){
-                                this.size = res.data.data.list;
-                            }else{
-                                error('暂无数据')  
-                                 this.size = []                               
-                            }
-                        } else {
-                            error(res.data.msg);
-                        }
-                    })
-                    .catch(err => {
-                        NetworkAnomaly();
-                    });
-            }else{
-                error('请输入搜索条件！')                   
-            }
-        }
+
     },
     mounted() {
         this.getYear();
@@ -1553,7 +1488,91 @@ export default {
     watch: {
         searchYear(){
             this.getnavMenu();
-        }         
+        },
+        //模糊搜索
+        searchSecondTable(){
+            this.list = []
+            this.$http
+                .post("/TPA/cSpqhA/getBySn?sn=" + this.searchSecondTable)
+                .then(res => {
+                    if (res.data.code === 0) {
+                        if(res.data.data.length>0){
+                            this.list = res.data.data
+                        }else{
+                            error('暂无数据')  
+                                this.list = []                            
+                        }
+                    } else {
+                        error(res.data.msg);
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });                
+        },
+        //模糊查询颜色
+        searchColor(){
+            this.color = []
+
+            let search = {
+                pidSn: "9|1",
+                name: 17 + "|" + this.searchColor
+            };
+            let searchStr = JSON.stringify(search);
+            this.$http
+                .post(
+                    "/TPA/aYscm/searchColor?status=1&&delStatus=0&&search=" + searchStr
+                )
+                .then(res => {
+                    if (res.data.code === 0) {
+                        if(res.data.data.list.length>0){
+                            this.color = res.data.data.list;
+                        }else{
+                            error('暂无数据')   
+                                this.color = []                              
+                        }
+                    } else {
+                        error(res.data.msg);
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });             
+
+
+        },
+        //模糊查询尺码
+        searchSize(){
+            this.searchList = []
+       
+            let search = {
+                pidSn: "9|1",
+                name: 17 + "|" + this.searchSize
+            };
+            let searchStr = JSON.stringify(search);
+            this.$http
+                .post(
+                    "/TPA/aYscm/searchSize?status=1&&delStatus=0&&search=" +
+                        searchStr
+                )
+                .then(res => {
+                    if (res.data.code === 0) {
+                        if(res.data.data.list.length>0){
+                            this.size = res.data.data.list;
+                        }else{
+                            error('暂无数据')  
+                                this.size = []                               
+                        }
+                    } else {
+                        error(res.data.msg);
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
+  
+        }
+               
     },
     computed: {
         ...mapState(["collapse"])
@@ -1585,16 +1604,8 @@ export default {
     line-height 3.5vh
     font-weight bold
     padding 1vh 2vh
-    .el-input
-        width 80%
-        float left
-    button
-        height 40px 
-        width 60px
-        background #ffffff
-        margin-left 10px 
-        border 1px solid #409EFF
-        color #409EFF   
+
+ 
 .container>>>.el-tabs__content
     background url('../../../../static/imgNone.jpg')
     background-repeat no-repeat

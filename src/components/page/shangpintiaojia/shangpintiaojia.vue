@@ -36,13 +36,21 @@
                         <label>调价单号</label>
                         <input type="text" :value="form.sn" placeholder="自动生成" disabled>
                     </li>
-                    <li class="menuLi">
+                    <!-- <li class="menuLi">
                         <label>客户</label>
                         <input type="text" class="first" placeholder="必填" v-model="form.clientSn" :disabled="firstFormOff" @click="customerFun">
                         <input type="text" v-model="form.clientName" :disabled="firstFormOff" @click="customerFun">
                         <button :disabled="firstFormOff" @click="customerFun">。。。</button>
-                    </li>
+                    </li> -->
                 </ul>
+                <div class="customer">
+                  <button class="save" :disabled="firstFormOff" :class="{customer_btn: !firstFormOff}" @click="customerFun">添加客户</button>
+                  <div class="customer_box">
+                    <el-tag v-for="tag in customerTag" :key="tag.customer" closable disable-transitions="true"  @close="handleClose(tag)">
+                      {{tag.customer}}
+                    </el-tag>
+                  </div>
+                </div>
                 <ul class="clearfix">
                     <li>
                         <label>款号</label>
@@ -138,12 +146,19 @@
         <el-dialog title="客户信息" :visible.sync="customerOff">
             <el-input v-model="customerInfo" placeholder="客户编号 / 客户名称"></el-input>
             <el-button @click="customerInfoFun">查询</el-button>
-            <ul class="srcond_menu">
+            <!-- <ul class="srcond_menu">
                 <li v-if="customerList.length===0">暂无数据</li>
                 <li class="clearfix" v-for="(item,i) in customerList" :key="i">
                     <span class="search" @click="getSearchItem(item)">|--{{item.sn}}-{{item.name}}</span>
                 </li>
-            </ul>
+            </ul> -->
+            <div class="customer_mask">
+              <el-table :data="customerList" stripe @selection-change="handleSelectionChange">
+                <el-table-column type="selection" min-width="10%"></el-table-column>
+                <el-table-column label="客户编号及名称" prop="customer" min-width="90%"></el-table-column>
+            </el-table>
+            </div>
+            <button class="addCustomer" @click="addCustomer">添加</button>
         </el-dialog>
 
         <!-- 修改弹窗 -->
@@ -224,6 +239,8 @@ export default {
       customerOff: false,
       customerInfo: "",
       customerList: [],
+      multipleSelection: [], // 多选内容
+      customerTag: [], // 显示已添加的客户
       // 修改弹窗内容
       editVisible: false,
       dialog: {},
@@ -358,7 +375,13 @@ export default {
       if (this.customerInfo != "") {
         this.$http.post("/TPA/aKsDa/option?name=" + this.customerInfo).then(res => {
           if (res.data.code === 0) {
-            this.customerList = res.data.data;
+            // this.customerList = res.data.data;
+            this.customerList = [];
+            for (var i in res.data.data) {
+              let obj = {}
+              obj.customer = res.data.data[i].sn + "_" + res.data.data[i].name
+              this.customerList.push(obj)
+            }
           } else {
             error(res.data.msg);
           }
@@ -371,11 +394,30 @@ export default {
       }
     },
 
+    // 选择要添加的客户
+    handleSelectionChange(val) {
+      this.multipleSelection = val;
+    },
+
+    // 添加客户
+    addCustomer() {
+      for(var i in this.multipleSelection) {
+        this.customerTag.push(this.multipleSelection[i])
+      }
+      // this.customerTag = this.multipleSelection
+      this.customerOff = false;
+    },
+
     // 客户弹窗选择
     getSearchItem(item) {
         this.customerOff = false;
         this.form.clientSn = item.sn;
         this.form.clientName = item.name;
+    },
+
+    // 删除客户
+    handleClose(tag) {
+      this.customerTag.splice(this.customerTag.indexOf(tag), 1);
     },
 
     // 保存

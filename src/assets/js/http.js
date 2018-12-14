@@ -19,6 +19,7 @@ axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded
 
 if (process.env.NODE_ENV === 'production') {
   axios.defaults.baseURL = 'http://218.16.212.90:16452'
+//   axios.defaults.baseURL = 'http://218.16.212.90:16460'
 }
 
 // 超时时间

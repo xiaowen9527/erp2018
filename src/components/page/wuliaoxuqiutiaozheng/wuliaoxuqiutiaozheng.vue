@@ -15,7 +15,7 @@
 
         <!-- 表格内容 -->
         <div class="order_table">
-            <el-table :data="list" stripe style="width: 100%" index>
+            <el-table :data="list" stripe style="width: 100%" index height="74.5vh">
                 <el-table-column type="index" width="80px" label="顺序" fixed="left">
                 </el-table-column>
                 <el-table-column prop="psn" label="款号" width="110px">
@@ -86,20 +86,6 @@
                 </el-table-column>
                 <el-table-column prop="zhxs" label="转换系数" width="110px">
                 </el-table-column>
-                <el-table-column prop="demand" label="用量需求量" width="110px">
-                    <template slot-scope="scope">
-                        <el-tooltip :content="String(scope.row.demand)" placement="top" :enterable="false">
-                            <p>{{ scope.row.demand }}</p>
-                        </el-tooltip>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="purchase" label="采购需求量" width="110px">
-                    <template slot-scope="scope">
-                        <el-tooltip :content="String(scope.row.purchase)" placement="top" :enterable="false">
-                            <p>{{ scope.row.purchase }}</p>
-                        </el-tooltip>
-                    </template>
-                </el-table-column>
                 <el-table-column prop="func" label="领用部门" width="110px">
                     <template slot-scope="scope">
                         <el-tooltip :content="scope.row.func" placement="top" :enterable="false">
@@ -123,6 +109,20 @@
                 </el-table-column>
                 <el-table-column prop="nature" label="性质" width="110px">
                 </el-table-column>
+                <el-table-column prop="demand" label="用量需求量" width="110px">
+                    <template slot-scope="scope">
+                        <el-tooltip :content="String(scope.row.demand)" placement="top" :enterable="false">
+                            <p>{{ scope.row.demand }}</p>
+                        </el-tooltip>
+                    </template>
+                </el-table-column>  
+                <el-table-column prop="purchase" label="采购需求量" width="110px">
+                    <template slot-scope="scope">
+                        <el-tooltip :content="String(scope.row.purchase)" placement="top" :enterable="false">
+                            <p>{{ scope.row.purchase }}</p>
+                        </el-tooltip>
+                    </template>
+                </el-table-column>                              
                 <el-table-column prop="type" label="类别" width="110px">
                 </el-table-column>
                 <el-table-column prop="remark" label="说明" width="110px">
