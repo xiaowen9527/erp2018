@@ -330,7 +330,7 @@
                 </span>
             </ul>
         </el-dialog>
-
+        <vagueSearch v-if="oldONoFF" :url="vagueSearchUrl"  :display="displaySearch" v-on:listenOnOff="listenToOnOff"/>
     </div>
 </template>
 
@@ -345,9 +345,14 @@ import {
     getOut
 } from "../../../assets/js/message.js";
 import NavMenu from "./NavMenu";
+import vagueSearch from "@/components/pageCommon/vagueSearch";
 export default {
     data() {
         return {
+            oldONoFF:true,
+            vagueSearchUrl:"/TPA/dProductOrder/getSn?name=",
+            displaySearch:['sn'],
+
             //按钮disabled
             doAdd: false,
             doCancel: true,
@@ -469,6 +474,9 @@ export default {
         };
     },
     methods: {
+        listenToOnOff(data){
+            this.oldONoFF = data
+        },
         //按钮初始化
         emptyBtn() {
             this.doAdd = false;
@@ -956,9 +964,12 @@ export default {
 
         //点击头部搜索
         handleSearch(){
-            this.search = ""
-            this.oldSearch = true
-            this.searchList = []
+            // this.search = ""
+            // this.oldSearch = true
+            // this.searchList = []
+            this.oldONoFF = true
+
+            
         },
         //选择搜索的生产订单
         getItemSearch(item){
@@ -1555,7 +1566,7 @@ export default {
         //模糊查询生产订单
         search(){
             if(this.search){
-                this.$http.post("	/TPA/dProductOrder/getSn?name=" + this.search)
+                this.$http.post("/TPA/dProductOrder/getSn?name=" + this.search)
                     .then(res=>{
                         if(res.data.code===0){
                             if(res.data.data.length>0){
@@ -1579,7 +1590,7 @@ export default {
     },
     // 引入组件
     components: {
-        NavMenu
+        NavMenu,vagueSearch
     }
 };
 </script>

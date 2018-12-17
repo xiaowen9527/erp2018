@@ -910,7 +910,7 @@ export default {
                 this.form.balanceMode;
             if (terms) {
                 if (this.form.sn != "") {
-                    this.$http.post("/TPA/dSellOrder/update", qs.stringify(this.form)).then(res => {
+                    this.$http.post("/TPA/dSellOrder/insert", qs.stringify(this.form)).then(res => {
                         // let sn = this.form.sn;
                         // this.form = res.data.data;
                         // this.form.sn = sn;
@@ -1044,25 +1044,29 @@ export default {
                     B.push(Arrs[i])
                 }
             }
-
-            this.$http.post("/TPA/dSellOrder/insert", B).then(res => {
-                if (res.data.code === 0) {
-                    this.saveOff = false;
-                    this.page = 1;
-                    let params = {
-                        page: this.page - 1,
-                        count: this.pageSize,
-                        sn: this.form.sn
+            if(this.discount.length){
+                this.$http.post("/TPA/dSellOrderA/insert", B).then(res => {
+                    if (res.data.code === 0) {
+                        this.saveOff = false;
+                        this.page = 1;
+                        let params = {
+                            page: this.page - 1,
+                            count: this.pageSize,
+                            sn: this.form.sn
+                        }
+                        this.pageParams = params;
+                        this.searchFun(this.pageParams);
+                    } else {
+                        error(res.data.msg);
                     }
-                    this.pageParams = params;
-                    this.searchFun(this.pageParams);
-                } else {
-                    error(res.data.msg);
-                }
-            })
-            .catch(err => {
-                NetworkAnomaly();
-            })
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                })
+            }else{
+                error('折扣不能为空！')
+            }
+
         },
 
         // 打开表格修改

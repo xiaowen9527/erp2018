@@ -1,7 +1,7 @@
 <template>
     <div class="vagueSearch">
         <!-- <el-dialog title="生产单号" :visible.sync="true"> -->
-        <el-dialog title="生产单号" :visible.sync="onoff">
+        <el-dialog title="生产单号" :visible.sync="oldSearch">
             <el-input v-model="search" placeholder="生产单号"></el-input>
             <ul class="srcond_menu">
                 <li v-if="searchList.length===0">暂无数据</li>
@@ -19,51 +19,53 @@
 </template>
 
 <script>
+import { NetworkAnomaly, succ, error, getOut } from "@/assets/js/message.js";
 export default {
     name: "vagueSearch",
-    props: ["url","onoff",'displaySearch'],
+    props: ["onoff","url",  "displaySearch"],                   //开关 ，   接口    ，  列表需要显示的字段
     data() {
         return {
             oldSearch: true,
-            search:"",                  //
-            searchList: [],             //搜索出来的列表
-            item:{}                     //选择之后的obj
+            search: "", //
+            searchList: [], //搜索出来的列表
+            item: {} //选择之后的obj
         };
     },
     methods: {
         //选择搜索的生产订单
         getItemSearch(item) {
-            console.log(item);
+            // console.log(item);
         },
-        cancel(){
-            this.oldSearch = false
-            this.$emit('listenOnOff',this.oldSearch)
-        },        
+
+        cancel() {
+            this.oldSearch = false;
+            this.$emit("listenOnOff", this.oldSearch);
+        }
     },
     watch: {
-
+        //
         search() {
-            let search = {
-                sn: 17 + "|" + this.search
-            };
-            let searchStr = JSON.stringify(search);
-            this.$http
-                .post(this.url + searchStr)
-                .then(res => {
-                    if (res.data.code === 0) {
-                        if (res.data.data.list.length > 0) {
-                            this.searchList = res.data.data.list;
+            if (this.search) {
+                this.$http
+                    .post("/TPA/dProductOrder/getSn?name=" + this.search)
+                    .then(res => {
+                        if (res.data.code === 0) {
+                            if (res.data.data.length > 0) {
+                                this.searchList = res.data.data;
+                            } else {
+                                error("暂无数据");
+                                this.searchList = [];
+                            }
                         } else {
-                            error("暂无数据");
-                            this.searchList = [];
+                            error(res.data.msg);
                         }
-                    } else {
-                        error(res.data.msg);
-                    }
-                })
-                .catch(err => {
-                    NetworkAnomaly();
-                });
+                    })
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });
+            } else {
+                this.searchList = [];
+            }
         }
     }
 };
