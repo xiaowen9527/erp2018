@@ -364,7 +364,7 @@ export default {
         getPageData(data) {
             this.list = []
             this.$http
-                .post("/TPA/psn/search?sp=1", qs.stringify(data))
+                .post("/TPA/cSpda/search?qr=1", qs.stringify(data))
                 .then(res => {
                     if (res.data.code === 0) {
                         this.list = res.data.data.list;

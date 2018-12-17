@@ -4,9 +4,9 @@
         <div class="btn-box">
             <button :disabled='doAdd' :class="{button_btn:!doAdd}" @click="doAdds">新增</button>
             <button :disabled='doCancel' :class="{button_btn:!doCancel}" @click="doCancels">取消</button>
-            <button :disabled='doEdit' :class="{button_btn:!doEdit}" @click="doEdits">修改</button>
-            <button :disabled="(this.firstForm.status==1||this.firstForm.status==3||this.firstForm.sh==1||this.firstForm.sh=='-1')" :class="{button_btn:(this.firstForm.status==0)}" @click="doEffectives">有效</button>
-            <button :disabled="(this.firstForm.status==0||this.firstForm.status==3||this.firstForm.sh==1||this.firstForm.sh=='-1')" :class="{button_btn:(this.firstForm.status==1)}" @click="doInvalids">无效</button>
+            <button :disabled="doEdit||this.firstForm.sh==1||this.firstForm.sh=='-1'||this.firstForm.sp==1||this.firstForm.sp=='-1'" :class="{button_btn:!doEdit&&firstForm.sh==0&&firstForm.sp==0}" @click="doEdits">修改</button>
+            <button :disabled="(this.firstForm.status==1||this.firstForm.status==3||this.firstForm.sh==1||this.firstForm.sh=='-1'||this.firstForm.sp==1||this.firstForm.sp=='-1')" :class="{button_btn:(this.firstForm.status==0)&&firstForm.sh==0&&firstForm.sp==0}" @click="doEffectives">有效</button>
+            <button :disabled="(this.firstForm.status==0||this.firstForm.status==3||this.firstForm.sh==1||this.firstForm.sh=='-1'||this.firstForm.sp==1||this.firstForm.sp=='-1')" :class="{button_btn:(this.firstForm.status==1)&&firstForm.sh==0&&firstForm.sp==0}" @click="doInvalids">无效</button>
             <button class="button_btn" @click="doSearchs">查询</button>
             <input type="text" placeholder="请输入需要查询的设计款号" class="doSearch" v-model="search">
             <button class="button_btn" @click="doOuts">退出</button>
@@ -819,7 +819,7 @@ export default {
         },
         //大货
         qr(){
-            this.$http.post('/TPA/cSpda/qr?status=1&id='+this.firstForm.id)
+            this.$http.post('/TPA/cSpda/confirm?status=1&id='+this.firstForm.id)
                 .then(res=>{
                     if(res.data.code===0){
                         this.firstForm.qr = "1";
@@ -834,7 +834,7 @@ export default {
         },
         //非大货
         qrBack(){
-            this.$http.post('/TPA/cSpda/qr?status=0&id='+this.firstForm.id)
+            this.$http.post('/TPA/cSpda/confirm?status=0&id='+this.firstForm.id)
                 .then(res=>{
                     if(res.data.code===0){
                         this.firstForm.qr = "0";
@@ -1397,7 +1397,6 @@ export default {
         //选择需求
         getQihuaItem(item) {
             this.emptyFirstForm();
-
             this.$http
                 .post("/TPA/cSpqhA/getById?id=" + item.id)
                 .then(res => {
@@ -1493,7 +1492,7 @@ export default {
         searchSecondTable(){
             this.list = []
             this.$http
-                .post("/TPA/cSpqhA/getBySn?sn=" + this.searchSecondTable)
+                .post("/TPA/cSpqhA/option?sn=" + this.searchSecondTable)
                 .then(res => {
                     if (res.data.code === 0) {
                         if(res.data.data.length>0){
@@ -1513,20 +1512,14 @@ export default {
         //模糊查询颜色
         searchColor(){
             this.color = []
-
-            let search = {
-                pidSn: "9|1",
-                name: 17 + "|" + this.searchColor
-            };
-            let searchStr = JSON.stringify(search);
             this.$http
                 .post(
-                    "/TPA/aYscm/searchColor?status=1&&delStatus=0&&search=" + searchStr
+                    "/TPA/aYscm/optionColor?name=" + this.searchColor
                 )
                 .then(res => {
                     if (res.data.code === 0) {
-                        if(res.data.data.list.length>0){
-                            this.color = res.data.data.list;
+                        if(res.data.data.length>0){
+                            this.color = res.data.data;
                         }else{
                             error('暂无数据')   
                                 this.color = []                              

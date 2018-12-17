@@ -50,6 +50,7 @@
                       {{tag.customer}}
                     </el-tag>
                   </div>
+                  <button class="save" :disabled="firstFormOff" :class="{customer_btn: !firstFormOff}" @click="doExamineAgains">保存</button>
                 </div>
                 <ul class="clearfix">
                     <li>
@@ -401,19 +402,20 @@ export default {
 
     // 添加客户
     addCustomer() {
+      // let customerTag = [];
       for(var i in this.multipleSelection) {
         this.customerTag.push(this.multipleSelection[i])
       }
-      // this.customerTag = this.multipleSelection
+      // this.customerTag = customerTag;
       this.customerOff = false;
     },
 
     // 客户弹窗选择
-    getSearchItem(item) {
-        this.customerOff = false;
-        this.form.clientSn = item.sn;
-        this.form.clientName = item.name;
-    },
+    // getSearchItem(item) {
+    //     this.customerOff = false;
+    //     this.form.clientSn = item.sn;
+    //     this.form.clientName = item.name;
+    // },
 
     // 删除客户
     handleClose(tag) {
@@ -422,6 +424,13 @@ export default {
 
     // 保存
     doSaves() {
+      let customerTag = {};
+      for (var i in this.customerTag) {
+        customerTag += (this.customerTag[i].customer + ",")
+        // console.log(this.customerTag[i])
+      }
+      this.form.clientSn = customerTag;
+      // console.log(customerTag)
       if (this.form.activeDate.length === 0) {
         error("生效日期不能为空");
       } else if (this.form.stopDate.length === 0) {

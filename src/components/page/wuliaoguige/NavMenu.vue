@@ -38,7 +38,6 @@ export default {
     height 3vh !important 
     line-height 3vh !important 
 	font-size 1.6vh
-    font-weight blod
 .navMenu
     wbh_cdth 200px
     background #f2f2f2
@@ -48,4 +47,3 @@ export default {
     .stateNone
         color #cccccc
 </style>
-

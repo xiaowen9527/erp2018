@@ -22,9 +22,9 @@
 
             <div class="btn_right">
 
-                <button :disabled="list.length==0||list[0].sh==1" :class="{button_btn:list.length>0&&list[list.length-1].sh==0}" @click="doExamines">审核</button>
+                <button :disabled="firstForm.sh==1||firstForm.sh=='-1'" :class="{button_btn:firstForm.sh == 0}" @click="doExamines">审核</button>
 
-                <button :disabled="list.length==0||list[0].sh==0" :class="{button_btn:list.length>0&&list[list.length-1].sh==1}" @click="doExamineAgains">反审</button>
+                <button :disabled="firstForm.sh==0||firstForm.sh=='-1'" :class="{button_btn:firstForm.sh==1}" @click="doExamineAgains">反审</button>
 
             </div>
 
@@ -356,23 +356,12 @@
             </el-pagination>
         </div>
 
-        <!-- 查询框 -->
-        <!-- <el-dialog title="请输入您要查询的设计款号" :visible.sync="oldSearch">
-            <el-input v-model="search" placeholder="请输入您要查询的设计款号"></el-input>
-            <ul class="srcond_menu">
-                <p v-if="oldSearchList.length===0">暂无数据</p>
-                <li v-for="(item,i) in oldSearchList" :key="i" class="clearfix">
-                    <span @click="getItemSearch(item)">{{item.psn}}</span>
-                </li>
-            </ul>
-        </el-dialog>          -->
         <el-dialog title="请输入您要查询的设计款号" :visible.sync="oldPsn">
             <el-input v-model="psn" placeholder="请输入您要查询的设计款号"></el-input>
-            <button class="button_btn" @click="vaguePsn">查询</button>
             <ul class="srcond_menu">
                 <p v-if="oldPsnList.length===0">暂无数据</p>
                 <li v-for="(item,i) in oldPsnList" :key="i" class="clearfix">
-                    <span @click="getItemPsn(item)">{{item.pSn}}</span>
+                    <span @click="getItemPsn(item)">{{item.psn}}</span>
                 </li>
             </ul>
         </el-dialog>
@@ -380,7 +369,6 @@
         <!-- 物料档案编号弹窗 -->
         <el-dialog title="请输入您要查询的物料名称" :visible.sync="oldMaterial">
             <el-input v-model="material" placeholder="请输入您要查询的物料名称"></el-input>
-            <button class="button_btn" @click="vagueMaterial">查询</button>
             <ul class="srcond_menu">
                 <p v-if="oldMaterialList.length===0">暂无数据</p>
                 <li v-for="(item,i) in oldMaterialList" :key="i" class="clearfix">
@@ -902,6 +890,7 @@ export default {
             this.pageParams = params;
 
             this.getDesignColor(this.search);
+            this.getSh(this.search)
             // this.getPageData(this.pageParams);
         },
 
@@ -975,14 +964,15 @@ export default {
         //审核
 
         doExamines() {
+            
             this.$http
 
-                .post("/TPA/cMatBill/auditing?status=1&psn=" + this.list[0].psn)
+                .post("/TPA/cMatBill/auditing?status=1&psn=" + this.firstForm.psn)
 
                 .then(res => {
                     if (res.data.code === 0) {
                         succ(res.data.msg);
-
+                        this.getSh(this.firstForm.psn)
                         this.getPageData(this.pageParams);
                     } else {
                         error(res.data.msg);
@@ -997,14 +987,15 @@ export default {
         //反审
 
         doExamineAgains() {
+            
             this.$http
 
-                .post("/TPA/cMatBill/auditing?status=0&psn=" + this.list[0].psn)
+                .post("/TPA/cMatBill/auditing?status=0&psn=" + this.firstForm.psn)
 
                 .then(res => {
                     if (res.data.code === 0) {
                         succ(res.data.msg);
-
+                        this.getSh(this.firstForm.psn)
                         this.getPageData(this.pageParams);
                     } else {
                         error(res.data.msg);
@@ -1054,7 +1045,6 @@ export default {
                 .post("/TPA/cMatBill/importExcel", formData)
 
                 .then(res => {
-                    console.log(res);
 
                     if (res.status === 200) {
                         if (res.data.code === 0) {
@@ -1091,7 +1081,6 @@ export default {
         importErr() {
             let errUrl = "/TPA/aImportExcel/exportMsg?name=" + this.project;
 
-            // console.log(errUrl)
 
             window.location.href = errUrl;
 
@@ -1111,7 +1100,6 @@ export default {
         //点击物料颜色添加按钮
 
         addItem(item, items) {
-            // console.log(item)
 
             this.materialItem = item;
 
@@ -1127,7 +1115,6 @@ export default {
         //删除物料颜色
 
         deleteItem(item) {
-            console.log(item);
 
             this.$http
 
@@ -1246,7 +1233,6 @@ export default {
                     .post("/TPA/cMatBill/update", qs.stringify(this.dialog))
 
                     .then(res => {
-                        console.log(res);
 
                         if (res.data.code === 0) {
                             this.$set(this.list, this.idx, this.dialog);
@@ -1396,38 +1382,43 @@ export default {
                         error(res.data.msg);
                     }
                 })
-
-                .catch(err => [NetworkAnomaly()]);
+                .catch(err=>{
+                    NetworkAnomaly()
+                });
         },
-
-
+        //获取设计款号的状态
+        getSh(psn){
+            this.$http.post('/TPA/cMatBill/isAuditing?psn='+psn)
+                .then(res=>{
+                    if(res.data.code===0){
+                        this.firstForm.sh = res.data.data.sh
+                        this.firstForm.psn = psn
+                    }
+                })
+        },
 
         //选择设计编号
 
         getItemPsn(item) {
-            this.firstForm.psn = item.pSn;
+            this.firstForm.psn = item.psn;
+            console.log(this.firstForm.psn);
+            
+            this.getSh(this.firstForm.psn)
 
-            this.firstForm.sh = item.sh;
 
             this.emptyBtnTo();
-
             this.oldPsn = false;
-
             let params = {
-                psn: item.pSn,
-
+                psn: item.psn,
                 count: this.pageSize,
-
                 page: 0
             };
-
             this.pageParams = params;
-
             this.getPageData(this.pageParams);
-            this.getDesignColor(item.pSn);
+            this.getDesignColor(item.psn);
 
             this.psn = "";
-            this.search = item.pSn;
+            this.search = item.psn;
         },
 
         //选择物料
@@ -1568,34 +1559,6 @@ export default {
             this.page = val;
         },
 
-        //模糊查询设计款号
-        vaguePsn(){
-            if(this.psn){
-                let search = {
-                    pSn: 17 + "|" + this.psn
-                };
-                let searchStr = JSON.stringify(search);
-                this.$http.post("/TPA/cSpda/search?sp=1&search=" + searchStr)
-                    .then(res => {
-                        if (res.data.code === 0) {
-                            if(res.data.data.list.length>0){
-                                this.oldPsnList = res.data.data.list
-                            }else{
-                                error('暂无数据') 
-                                 this.oldPsnList = []                                  
-                            }
-                        } else {
-                            error(res.data.msg);
-                        }
-                    })
-
-                    .catch(err => {
-                        NetworkAnomaly();
-                    });                
-            }else{
-                error('请输入搜索条件！')
-            }
-        },
         //模糊查询无聊
         vagueMaterial(){
             if (this.material) {
@@ -1640,6 +1603,55 @@ export default {
                 this.doSearch = true;
             }
         },
+
+        //模糊查询设计款号
+        psn(){
+            if(this.psn){
+                this.$http.post("/TPA/cSpda/option?psnXz=1&psn=" + this.psn)
+                    .then(res => {
+                        if (res.data.code === 0) {
+                            if(res.data.data.length>0){
+                                this.oldPsnList = res.data.data
+                            }else{
+                                error('暂无数据') 
+                                 this.oldPsnList = []                                  
+                            }
+                        } else {
+                            error(res.data.msg);
+                        }
+                    })
+
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });                
+            }else{
+               this.oldPsnList = []
+            }            
+        },
+        //模糊查询物料
+        material(){
+            if (this.material) {
+                this.$http.post("/TPA/cWlda/option?name=" + this.material)
+                    .then(res => {
+                        if (res.data.code === 0) {
+                            if(res.data.data.length>0){
+                                this.oldMaterialList = res.data.data;
+                            }else{
+                                error('暂无数据')
+                                 this.oldMaterialList = []
+                            }
+                        } else {
+                            error(res.data.msg);
+                        }
+                    })
+
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });
+            } else {
+                this.oldMaterialList = [    ]
+            }             
+        }
 
     }
 };
@@ -1705,17 +1717,7 @@ export default {
     width 500px
     height 500px
     .el-dialog__headerbtn
-        border none
-    .el-input
-        width 80%
-        float left
-    button
-        height 40px 
-        width 60px
-        background #ffffff
-        margin-left 10px 
-        border 1px solid #409EFF
-        color #409EFF       
+        border none   
 .srcond_menu
     li
         &:hover

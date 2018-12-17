@@ -45,7 +45,6 @@ export default {
                 setTimeout(()=>this.getYearMonth(),500)
             }
         },
-
     },
     computed:{
         ...mapState(["refresh"])

@@ -171,7 +171,6 @@
         <!-- 模糊搜索生产单号 -->
         <el-dialog title="生产单号" :visible.sync="oldSearch">
             <el-input v-model="search" placeholder="生产单号"></el-input>
-            <button class="button_btn" @click="vagueSearch">查询</button>            
             <ul class="srcond_menu">
                 <li v-if="searchList.length===0">暂无数据</li>
                 <li class="clearfix" v-for="(item,i) in searchList" :key="i">
@@ -182,8 +181,7 @@
 
         <!-- 销售单号 -->
         <el-dialog title="销售单号" :visible.sync="oldSellSn">
-            <el-input v-model="sellSn" placeholder="销售单号"></el-input>
-            <button class="button_btn" @click="vagueSellSn">查询</button>            
+            <el-input v-model="sellSn" placeholder="销售单号"></el-input>           
             <ul class="srcond_menu">
                 <li v-if="sellSnList.length===0">暂无数据</li>
                 <li class="clearfix" v-for="(item,i) in sellSnList" :key="i">
@@ -194,12 +192,11 @@
 
         <!-- 查询款号 -->
         <el-dialog title="查询款号" :visible.sync="oldPsn">
-            <el-input v-model="psn" placeholder="款号"></el-input>
-            <button class="button_btn" @click="vaguePsn">查询</button>            
+            <el-input v-model="psn" placeholder="款号"></el-input>        
             <ul class="srcond_menu">
                 <li v-if="psnList.length===0">暂无数据</li>
                 <li class="clearfix" v-for="(item,i) in psnList" :key="i">
-                    <span @click="getItemPsn(item)">|--{{item.psn}}--{{item.color}}--{{item.size}}</span>
+                    <span @click="getItemPsn(item)">|--{{item.psn}}</span>
                 </li>
             </ul>
         </el-dialog>     
@@ -996,13 +993,25 @@ export default {
         },
         //选择销售单号
         getItemSellSn(item){
+            console.log(item);
+            this.getDetailSn(item.sn)
+            
             this.oldSellSn = false
-            this.firstForm.sellSn = item.sn
-            this.firstForm.clientName = item.clientName
-            this.firstForm.clientSn = item.clientSn
-            this.firstForm.deliveryDate = item.deliveryDate
-            this.firstForm.repertory = item.repertory
-            this.firstForm.brand = item.brand
+        },
+        //获取生产订单详情
+        getDetailSn(sn){
+            this.$http.post('/TPA/dSellOrder/getBySn?sn='+sn)
+                .then(res=>{
+                    if(res.data.code===0){
+                        this.firstForm = res.data.data
+                        this.firstForm.date = ''
+                    }else{
+                        error(res.data.msg)
+                    }
+                })  
+                .catch(err=>{
+                    NetworkAnomaly()
+                })
         },
         //点击款号输入框
         handlePsn(){
@@ -1418,90 +1427,6 @@ export default {
                 })            
         },
 
-        //模糊查询销售单号
-        vagueSellSn(){
-            if(this.sellSn){
-                let search = {
-                    sn: 17 + "|" + this.sellSn
-                };
-                let searchStr = JSON.stringify(search);  
-                this.$http.post("/TPA/dSellOrder/search?stopStatus=0&sh=1&colseStatus=0&search=" + searchStr)
-                    .then(res=>{
-                        if(res.data.code===0){
-                            if(res.data.data.list.length>0){
-                                this.sellSnList = res.data.data.list
-                            }else{  
-                                error('暂无数据')
-                                this.sellSnList = []
-                            }
-                        }else{
-                            error(res.data.msg)
-                        }
-                    })
-                    .catch(err=>{
-                        NetworkAnomaly()
-                    })
-
-            }else{
-                error('请输入查询条件')
-            }
-        },
-        //模糊查询款号
-        vaguePsn(){
-            if(this.psn){
-                let search = {
-                    psn: 17 + "|" + this.psn
-                };
-                let searchStr = JSON.stringify(search);  
-                this.$http.post("/TPA/dProductOrderA/search?masterSn=" + this.firstForm.sellSn + "&search=" + searchStr)
-                    .then(res=>{
-                        if(res.data.code===0){
-                            if(res.data.data.list.length>0){
-                                this.psnList = res.data.data.list
-                            }else{
-                                error("暂无数据");
-                                this.psnList = [];
-                            }
-                        }else{
-                            error(res.data.msg)
-                        }
-                    })
-                    .catch(err=>{
-                        NetworkAnomaly()
-                    })
-
-            }else{
-                error('请输入查询条件')
-            }
-        },
-        //模糊查询生产订单
-        vagueSearch(){
-            if(this.search){
-                let search = {
-                    sn: 17 + "|" + this.search
-                };
-                let searchStr = JSON.stringify(search);  
-                this.$http.post("/TPA/dProductOrder/search?search=" + searchStr)
-                    .then(res=>{
-                        if(res.data.code===0){
-                            if(res.data.data.list.length>0){
-                                this.searchList = res.data.data.list
-                            }else{
-                                error("暂无数据");
-                                this.searchList = [];
-                            }
-                        }else{
-                            error(res.data.msg)
-                        }
-                    })
-                    .catch(err=>{
-                        NetworkAnomaly()
-                    })
-
-            }else{
-                error('请输入查询条件')
-            } 
-        },
         // 表格合并
         rowspan() {
             this.list.forEach((item, index) => {
@@ -1579,13 +1504,78 @@ export default {
             if(this.importPage>0){ this.importPageParams.page = this.importPage - 1;}
             this.getImportPageDate(this.importPageParams);            
         },
+        //模糊查询款号
         psn(){
-            if(!this.psn){
+            if(this.psn){
+                this.$http.post("/TPA/dSellOrderA/option?sn=" + this.firstForm.sellSn + "&name=" + this.psn)
+                    .then(res=>{
+                        if(res.data.code===0){
+                            if(res.data.data.length>0){
+                                this.psnList = res.data.data
+                            }else{
+                                error("暂无数据");
+                                this.psnList = [];
+                            }
+                        }else{
+                            error(res.data.msg)
+                        }
+                    })
+                    .catch(err=>{
+                        NetworkAnomaly()
+                    })
+
+            }else{
                 this.secondForm.psn = ""
+                this.psnList = []
                 this.noDisabledSecondForm()
-            }
-        }
+            }            
+        },
      
+        //模糊查询销售单号
+        sellSn(){
+            this.$http.post("/TPA/dSellOrder/option?name="+this.sellSn)
+                .then(res=>{
+                    if(res.data.code===0){
+                        console.log(res.data.data);
+                        
+                        if(res.data.data.length>0){
+                            this.sellSnList = res.data.data
+                        }else{  
+                            // error('暂无数据')
+                            // this.sellSnList = []
+                        }
+                    }else{
+                        error(res.data.msg)
+                    }
+                })
+                .catch(err=>{
+                    NetworkAnomaly()
+                })            
+        },
+        //模糊查询生产订单
+        search(){
+            if(this.search){
+                this.$http.post("	/TPA/dProductOrder/getSn?name=" + this.search)
+                    .then(res=>{
+                        if(res.data.code===0){
+                            if(res.data.data.length>0){
+                                this.searchList = res.data.data
+                            }else{
+                                error("暂无数据");
+                                this.searchList = [];
+                            }
+                        }else{
+                            error(res.data.msg)
+                        }
+                    })
+                    .catch(err=>{
+                        NetworkAnomaly()
+                    })
+
+            }else{
+               this.searchList = []
+            } 
+        },        
     },
     // 引入组件
     components: {

@@ -157,7 +157,7 @@ import {
     error,
     getOut
 } from "../../../assets/js/message.js";
-import NavMenu from "@/components/pageCommon/NavMenu";
+import NavMenu from "./NavMenu";
 export default {
     name: "wuliaoguige",
     data() {

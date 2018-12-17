@@ -113,16 +113,25 @@
                     <div class="order_table">
                         <el-table :data="list" height="45vh" border style="width: 100%" @sort-change='sortChange' :default-sort="{prop: 'master_sn', order: 'ascending'}">
                             <el-table-column prop="materialSn" label="物料编号" min-width="8%" sortable='custom'>
+                                <template slot-scope="scope">
+                                    <el-tooltip :content="scope.row.materialSn" placement="top" :enterable="false">
+                                        <p>{{ scope.row.materialSn }}</p>
+                                    </el-tooltip>
+                                </template>                                
                             </el-table-column>
                             <el-table-column label="名称" min-width="7%">
                                 <template slot-scope="scope">
-                                   <span>{{scope.row.materialName}}-{{scope.row.matType}}</span>
-                                </template>                                  
+                                    <el-tooltip :content="(scope.row.materialName)" placement="top" :enterable="false">
+                                        <p>{{ scope.row.materialName }}-{{ scope.row.matType }}</p>
+                                    </el-tooltip>
+                                </template>                                                                 
                             </el-table-column>
                             <el-table-column  prop="yscmSn" label="色号" min-width="7%" sortable='custom'>
                                 <template slot-scope="scope">
-                                   <span>{{scope.row.yscmSn}}-{{scope.row.yscmName}}</span>
-                                </template>                            
+                                    <el-tooltip :content="(scope.row.yscmSn)" placement="top" :enterable="false">
+                                        <p>{{ scope.row.yscmSn }}-{{ scope.row.yscmName }}</p>
+                                    </el-tooltip>
+                                </template>                 
                             </el-table-column>
                             <el-table-column prop="gysYsSn" label="供方色号" min-width="8%" sortable='custom'>
                             </el-table-column>
@@ -135,14 +144,34 @@
                             <el-table-column prop="quarter" label="季度" min-width="6%">
                             </el-table-column>
                             <el-table-column prop="brandName" label="品牌" min-width="6%">
+                                <template slot-scope="scope">
+                                    <el-tooltip :content="(scope.row.brandName)" placement="top" :enterable="false">
+                                        <p>{{ scope.row.brandName }}</p>
+                                    </el-tooltip>
+                                </template>                                 
                             </el-table-column>
                             <el-table-column prop="technics" label="工艺" min-width="8%">
+                                <template slot-scope="scope">
+                                    <el-tooltip :content="(scope.row.technics)" placement="top" :enterable="false">
+                                        <p>{{ scope.row.technics }}</p>
+                                    </el-tooltip>
+                                </template>                                
                             </el-table-column>
                             <el-table-column prop="amount" label="采购数量" min-width="6%">
+                                <template slot-scope="scope">
+                                    <el-tooltip :content="String(scope.row.amount)" placement="top" :enterable="false">
+                                        <p>{{ scope.row.amount }}</p>
+                                    </el-tooltip>
+                                </template>                                
                             </el-table-column>
                             <el-table-column prop="price" label="单价" min-width="6%">
                             </el-table-column>
                             <el-table-column prop="money" label="金额" min-width="6%">
+                                <template slot-scope="scope">
+                                    <el-tooltip :content="String(scope.row.money)" placement="top" :enterable="false">
+                                        <p>{{ scope.row.money }}</p>
+                                    </el-tooltip>
+                                </template>                                 
                             </el-table-column>
                             <el-table-column fixed="right" label="操作" min-width="14%">
                                 <template slot-scope="scope">
@@ -155,7 +184,7 @@
                 </section>
 
             </div>
-        </div>
+        </div> 
 
         <div class="pageBox">
             <ul class="pageData">
@@ -1040,7 +1069,7 @@ export default {
         getSearchTable() {
 
             this.$http
-                .post("/TPA/cWldaA/getByName?name=" + this.searchSecondTable)
+                .post("/TPA/cWldaA/option?name=" + this.searchSecondTable)
                 .then(res => {
                     if (res.data.code === 0) {
                         this.searchSecondTableList = res.data.data;
@@ -1134,7 +1163,20 @@ export default {
 .secondForm>>>.el-table .cell
     text-align center
     font-size 1.3vh
-    white-space: pre-line !important
+    word-break normal
+    white-space nowrap !important
+    text-overflow ellipsis !important
+    overflow hidden !important
+    cursor pointer   
+    p
+        width 100%
+        height 100%
+        padding 0 
+        word-break normal
+        white-space nowrap !important
+        text-overflow ellipsis !important
+        overflow hidden !important
+        cursor pointer          
 .secondFromTable>>>.el-table .cell
     height 3.5vh
     line-height 3.5vh
@@ -1218,6 +1260,10 @@ export default {
         text-align center
         line-height 3.5vh
         font-size 1.4vh
+        word-break normal
+        white-space nowrap !important
+        text-overflow ellipsis !important
+        overflow hidden !important        
         &.oldMenu
             width 100%
             text-align left

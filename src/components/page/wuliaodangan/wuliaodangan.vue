@@ -190,7 +190,6 @@
 
         <el-dialog title="材质+名称+规格" :visible.sync="oldMenu">
             <el-input v-model="name" placeholder="请输入你要查找的物料规格名称"></el-input>
-            <button class="button_btn" @click="vagueGetOld">查询</button>
             <ul class="srcond_menu">
                 <li v-for="(item,i) in nameList" :key="i">
                     <span @click="getOldMenu(item)">|--{{item.name}}&nbsp;&nbsp;-&nbsp;&nbsp;{{item.type}}</span>
@@ -1051,9 +1050,6 @@ export default {
                     .catch(err => {
                         NetworkAnomaly()
                     })
-            }else{
-                let obj = {name:"暂无数据"}
-                this.searchList.push(obj)                        
             }
 
         },
@@ -1087,6 +1083,31 @@ export default {
                 this.list[i].sn = this.firstForm.sn;
             }
         },
+        //获取 材质+名称+规格
+        name(){
+            if(this.name){
+                this.$http.post('/TPA/cSpecification/option?name=' + this.name)
+                    .then(res => {
+                        if (res.data.code === 0) {
+                            if(res.data.data.length>0){
+                                this.nameList = res.data.data
+                            }else{
+                                error('暂无数据')  
+                                this.nameList = []                        
+                            }
+                            
+                        } else {
+                            error(res.data.msg)
+                        }
+                    })
+                    .catch(err => {
+                        NetworkAnomaly()
+                    })                
+            }else{
+                this.nameList = []
+            }
+        },
+
 
     },
     computed: {
@@ -1132,14 +1153,6 @@ export default {
     width 500px
     height 500px
     overflow-x hidden
-    .el-input
-        width 80%
-        float left
-    button
-        height 40px 
-        width 75px
-        background #ffffff
-        margin-left 10px
     li
         &.color
             &:hover

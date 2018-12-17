@@ -300,7 +300,6 @@ const router = new Router({
                 title: '生产订单'
             },
         },
-
         {
             path: '/cangkushezhi',
             name: "cangkushezhi",
@@ -357,9 +356,92 @@ const router = new Router({
                 title: '物料采购需求'
             },
         },
+
+
+
+
+        {
+            path: '/cailiaocaigoujinhuodingdan',
+            name: "cailiaocaigoujinhuodingdan",
+            component: resolve => require(['@/components/page/cailiaocaigoujinhuodingdan/cailiaocaigoujinhuodingdan'], resolve),
+            meta: {
+                title: '材料采购进货订单'
+            },
+        },
+        {
+            path: '/cailiaocaigoutuihuodingdan',
+            name: "cailiaocaigoutuihuodingdan",
+            component: resolve => require(['@/components/page/cailiaocaigoutuihuodingdan/cailiaocaigoutuihuodingdan'], resolve),
+            meta: {
+                title: '材料采购退货订单'
+            },
+        },
+        {
+            path: '/cailiaocaigoulaihuozhijian',
+            name: "cailiaocaigoulaihuozhijian",
+            component: resolve => require(['@/components/page/cailiaocaigoulaihuozhijian/cailiaocaigoulaihuozhijian'], resolve),
+            meta: {
+                title: '材料采购来货质检'
+            },
+        },
+        {
+            path: '/cailiaocaigouzhijianruku',
+            name: "cailiaocaigouzhijianruku",
+            component: resolve => require(['@/components/page/cailiaocaigouzhijianruku/cailiaocaigouzhijianruku'], resolve),
+            meta: {
+                title: '材料采购质验入库'
+            },
+        },
+        {
+            path: '/cailiaocaigouzhijieruku',
+            name: "cailiaocaigouzhijieruku",
+            component: resolve => require(['@/components/page/cailiaocaigouzhijieruku/cailiaocaigouzhijieruku'], resolve),
+            meta: {
+                title: '材料采购直接入库'
+            },
+        },
+        {
+            path: '/cailiaokucuntuihuozhijian',
+            name: "cailiaokucuntuihuozhijian",
+            component: resolve => require(['@/components/page/cailiaokucuntuihuozhijian/cailiaokucuntuihuozhijian'], resolve),
+            meta: {
+                title: '材料库存退货质检'
+            },
+        },
+        {
+            path: '/cailiaozhijiantuihuochuku',
+            name: "cailiaozhijiantuihuochuku",
+            component: resolve => require(['@/components/page/cailiaozhijiantuihuochuku/cailiaozhijiantuihuochuku'], resolve),
+            meta: {
+                title: '材料质验退货出库'
+            },
+        },
+        {
+            path: '/cailiaozhijietuihuochuku',
+            name: "cailiaozhijietuihuochuku",
+            component: resolve => require(['@/components/page/cailiaozhijietuihuochuku/cailiaozhijietuihuochuku'], resolve),
+            meta: {
+                title: '材料直接退货出库'
+            },
+        },
+        {
+            path: '/cailiaogongyijiagong',
+            name: "cailiaogongyijiagong",
+            component: resolve => require(['@/components/page/cailiaogongyijiagong/cailiaogongyijiagong'], resolve),
+            meta: {
+                title: '材料工艺加工'
+            },
+        },
+        {
+            path: '/cailiaotihuanshenqing',
+            name: "cailiaotihuanshenqing",
+            component: resolve => require(['@/components/page/cailiaotihuanshenqing/cailiaotihuanshenqing'], resolve),
+            meta: {
+                title: '材料替换申请'
+            },
+        },
         ]
-    }
-    ]
+    }]
 })
 
 

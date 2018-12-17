@@ -11,9 +11,11 @@
             <button :disabled='doPrint' :class="{button_btn:!doPrint}" @click="doPrints">打印</button>
             <button class="button_btn" @click="doOuts">退出</button>
             <button @click="doSearchs" class="button_btn">查询</button>
+            <button class="button_btn" @click="doCancels">取消</button>
+            <button @click="dorefreshs" class="button_btn">刷新</button>
             <div class="btn_right">
-                <button class="button_btn" @click="doExamines">审核</button>
-                <button class="button_btn" @click="doExamineAgains">反审</button>
+                <button :class="{button_btn: !shOnOff}" :disabled="shOnOff" @click="doExamines">审核</button>
+                <button :class="{button_btn: shOnOff}" :disabled="!shOnOff" @click="doExamineAgains">反审</button>
             </div>
         </div>
 
@@ -56,33 +58,32 @@
                             <input type="text" v-model="form.price" :disabled="formOff">
                         </li>
                         <button class="save" @click="doSaves" :class="{button_btn:!formOff}" :disabled="formOff">保存</button>
-                        <button class="save" @click="doCancels" :class="{button_btn:!formOff}" :disabled="formOff">取消</button>
                     </ul>
                 </div>
 
                 <!-- 表格内容 -->
                 <div class="order_table">
                     <el-table :data="list" :span-method="objectSpanMethod" border style="width: 100%" ref="multipleTable" tooltip-effect="dark" @selection-change="handleSelectionChange" @sort-change='sortChange' :default-sort="{prop: 'psn', order: 'ascending'}">
-                        <el-table-column type="selection" min-width="6%">
+                        <!-- <el-table-column type="selection" min-width="6%">
+                        </el-table-column> -->
+                        <el-table-column prop="sn" label="单据单号" min-width="14%">
                         </el-table-column>
-                        <el-table-column prop="sn" label="单据单号" min-width="12%">
+                        <el-table-column prop="psn" label="款号" min-width="14%" sortable='custom'>
                         </el-table-column>
-                        <el-table-column prop="psn" label="款号" min-width="12%" sortable='custom'>
+                        <el-table-column prop="type" label="价格类型" min-width="14%" sortable='custom'>
                         </el-table-column>
-                        <el-table-column prop="type" label="价格类型" min-width="12%" sortable='custom'>
+                        <el-table-column prop="price" label="价格" min-width="14%">
                         </el-table-column>
-                        <el-table-column prop="price" label="价格" min-width="12%">
+                        <el-table-column prop="activeDate" label="生效日期" min-width="14%" sortable='custom'>
                         </el-table-column>
-                        <el-table-column prop="activeDate" label="生效日期" min-width="12%" sortable='custom'>
+                        <el-table-column prop="addUser" label="编制人" min-width="14%">
                         </el-table-column>
-                        <el-table-column prop="addUser" label="编制人" min-width="6%">
-                        </el-table-column>
-                        <el-table-column fixed="right" label="操作" min-width="18%">
+                        <el-table-column fixed="right" label="操作" min-width="16%">
                             <template slot-scope="scope">
                                 <el-button :disabled="(scope.row.sh == 1)" :class="{btn:scope.row.sh == 1}" type="text" @click="handleEdit(scope.$index, scope.row)">修改</el-button>
                                 <el-button :disabled="(scope.row.sh == 1)" :class="{btn:scope.row.sh == 1}" type="text" @click="tableDelete(scope.$index, scope.row)">删除</el-button>
-                                <el-button v-if="(scope.row.sh == 1)" disabled class="btn">已审</el-button>
-                                <el-button v-else-if="(scope.row.sh == 0)" disabled class="btn">未审</el-button>
+                                <!-- <el-button v-if="(scope.row.sh == 1)" disabled class="btn">已审</el-button>
+                                <el-button v-else-if="(scope.row.sh == 0)" disabled class="btn">未审</el-button> -->
                             </template>
                         </el-table-column>
                     </el-table>
@@ -98,20 +99,11 @@
 
         <!-- 输入查询弹出框 -->
         <el-dialog title="款号" :visible.sync="psnSearch">
-            <!-- <el-input v-model="searchXun" placeholder="请输入你要查找的款号"></el-input>
-            <ul class="srcond_menu">
-                <li v-if="searchList.length===0">暂无数据</li>
-                <li class="clearfix" v-for="(item,i) in searchList" :key="i">
-                    <span class="search" @click="getSearchItem(item)">|--{{item.pSn}}</span>
-                </li>
-            </ul> -->
-
             <el-input v-model="searchXun" placeholder="请输入你要查找的款号"></el-input>
-            <el-button @click="searchXunFun">查询</el-button>
             <ul class="srcond_menu">
                 <li v-if="searchList.length===0">暂无数据</li>
                 <li class="clearfix" v-for="(item,i) in searchList" :key="i">
-                    <span class="search" @click="getSearchItem(item)">|--{{item.pSn}}</span>
+                    <span class="search" @click="getSearchItem(item)">|--{{item.psn}}</span>
                 </li>
             </ul>
         </el-dialog>
@@ -282,7 +274,9 @@ export default {
       tipOffON: false, //错误文件下载开关
 
       // 表单禁用/显示
-      formOff: true
+      formOff: true,
+      
+      shOnOff: false, // 审核状态
     };
   },
   methods: {
@@ -382,57 +376,89 @@ export default {
       this.searchFormShow = true;
     },
 
+    // 刷新
+    dorefreshs() {
+      this.list = [];
+      this.pageOnOff = false;
+      this.doCancels();
+      this.getnavMenu();
+    },
+
     // 审核
     doExamines() {
-      let idArr = [];
-      for (var i in this.multipleSelection) {
-        let obj = {};
-        obj.id = this.multipleSelection[i].id;
-        obj.status = "1";
-        idArr.push(obj);
-        // idArr.push(this.multipleSelection[i].id)
-      }
-      if (this.multipleSelection.length != 0) {
-        this.$http
-          .post("/TPA/cProductPrice/auditing", idArr)
-          .then(res => {
-            if (res.data.code === 0) {
-              // console.log(res);
-              this.getPageData();
-            }
-          })
-          .catch(err => {
-            NetworkAnomaly();
-          });
-      } else {
-        error("未选中需审核的内容");
+      // let idArr = [];
+      // for (var i in this.multipleSelection) {
+      //   let obj = {};
+      //   obj.id = this.multipleSelection[i].id;
+      //   obj.status = "1";
+      //   idArr.push(obj);
+      //   // idArr.push(this.multipleSelection[i].id)
+      // }
+      // if (this.form.sn.length != 0) {
+      //   this.$http
+      //     .post("/TPA/cProductPrice/auditing", idArr)
+      //     .then(res => {
+      //       if (res.data.code === 0) {
+      //         // console.log(res);
+      //         this.getPageData();
+      //       }
+      //     })
+      //     .catch(err => {
+      //       NetworkAnomaly();
+      //     });
+      // } else {
+      //   error("未选中需审核的内容");
+      // }
+      if (this.form.sn) {
+        this.$http.post("/TPA/cProductPrice/auditing?status=1&sn=" + this.form.sn).then(res => {
+          if (res.data.code === 0) {
+            this.getPageData();
+          } else {
+            error(res.data.msg)
+          }
+        })
+        .catch(err => {
+          NetworkAnomaly();
+        })
       }
     },
 
     // 反审
     doExamineAgains() {
-      let idArr = [];
-      for (var i in this.multipleSelection) {
-        let obj = {};
-        obj.id = this.multipleSelection[i].id;
-        obj.status = "0";
-        idArr.push(obj);
-        // idArr.push(this.multipleSelection[i].id)
-      }
-      if (this.multipleSelection.length != 0) {
-        this.$http
-          .post("/TPA/cProductPrice/auditing", idArr)
-          .then(res => {
-            if (res.data.code === 0) {
-              // console.log(res);
-              this.getPageData();
-            }
-          })
-          .catch(err => {
-            NetworkAnomaly();
-          });
-      } else {
-        error("未选中需反审的内容");
+      // let idArr = [];
+      // for (var i in this.multipleSelection) {
+      //   let obj = {};
+      //   obj.id = this.multipleSelection[i].id;
+      //   obj.status = "0";
+      //   idArr.push(obj);
+      //   // idArr.push(this.multipleSelection[i].id)
+      // }
+      // if (this.multipleSelection.length != 0) {
+      //   this.$http
+      //     .post("/TPA/cProductPrice/auditing", idArr)
+      //     .then(res => {
+      //       if (res.data.code === 0) {
+      //         // console.log(res);
+      //         this.getPageData();
+      //       }
+      //     })
+      //     .catch(err => {
+      //       NetworkAnomaly();
+      //     });
+      // } else {
+      //   error("未选中需反审的内容");
+      // }
+      if (this.form.sn) {
+        this.$http.post("/TPA/cProductPrice/auditing?status=0&sn=" + this.form.sn).then(res => {
+          if (res.data.code === 0) {
+            this.getPageData();
+          } else {
+            error(res.data.msg)
+          }
+        })
+        .catch(err => {
+          NetworkAnomaly();
+        })
       }
     },
 
@@ -595,40 +621,31 @@ export default {
       this.doCancels();
       this.form.sn = e;
       this.formOff = false;
-      this.saveEdit();
+      // this.saveEdit();
+      this.page = 1;
+      let params = {
+        orderBy: "type",
+        page: this.page - 1,
+        count: this.pageSize,
+        sn: e
+      }
+      this.pageParams = params;
+      this.getPageData();
     },
 
     // 款号查询
     searchSn() {
       this.searchXun = "";
+      this.searchList = [];
       this.psnSearch = true;
     },
 
-    // 款号弹窗按钮
-    searchXunFun() {
-      if (this.searchXun.length !== 0) {
-        let search = {
-          pSn: 17 + "|" + this.searchXun
-        };
-        let searchStr = JSON.stringify(search);
-        this.$http
-          .post("/TPA/cSpda/search?sp=1&search=" + searchStr)
-          .then(res => {
-            this.searchList = res.data.data.list;
-            // console.log(res.data.data.list)
-          })
-          .catch(err => {
-            NetworkAnomaly();
-          });
-      } else {
-        this.searchList = [];
-      }
-    },
+
 
     // 选择查询
     getSearchItem(item) {
       this.psnSearch = false;
-      this.form.psn = item.pSn;
+      this.form.psn = item.psn;
     },
 
     // 点击查询弹出框查询按钮
@@ -668,14 +685,22 @@ export default {
       ) {
         error("至少输入一个查询条件");
       } else {
-        // 查询条件
-        params.orderBy = "type";
-        this.page = 1;
-        params.page = this.page - 1;
-        params.count = this.pageSize;
-        this.pageParams = params;
         this.searchFormShow = false;
-        this.getPageData();
+        this.$http.post("/TPA/cProductPrice/getBy", qs.stringify(params)).then(res => {
+          if (res.data.code === 0) {
+            succ(res.data.msg);
+            let navMenus = [];
+            for (var i in res.data.data) {
+              navMenus.push(res.data.data[i].sn)
+            }
+            this.navMenus = navMenus;
+          } else {
+            error(res.data.msg)
+          }
+        })
+        .catch(err => {
+          NetworkAnomaly();
+        })
         // 清空查询条件
         this.searchForm = {
           psn: "",
@@ -713,9 +738,14 @@ export default {
         )
         .then(res => {
           if (res.data.code === 0) {
-            succ(res.data.msg);
+            // succ(res.data.msg);
             this.doPrint = false;
             this.list = res.data.data.list;
+            if (this.list[0].sh == "1") {
+              this.shOnOff = true;
+            } else {
+              this.shOnOff = false;
+            }
 
             // this.page = 1;
             this.pageOnOff = false;
@@ -824,6 +854,25 @@ export default {
             }
             this.getPageData();
         },
+        // 模糊查询款号
+        searchXun() {
+            if (this.searchXun) {
+                this.$http
+                .post("/TPA/cSpda/option?psnXz=1&psn=" + this.searchXun)
+                .then(res => {
+                    if(res.data.data.length>0){
+                        this.searchList = res.data.data;
+                    }else{
+                        error('暂无数据')
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
+            } else {
+                this.searchList = []
+            }
+        },        
     // page() {
     //   this.currentPage();
     // }
@@ -878,18 +927,6 @@ export default {
   overflow-y: auto
   .el-dialog__headerbtn
     border none
-  .el-input
-    width 75%
-    float left
-  button
-    height 3.5vh 
-    line-height: 3.5vh
-    width 60px
-    background #ffffff
-    margin-left 10px 
-    border 1px solid #409EFF
-    color #409EFF  
-    padding: 0
 .container>>>.el-dialog .el-table td
   padding: 0
 .container>>>.el-dialog__body

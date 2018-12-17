@@ -215,7 +215,6 @@
         <!-- 获取客户信息弹窗 -->
         <el-dialog title="客户信息" :visible.sync="customerOff">
             <el-input v-model="customerInfo" placeholder="客户编号 / 客户名称"></el-input>
-            <el-button @click="customerInfoFun">查询</el-button>
             <ul class="srcond_menu">
                 <li v-if="customerList.length===0">暂无数据</li>
                 <li class="clearfix" v-for="(item,i) in customerList" :key="i">
@@ -886,25 +885,7 @@ export default {
             this.customerList = [];
         },
 
-        // 客户弹窗模糊查询
-        customerInfoFun() {
-            if (this.customerInfo.length !== 0) {
-                this.$http
-                    .post("/TPA/aKsDa/option?nature=客户&name=" + this.customerInfo).then(res => {
-                        if (res.data.code === 0) {
-                            this.customerList = res.data.data;
-                        } else {
-                            error(res.data.msg);
-                            this.customerList = [];
-                        }
-                    })
-                    .catch(err => {
-                        NetworkAnomaly();
-                    });
-            } else {
-                error("请输入要查询的内容")
-            }
-        },
+
 
         // 客户弹窗选择
         getSearchItem(item) {
@@ -1064,7 +1045,7 @@ export default {
                 }
             }
 
-            this.$http.post("/TPA/dSellOrderA/insert", B).then(res => {
+            this.$http.post("/TPA/dSellOrder/insert", B).then(res => {
                 if (res.data.code === 0) {
                     this.saveOff = false;
                     this.page = 1;
@@ -1346,7 +1327,27 @@ export default {
                 this.pageParams.page = this.page - 1;
             }
             this.searchFun(this.pageParams);
+        },
+        //模糊查询客户
+        customerInfo(){
+            if (this.customerInfo) {
+                this.$http
+                    .post("/TPA/aKsDa/option?nature=客户&name=" + this.customerInfo).then(res => {
+                        if (res.data.code === 0) {
+                            this.customerList = res.data.data;
+                        } else {
+                            error(res.data.msg);
+                            this.customerList = [];
+                        }
+                    })
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });
+            } else {
+                this.customerList = []
+            }
         }
+
     },
 
     computed: {
