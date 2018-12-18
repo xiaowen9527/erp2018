@@ -24,24 +24,18 @@
                 <ul class="clearfix">
                     <li>
                         <label>生效日期</label>
-                        <el-date-picker format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd" v-model="form.activeDate" type="date" placeholder="选择日期" :disabled="firstFormOff">
+                        <el-date-picker format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd" v-model="firstForm.activeDate" type="date" placeholder="选择日期" :disabled="firstFormOff">
                         </el-date-picker>
                     </li>
                     <li>
                         <label>截止日期</label>
-                        <el-date-picker format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd" v-model="form.stopDate" type="date" placeholder="选择日期" :disabled="firstFormOff">
+                        <el-date-picker format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd" v-model="firstForm.stopDate" type="date" placeholder="选择日期" :disabled="firstFormOff">
                         </el-date-picker>
                     </li>
                     <li>
                         <label>调价单号</label>
-                        <input type="text" :value="form.sn" placeholder="自动生成" disabled>
+                        <input type="text" :value="secondForm.masterSn" placeholder="自动生成" disabled>
                     </li>
-                    <!-- <li class="menuLi">
-                        <label>客户</label>
-                        <input type="text" class="first" placeholder="必填" v-model="form.clientSn" :disabled="firstFormOff" @click="customerFun">
-                        <input type="text" v-model="form.clientName" :disabled="firstFormOff" @click="customerFun">
-                        <button :disabled="firstFormOff" @click="customerFun">。。。</button>
-                    </li> -->
                 </ul>
                 <div class="customer">
                   <button class="save" :disabled="firstFormOff" :class="{customer_btn: !firstFormOff}" @click="customerFun">添加客户</button>
@@ -50,41 +44,46 @@
                       {{tag.customer}}
                     </el-tag>
                   </div>
-                  <button class="save" :disabled="firstFormOff" :class="{customer_btn: !firstFormOff}" @click="doExamineAgains">保存</button>
+                  <button class="save" :disabled="firstFormOff" :class="{customer_btn: !firstFormOff}" @click="doSaves1">保存</button>
                 </div>
                 <ul class="clearfix">
                     <li>
                         <label>款号</label>
-                        <input type="text" v-model="form.psn" @click="searchSn" :disabled="secondFormOff">
+                        <input type="text" v-model="secondForm.psn" @click="searchSn" :disabled="secondFormOff">
                     </li>
                     <li>
                         <label>价格类型</label>
-                        <el-select v-model="form.priceType" placeholder="请选择" :disabled="secondFormOff">
+                        <el-select v-model="secondForm.priceType" placeholder="请选择" :disabled="secondFormOff">
                             <el-option v-for="item in this.Type" :key="item.name" :label="item.name" :value="item.name">
                             </el-option>
                         </el-select>
                     </li>
                     <li>
                         <label>价格</label>
-                        <input type="text" v-model="form.price" :disabled="secondFormOff">
+                        <input type="text" v-model="secondForm.price" :disabled="secondFormOff">
                     </li>
-                    <button class="save" @click="doSaves" :class="{button_btn:!secondFormOff}" :disabled="secondFormOff">保存</button>
+                    <button class="save" @click="doSaves2" :class="{button_btn:!secondFormOff}" :disabled="secondFormOff">保存</button>
                 </ul>
             </div>
 
             <!-- 表格内容 -->
-            <div class="order_table">
+            <div class="order_table fl" style="width: 20%; margin-right: 5px">
+              <el-table :data="list" stripe border>
+                  <el-table-column prop="clientSn" label="客户">
+                  </el-table-column>
+                  <!-- <el-table-column prop="clientName" label="客户名称" min-width="9%">
+                    <template slot-scope="scope">
+                      <el-tooltip :content="scope.row.clientName" placement="top" :enterable="false">
+                          <p>{{ scope.row.clientName }}</p>
+                      </el-tooltip>
+                    </template>
+                  </el-table-column> -->
+              </el-table>
+            </div>
+
+            <div class="order_table fl" style="width: 78%">
                 <el-table :data="list" stripe border index style="width: 100%" ref="multipleTable" tooltip-effect="dark" @sort-change='sortChange' :default-sort="{prop: 'psn', order: 'ascending'}">
                     <el-table-column prop="sn" label="调价单号" min-width="11%">
-                    </el-table-column>
-                    <el-table-column prop="clientSn" label="客户编号" min-width="9%">
-                    </el-table-column>
-                    <el-table-column prop="clientName" label="客户名称" min-width="9%">
-                      <template slot-scope="scope">
-                        <el-tooltip :content="scope.row.clientName" placement="top" :enterable="false">
-                            <p>{{ scope.row.clientName }}</p>
-                        </el-tooltip>
-                      </template>
                     </el-table-column>
                     <el-table-column prop="psn" label="款号" min-width="9%" sortable='custom'>
                     </el-table-column>
@@ -208,15 +207,18 @@ export default {
       Tips: "", //错误提示
       tipOffON: false, //错误文件下载开关
       queryInfo: "",
-      form: {
-          activeDate: "",
-          stopDate: "",
-          sn: "",
-          clientSn: "",
-          clientName: "",
-          psn: "",
-          priceType: "",
-          price: ""
+      firstForm: {
+        activeDate: "",
+        stopDate: "",
+        sn: "",
+        client: []
+          
+      },
+      secondForm: {
+        masterSn: "",
+        psn: "",
+        priceType: "",
+        price: ""
       },
       firstFormOff: true, // 第一个保存开关
       secondFormOff: true, // 第二个保存开关
@@ -314,19 +316,21 @@ export default {
     doNews() {
         this.doCancels();
         this.firstFormOff = false;
-        this.secondFormOff = false;
     },
 
     // 取消
     doCancels() {
-        this.form = {
-            activeDate: "",
-            sn: "",
-            clientSn: "",
-            clientName: "",
-            psn: "",
-            priceType: "",
-            price: ""
+        this.firstForm = {
+          activeDate: "",
+          sn: "",
+          clientSn: "",
+          clientName: ""
+        }
+        this.secondForm = {
+          masterSn: "",
+          psn: "",
+          priceType: "",
+          price: ""
         }
         this.list = [];
         this.firstFormOff = true;
@@ -423,43 +427,26 @@ export default {
     },
 
     // 保存
-    doSaves() {
-      let customerTag = {};
+    doSaves1() {
+      let customerTag = "";
       for (var i in this.customerTag) {
         customerTag += (this.customerTag[i].customer + ",")
-        // console.log(this.customerTag[i])
       }
-      this.form.clientSn = customerTag;
-      // console.log(customerTag)
-      if (this.form.activeDate.length === 0) {
+      this.firstForm.client = customerTag;
+      if (this.firstForm.activeDate.length === 0) {
         error("生效日期不能为空");
-      } else if (this.form.stopDate.length === 0) {
+      } else if (this.firstForm.stopDate.length === 0) {
         error("截止日期不能为空");
-      } else if (this.form.clientSn.length === 0) {
+      } else if (this.firstForm.client.length === 0) {
         error("客户不能为空");
-      } else if (this.form.psn.length === 0) {
-        error("款号不能为空");
-      } else if (this.form.priceType.length === 0) {
-        error("价格类型不能为空");
-      } else if (this.form.price.length === 0) {
-        error("价格不能为空");
       } else {
         this.$http
-          .post("/TPA/dAdjustPrice/insert", qs.stringify(this.form))
+          .post("/TPA/dAdjustPrice/insert", qs.stringify(this.firstForm))
           .then(res => {
             if (res.data.code === 0) {
-              console.log(res)
-              this.form.sn = res.data.data.sn;
+              this.secondForm.masterSn = res.data.data.sn;
               this.firstFormOff = true;
-              this.page = 1;
-              let params = {
-                name: this.form.sn,
-                page: this.page - 1,
-                count: this.pageSize,
-                orderBy: "price_type"
-              }
-              this.pageParams = params;
-              this.getPageData();
+              this.secondFormOff = false;
             } else {
               error(res.data.msg);
             }
@@ -467,6 +454,32 @@ export default {
           .catch(err => {
             NetworkAnomaly();
           });
+      }
+    },
+
+    // 保存
+    doSaves2() {
+      if (this.secondForm.psn.length === 0) {
+        error("款号不能为空");
+      } else if (this.secondForm.priceType.length === 0) {
+        error("价格类型不能为空");
+      } else if (this.secondForm.price.length === 0) {
+        error("价格不能为空");
+      } else {
+        this.$http.post("/TPA/dAdjustPriceA/insert", qs.stringify(this.secondForm)).then(res => {
+          console.log(res)
+          if (res.data.code === 0) {
+              // this.page = 1;
+              // let params = {
+              //   name: this.secondForm.sn,
+              //   page: this.page - 1,
+              //   count: this.pageSize,
+              //   orderBy: "price_type"
+              // }
+              // this.pageParams = params;
+              // this.getPageData();
+          }
+        })
       }
     },
 
