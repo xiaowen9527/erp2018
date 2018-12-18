@@ -33,8 +33,8 @@
                     <ul>
                         <li class="menuLi">
                             <label>标签类型</label>
-                            <input placeholder="顶级" type="text" class="first" v-model="firstForm.pidSn" :disabled="firstFormGui">
-                            <input placeholder="顶级" type="text" v-model="firstForm.pidName" :disabled="firstFormGui">
+                            <input placeholder="顶级" type="text" class="first" v-model="firstForm.pidSn" :disabled="firstFormGui" @click="oldMenu=true">
+                            <input placeholder="顶级" type="text" v-model="firstForm.pidName" :disabled="firstFormGui" @click="oldMenu=true">
                             <button :disabled="firstFormGui" @click="oldMenu=true">。。。</button>
                         </li>
 

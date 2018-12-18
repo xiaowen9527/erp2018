@@ -5,7 +5,7 @@
             <button :disabled='doAdd' :class="{button_btn:!doAdd}" @click="doAdds">新增</button>
             <button :disabled='doCancel' :class="{button_btn:!doCancel}" @click="doCancels">取消</button>
             <button class="button_btn" @click="doSearchs">查询</button>
-            <input type="text" placeholder="请选择" class="doSearch" @click="doSearchs" readonly  v-model="search">
+            <input type="text" placeholder="请选择" class="doSearch" @click="doSearchs" readonly >
             <button class="button_btn" @click="doOuts">退出</button>
             <button class="button_btn" @click="refresh">刷新</button>
             <div class="btn_right">
@@ -108,17 +108,7 @@
             </ul>
         </el-dialog>
 
-        <el-dialog title="请输入研发姓名" :visible.sync="oldSearch">
-            <el-input v-model="search" placeholder="请输入研发姓名"></el-input>
-            <ul class="srcond_menu">
-                <li v-if="searchList.length===0">暂无数据</li>
-                <li class="clearfix" v-for="(item,i) in searchList" :key="i">
-                    <!-- <span @click="getSearch(item)">|--{{item.sn}}&nbsp;&nbsp;-&nbsp;&nbsp;{{item.name}}&nbsp;&nbsp;-&nbsp;&nbsp;{{item.typeName}}</span> -->
-                    <span @click="getSearch(item)">|--{{item.rdSn}}</span>
-                    <span @click="getSearch(item)">{{item.rdName}}</span>
-                </li>
-            </ul>
-        </el-dialog>        
+      
 
         <!-- 导入弹窗 -->
         <el-dialog class="importExport" title="导入" :visible.sync="importbox" width="30%" :showClose="false" :show-file-list="false">
@@ -146,7 +136,8 @@
                 </span>
             </ul>
         </el-dialog>      
-
+        <!-- topNav模糊搜索 -->
+        <vagueSearch v-if="oldSearch" :onoff="oldSearch" :url="vagueSearchUrl" v-on:listenOnOff="listenToOnOff" v-on:listenItem="listenToItem"/>
 
     </div>
 </template>
@@ -162,6 +153,7 @@ import {
     getOut
 } from "../../../assets/js/message.js";
 import NavMenu from "./NavMenu";
+import vagueSearch from "@/components/pageCommon/vagueSearch";  //模糊查询组件
 export default {
     name: "yanfafengong",
     data() {
@@ -177,9 +169,9 @@ export default {
             firstFormGui: true,
 
             //bind值
-            search: "", //查询
-            oldSearch:false,
-            searchList:[],
+            oldSearch:false,                                        //头部模糊搜索组件开关
+            vagueSearchUrl:"/TPA/cYffg/getName?name=",              //搜索接口地址
+
             navMenus: [], //导航数据
 
             //下拉数据
@@ -312,25 +304,6 @@ export default {
             this.search = ""
             this.searchList = []
         },
-        //选择search模糊查询
-        getSearch(item) {
-            this.search = item.rdName
-            let searchSn = item.rdSn
-            this.oldSearch = false;
-            this.$http
-                .post("/TPA/cYffg/getBy?rdSn=" + searchSn)
-                .then(res => {
-                    if (res.data.code === 0) {
-                        this.firstForm = res.data.data[0];
-                        this.doCancel = false
-                    } else {
-                        error(res.data.msg);
-                    }
-                })
-                .catch(err => {
-                    error(res.data.mag);
-                });
-        },
 
         //退出
         doOuts() {
@@ -338,6 +311,44 @@ export default {
         },
         //保存
         firstSave() {
+            // let a = [{"colorName":"1"},{"colorName":"2"},{"colorName":"3"}]
+            // let b = "字符串"
+            // let data = JSON.stringify(a)
+            // let data2 = JSON.stringify(b)
+            // // console.log(data,data2);
+            
+            // // console.log(JSON.stringify(a));
+            // this.$http.post('/TPA/eMatPurchaseA/insert?list='+data+"&code="+data2,{
+            //     headers:{
+            //         "Content-Type":'application/json'
+            //     }
+            // })
+            //     .then(res=>{
+            //         console.log(res);
+            //     })
+            //     .catch(err=>{
+            //         NetworkAnomaly()
+            //     })            
+            // this.$http.post('/TPA/eMatPurchaseA/insert',form,{
+            //     headers:{
+            //         "Content-Type":'application/json'
+            //     }
+            // })
+            //     .then(res=>{
+            //         console.log(res);
+            //     })
+            //     .catch(err=>{
+            //         NetworkAnomaly()
+            //     })            
+            // console.log(typeof(window.JSON.stringify()));
+            // this.$http.post('/TPA/eMatPurchaseA/insert?list='+window.JSON.stringify(a)+"&code="+window.JSON.stringify(b))
+            //     .then(res=>{
+            //         console.log(res);
+            //     })
+            //     .catch(err=>{
+            //         NetworkAnomaly()
+            //     })
+            
             this.firstForm.rdProcedureSn = this.getSn(
                 this.rdProcedure,
                 this.firstForm.rdProcedure
@@ -429,7 +440,6 @@ export default {
                 this.$ajax
                     .post("/TPA/cYffg/importExcel", formData)
                     .then(res => {
-                        console.log(res);
                         if (res.status === 200) {
                             if (res.data.code === 0) {
                                 succ(res.data.msg);
@@ -456,7 +466,6 @@ export default {
         //下载错误文件按钮
         importErr() {
             let errUrl = '/TPA/aImportExcel/exportMsg?name=' + this.project
-            // console.log(errUrl)
             window.location.href = errUrl;
             setTimeout(()=>{
                 this.tipOffON = false;
@@ -509,7 +518,6 @@ export default {
                 .post("/TPA/cYffg/tree")
                 .then(res => {
                     if (res.data.code === 0) {
-                        console.log(res);
                         this.navMenus = res.data.data.childs;
                     } else {
                         error(res.data.msg);
@@ -529,7 +537,6 @@ export default {
                 .post("/TPA/aLbJb/getBySn?sn=020")
                 .then(res => {
                     if (res.data.code === 0) {
-                        console.log(res);
                         this.rdProcedure = res.data.data;
                     } else {
                         error(res.data.msg);
@@ -539,11 +546,9 @@ export default {
         },
         //获取人事信息
         getPerson() {
-            console.log(0);
         },
         //顺序
         sortChange(column) {
-            console.log(column.prop, column.order);
             if (this.pageParams.orderBy.length !== 0) {
                 if (column.prop == "rdSn" && column.order == "descending") {
                     this.pageParams.orderBy = "rd_sn desc";
@@ -606,6 +611,31 @@ export default {
             this.page = val;
         },
        
+        //接收模糊查询开关
+        listenToOnOff(data){
+            this.oldSearch = data
+        },
+        //接收模糊查询数据
+        listenToItem(data){
+            if(data.length>0){
+            this.search = data[1]
+            this.$http
+                .post("/TPA/cYffg/getBy?rdSn=" + data[0])
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.firstForm = res.data.data[0];
+                        this.doCancel = false
+                    } else {
+                        error(res.data.msg);
+                    }
+                })
+                .catch(err => {
+                    error(res.data.mag);
+                });
+            }
+                     
+        },   
+
     },
     mounted() {
         this.getnavMenu();
@@ -615,35 +645,12 @@ export default {
             this.pageParams.page = this.page - 1
             this.getPageData();
         }, 
-        search(){
-            if (this.search) {
-                this.$http
-                    .post("/TPA/cYffg/getName?name=" + this.search)
-                    .then(res => {
-                        if(res.data.code===0){
-                            if(res.data.data.length){
-                                this.searchList = res.data.data;
-                            }else{
-                                error('暂无数据')
-                                this.searchList = []
-                            }
-                        }else{
-                            error(res.data.msg)
-                        }
-                    })
-                    .catch(err => {
-                        NetworkAnomaly();
-                    });
-            }else{
-                this.searchList = []    
-            }            
-        }  
     },
     computed: {
         ...mapState(["collapse"])
     },
     components: {
-        NavMenu
+        NavMenu,vagueSearch
     }
 };
 </script>
@@ -674,9 +681,10 @@ export default {
     padding 1vh 2vh
   
 .container>>>.el-dialog__body span
-    width 50%
+    width 100%
     display block
     float left    
+    line-height 3vh !important
 .el-select>>>.el-input
     display inline-block    
 .srcond_menu

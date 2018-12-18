@@ -813,7 +813,7 @@ export default {
         //获取供应商
         getGys() {
             this.$http
-                .post("/TPA/aKsDa/search?status=1&delStatus=0&type=供应商")
+                .post("/TPA/aKsDa/search?status=1&delStatus=0&nature=供应商")
                 .then(res => {
                     if (res.status === 200 && res.data.code === 0) {
                         this.gys = res.data.data.list;
@@ -1263,7 +1263,9 @@ export default {
         word-break normal
         white-space nowrap !important
         text-overflow ellipsis !important
-        overflow hidden !important        
+        overflow hidden !important    
+        &:hover
+            background #d2d2d2            
         &.oldMenu
             width 100%
             text-align left

@@ -167,39 +167,7 @@
             <el-pagination @current-change="currentPage" :current-page='page' v-if="pageOnOff" background :page-size="pageSize" :pager-count="5" :total="total">
             </el-pagination>
         </div>
-
-        <!-- 模糊搜索生产单号 -->
-        <el-dialog title="生产单号" :visible.sync="oldSearch">
-            <el-input v-model="search" placeholder="生产单号"></el-input>
-            <ul class="srcond_menu">
-                <li v-if="searchList.length===0">暂无数据</li>
-                <li class="clearfix" v-for="(item,i) in searchList" :key="i">
-                    <span @click="getItemSearch(item)">|--{{item.sn}}</span>
-                </li>
-            </ul>
-        </el-dialog>  
-
-        <!-- 销售单号 -->
-        <el-dialog title="销售单号" :visible.sync="oldSellSn">
-            <el-input v-model="sellSn" placeholder="销售单号"></el-input>           
-            <ul class="srcond_menu">
-                <li v-if="sellSnList.length===0">暂无数据</li>
-                <li class="clearfix" v-for="(item,i) in sellSnList" :key="i">
-                    <span @click="getItemSellSn(item)">|--{{item.sn}}</span>
-                </li>
-            </ul>
-        </el-dialog>  
-
-        <!-- 查询款号 -->
-        <el-dialog title="查询款号" :visible.sync="oldPsn">
-            <el-input v-model="psn" placeholder="款号"></el-input>        
-            <ul class="srcond_menu">
-                <li v-if="psnList.length===0">暂无数据</li>
-                <li class="clearfix" v-for="(item,i) in psnList" :key="i">
-                    <span @click="getItemPsn(item)">|--{{item.psn}}</span>
-                </li>
-            </ul>
-        </el-dialog>     
+ 
 
         <!-- 添加数量弹窗 -->
         <el-dialog title="添加数量" :visible.sync="saveOff" class="addNUm">
@@ -330,7 +298,13 @@
                 </span>
             </ul>
         </el-dialog>
-        <vagueSearch v-if="oldONoFF" :url="vagueSearchUrl"  :display="displaySearch" v-on:listenOnOff="listenToOnOff"/>
+
+        <!-- topNav模糊搜索生产订单号 -->
+        <vagueSearch v-if="oldSearch" :onoff="oldSearch" :url="vagueSearchUrl" v-on:listenOnOff="listenToOnOff" v-on:listenItem="listenToItem"/>
+        <!-- topNav模糊搜索销售订单号 -->
+        <vagueSearch v-if="oldPsn" :onoff="oldPsn" :url="vaguePsnUrl" v-on:listenOnOff="listenToOldPsn" v-on:listenItem="listenToOldPsnItem"/>
+        <!-- topNav模糊搜索款号 -->
+        <vagueSearch v-if="oldSellSn" :onoff="oldSellSn" :url="vagueSellSnUrl" v-on:listenOnOff="listenTooldSellSn" v-on:listenItem="listenTooldSellSnItem"/>
     </div>
 </template>
 
@@ -345,13 +319,10 @@ import {
     getOut
 } from "../../../assets/js/message.js";
 import NavMenu from "./NavMenu";
-import vagueSearch from "@/components/pageCommon/vagueSearch";
+import vagueSearch from "@/components/pageCommon/vagueSearch";  //模糊查询组件
 export default {
     data() {
         return {
-            oldONoFF:true,
-            vagueSearchUrl:"/TPA/dProductOrder/getSn?name=",
-            displaySearch:['sn'],
 
             //按钮disabled
             doAdd: false,
@@ -369,15 +340,15 @@ export default {
             secondFormOn: true,
             secondFormGui: true,
 
-            search:"",
-            oldSearch:false,
-            searchList:[],
-            sellSn:"",                      //查询销售单号
+            oldSearch:false,                                        //头部模糊搜索组件开关
+            vagueSearchUrl:"/TPA/dProductOrder/getSn?name=",        //搜索接口地址
+
+
             oldSellSn:false,                //查询销售单号开关
-            sellSnList:[],                  //查询销售单号列表
-            psn:"",                         //款号
+            vagueSellSnUrl:"/TPA/dSellOrder/option?name=",              //擦和讯销售单号接口
+
             oldPsn:false,                   //款号开关
-            psnList:[],                     //款号列表
+            vaguePsnUrl:'',                 //搜索接口地址(下面动态生成)          
 
             addEdit:true,                  //保存修改状态开关
 
@@ -474,9 +445,7 @@ export default {
         };
     },
     methods: {
-        listenToOnOff(data){
-            this.oldONoFF = data
-        },
+
         //按钮初始化
         emptyBtn() {
             this.doAdd = false;
@@ -962,15 +931,8 @@ export default {
             }
         },
 
-        //点击头部搜索
-        handleSearch(){
-            // this.search = ""
-            // this.oldSearch = true
-            // this.searchList = []
-            this.oldONoFF = true
 
-            
-        },
+
         //选择搜索的生产订单
         getItemSearch(item){
             this.doCancels()
@@ -996,26 +958,17 @@ export default {
             this.getSellSn(item.sn)
             
         },
-        //点击销售单号查询按钮
-        handleSellSn(){
-            this.oldSellSn = true
-            this.sellSn = ""
-            this.sellSnList = []
-        },
-        //选择销售单号
-        getItemSellSn(item){
-            console.log(item);
-            this.getDetailSn(item.sn)
-            
-            this.oldSellSn = false
-        },
+
         //获取生产订单详情
         getDetailSn(sn){
             this.$http.post('/TPA/dSellOrder/getBySn?sn='+sn)
                 .then(res=>{
                     if(res.data.code===0){
                         this.firstForm = res.data.data
+                        this.firstForm.sellSn = res.data.data.sn
                         this.firstForm.date = ''
+                        this.firstForm.originSn = ''
+                        this.firstForm.remark = ''
                     }else{
                         error(res.data.msg)
                     }
@@ -1024,19 +977,7 @@ export default {
                     NetworkAnomaly()
                 })
         },
-        //点击款号输入框
-        handlePsn(){
-            this.psn = ""
-            this.oldPsn = true
-            this.psnList = []
-        },
-        //选择款号
-        getItemPsn(item){
-            this.secondForm.psn = item.psn
-            this.oldPsn = false
-            this.secondFormOn = false
-            this.secondFormNo = true
-        },
+
         //获取生产单位
         getProductUnit(){   
             this.$http.post('/TPA/aGsZzjg/search?sczz=1')
@@ -1200,7 +1141,7 @@ export default {
                     if(res.data.code===0){
                         this.firstForm = res.data.data.list[0]
                         this.clientSn = this.firstForm.clientSn
-                        
+                        this.vaguePsnUrl = "/TPA/dSellOrderA/option?sn=" + this.firstForm.sellSn + "&name="
                         //查询当前客户底下的最新20个订单
                         if(this.oldClientSn){
                             this.$http
@@ -1498,7 +1439,79 @@ export default {
                 colspan: _col_2
                 };
             }
-        }   
+        },
+
+
+        //点击头部搜索
+        handleSearch(){
+            this.oldSearch = true
+            console.log(this.oldSearch);
+        },     
+        //点击款号输入框
+        handlePsn(){
+            this.oldPsn = true
+            console.log(this.oldPsn);
+        },  
+        //点击销售单号查询按钮
+        handleSellSn(){
+            this.oldSellSn = true
+            console.log(this.oldSellSn);
+        }, 
+        //接收模糊查询开关
+        listenToOnOff(data){
+            this.oldSearch = data
+            
+        },
+        //接收模糊查询数据
+        listenToItem(data){
+            if(data.length>0){
+                this.doCancels()
+                this.emptyBtnTo();
+                this.doAdd = false;
+                this.doDelete = false
+                this.noDisabledSecondForm()
+
+                this.oldSearch = false
+
+                this.pageOnOff = false;
+                this.page = 1
+                let params = {
+                    masterSn: data[0],
+                    count: this.pageSize,
+                    page: 0,
+                    delStatus:0
+                };
+                this.pageParams = params;
+
+                this.getPageData(this.pageParams);   
+                this.oldClientSn = true
+                this.getSellSn(data[0])  
+            
+            }
+                     
+        },     
+        //接收款号查询开关状态
+        listenToOldPsn(data){
+            this.oldPsn = data
+        },
+        //接收模糊查询款号数据
+        listenToOldPsnItem(data){
+            if(data.length>0){
+                this.secondForm.psn = data[0]
+            }
+                     
+        },  
+        //接收销售单号查询开关状态
+        listenTooldSellSn(data){
+            this.oldSellSn = data
+        },
+        //接收模糊查询销售单号数据
+        listenTooldSellSnItem(data){
+            if(data.length>0){
+                this.getDetailSn(data[0])
+            }
+                     
+        },        
     },
     mounted() {
         this.getnavMenus()
@@ -1515,78 +1528,7 @@ export default {
             if(this.importPage>0){ this.importPageParams.page = this.importPage - 1;}
             this.getImportPageDate(this.importPageParams);            
         },
-        //模糊查询款号
-        psn(){
-            if(this.psn){
-                this.$http.post("/TPA/dSellOrderA/option?sn=" + this.firstForm.sellSn + "&name=" + this.psn)
-                    .then(res=>{
-                        if(res.data.code===0){
-                            if(res.data.data.length>0){
-                                this.psnList = res.data.data
-                            }else{
-                                error("暂无数据");
-                                this.psnList = [];
-                            }
-                        }else{
-                            error(res.data.msg)
-                        }
-                    })
-                    .catch(err=>{
-                        NetworkAnomaly()
-                    })
-
-            }else{
-                this.secondForm.psn = ""
-                this.psnList = []
-                this.noDisabledSecondForm()
-            }            
-        },
-     
-        //模糊查询销售单号
-        sellSn(){
-            this.$http.post("/TPA/dSellOrder/option?name="+this.sellSn)
-                .then(res=>{
-                    if(res.data.code===0){
-                        console.log(res.data.data);
-                        
-                        if(res.data.data.length>0){
-                            this.sellSnList = res.data.data
-                        }else{  
-                            // error('暂无数据')
-                            // this.sellSnList = []
-                        }
-                    }else{
-                        error(res.data.msg)
-                    }
-                })
-                .catch(err=>{
-                    NetworkAnomaly()
-                })            
-        },
-        //模糊查询生产订单
-        search(){
-            if(this.search){
-                this.$http.post("/TPA/dProductOrder/getSn?name=" + this.search)
-                    .then(res=>{
-                        if(res.data.code===0){
-                            if(res.data.data.length>0){
-                                this.searchList = res.data.data
-                            }else{
-                                error("暂无数据");
-                                this.searchList = [];
-                            }
-                        }else{
-                            error(res.data.msg)
-                        }
-                    })
-                    .catch(err=>{
-                        NetworkAnomaly()
-                    })
-
-            }else{
-               this.searchList = []
-            } 
-        },        
+      
     },
     // 引入组件
     components: {

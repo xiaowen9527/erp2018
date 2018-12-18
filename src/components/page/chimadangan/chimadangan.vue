@@ -35,8 +35,8 @@
                         </li>
                         <li class="menuLi">
                             <label>尺码类别</label>
-                            <input placeholder="顶级" v-model="form.pidSn" :disabled="gui" readonly class="first">
-                            <input placeholder="顶级" v-model="form.pidName" :disabled="gui" readonly>
+                            <input placeholder="顶级" v-model="form.pidSn" :disabled="gui" readonly class="first" @click="open_box">
+                            <input placeholder="顶级" v-model="form.pidName" :disabled="gui" readonly @click="open_box">
                             <button :disabled="gui" @click="open_box">。。。</button>
                         </li>
                         <button class="save" :disabled="doSave" :class="{button_btn:!doSave}" @click="addSave">保存</button>

@@ -1,28 +1,32 @@
 <template>
     <div class="vagueSearch">
-        <!-- <el-dialog title="生产单号" :visible.sync="true"> -->
-        <el-dialog title="生产单号" :visible.sync="oldSearch">
-            <el-input v-model="search" placeholder="生产单号"></el-input>
+
+        <el-dialog title="查询" :visible.sync="oldSearch">
+
+            <el-input v-model="search" placeholder="查询"></el-input>
+
             <ul class="srcond_menu">
                 <li v-if="searchList.length===0">暂无数据</li>
                 <li class="clearfix" v-for="(item,i) in searchList" :key="i">
-                    <span @click="getItemSearch(item)">|--{{item.sn}}</span>
+                    <span @click="getItemSearch(item)">|--{{item}}</span>
                 </li>
             </ul>
+
             <span slot="footer" class="dialog-footer">
                 <el-button @click="cancel">取 消</el-button>
                 <el-button type="primary" @click="cancel">确 定</el-button>
             </span>
+            
         </el-dialog>
     </div>
 
 </template>
 
 <script>
-import { NetworkAnomaly, succ, error, getOut } from "@/assets/js/message.js";
+import { NetworkAnomaly,error} from "@/assets/js/message.js";       //引入“网络错误”和“错误消息提醒”
 export default {
     name: "vagueSearch",
-    props: ["onoff","url",  "displaySearch"],                   //开关 ，   接口    ，  列表需要显示的字段
+    props: ["onoff", "url"], //开关，接口
     data() {
         return {
             oldSearch: true,
@@ -35,23 +39,38 @@ export default {
         //选择搜索的生产订单
         getItemSearch(item) {
             // console.log(item);
+            this.item = item.split("-");
+            this.cancel();                  
         },
-
+        //关闭弹窗，给父组件传值
         cancel() {
-            this.oldSearch = false;
-            this.$emit("listenOnOff", this.oldSearch);
+            this.$emit("listenOnOff", false);           //关闭弹窗，并把设置父组件的开关状态
+            this.$emit("listenItem", this.item);        //把选择时候的值传回父组件
         }
     },
     watch: {
-        //
+        //模糊查询
         search() {
             if (this.search) {
                 this.$http
-                    .post("/TPA/dProductOrder/getSn?name=" + this.search)
+                    .post(this.url + this.search)           //props传过来的url+搜索值组成搜索链接
                     .then(res => {
                         if (res.data.code === 0) {
                             if (res.data.data.length > 0) {
-                                this.searchList = res.data.data;
+                                //把列表数组的对象合并程字符串
+                                let arr = [];
+                                for (let i in res.data.data) {
+                                    let name = "";
+                                    for (let j in res.data.data[i]) {
+                                        if (name) {
+                                            name = name + "-" + res.data.data[i][j];
+                                        } else {
+                                            name = res.data.data[i][j];         //如果当前的值是第一个那么不加“-”
+                                        }
+                                    }
+                                    arr.push(name);
+                                }
+                                this.searchList = arr;
                             } else {
                                 error("暂无数据");
                                 this.searchList = [];
@@ -66,6 +85,12 @@ export default {
             } else {
                 this.searchList = [];
             }
+        },
+        //点击框框外的黑色部分的时候
+        oldSearch(){
+            if(!this.oldSearch){
+                this.cancel()
+            }
         }
     }
 };
@@ -74,13 +99,13 @@ export default {
 <style lang="stylus" scoped>
 .vagueSearch>>>.el-dialog
     width 500px
-    height 500px
+    height 500px !important
 .vagueSearch>>>.el-dialog__body
     cursor pointer !important
     line-height 2.5vh
     font-weight bold
     padding 1vh 2vh
-    height 380px
+    height 375px
     overflow-y auto
     .el-input
         width 100%
@@ -90,4 +115,5 @@ export default {
             background #d2d2d2
         span
             padding-left 2vh
+            line-height 3vh
 </style>

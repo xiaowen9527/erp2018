@@ -102,16 +102,15 @@
         </div>
 
         <!-- 获取客户信息弹窗 -->
-        <el-dialog title="客户信息" :visible.sync="customerOff">
+        <!-- <el-dialog title="客户信息" :visible.sync="customerOff">
             <el-input v-model="customerInfo" placeholder="客户编号 / 客户名称"></el-input>
-            <el-button @click="vagueCustomerInfo">查询</el-button>
             <ul class="srcond_menu">
                 <li v-if="customerList.length===0">暂无数据</li>
                 <li class="clearfix" v-for="(item,i) in customerList" :key="i">
                     <span class="search" @click="getSearchItem(item)">|--{{item.sn}}-{{item.name}}</span>
                 </li>
             </ul>
-        </el-dialog>
+        </el-dialog> -->
 
         <!-- 修改弹窗 -->
         <el-dialog title="修改" :visible.sync="handleEditOff">
@@ -164,12 +163,16 @@
                 </span>
             </ul>
         </el-dialog>
+
+        <vagueSearch v-if="oldONoFF" :url="vagueSearchUrl"  :display="displaySearch" v-on:listenOnOff="listenToOnOff" v-on:listenItem="listenToItem"/>
+
     </div>
 </template>
 
 <script>
 import "@/assets/js/import.js"; //导入请求超时拦截
 import { mapState } from "vuex";
+import vagueSearch from "@/components/pageCommon/vagueSearch";
 
 import {
     NetworkAnomaly,
@@ -183,6 +186,10 @@ export default {
     name: "xiaoshoukuanhao",
     data() {
         return {
+            oldONoFF:true,
+            vagueSearchUrl:"/TPA/aKsDa/option?nature=客户&name=",
+            displaySearch:['sn','name'],            
+
             queryInfo: "", // 顶部查询内容
             navMenus: [], // 左侧导航栏数据
             form: {
@@ -217,6 +224,13 @@ export default {
     },
 
     methods: {
+        listenToOnOff(data){
+            this.oldONoFF = data
+        },  
+        listenToItem(data){
+            this.form.clientSn = data[0]
+            this.form.clientName = data[1]        
+        },              
         // 新增
         doAdds() {
             this.formOff = false;
@@ -366,6 +380,8 @@ export default {
         // 点击弹出客户弹窗
         customerFun() {
             this.customerOff = true;
+            this.customerInfo = ""
+            this.customerList = []           
         },
 
         // 客户弹窗选择
@@ -494,35 +510,7 @@ export default {
             this.pageParams.page = val - 1;
             this.searchFun(this.pageParams);
         },
-        //模糊查询
-        vagueCustomerInfo() {
-            if (this.customerInfo.length !== 0) {
-                let search = {
-                    name: 17 + "|" + this.customerInfo
-                };
-                let searchStr = JSON.stringify(search);
-                this.$http
-                    .post("/TPA/aKsDa/search?nature=客户&delStatus=0&search=" + searchStr)
-                    .then(res => {
-                        if(res.data.code===0){
-                            console.log(res)
-                            if(res.data.data.list.length>0){
-                                this.customerList = res.data.data.list;
-                            }else{
-                                error('暂无数据') 
-                                this.customerList = []  
-                            }
-                        }else{
-                            error(res.data.msg)
-                        }
-                    })
-                    .catch(err => {
-                        NetworkAnomaly();
-                    });
-            } else {
-                error('请输入搜索条件！')                   
-            }
-        }
+
     },
 
     mounted() {
@@ -532,10 +520,32 @@ export default {
     computed: {
         ...mapState(["collapse"])
     },
+    watch:{
+        //模糊查询
+        //模糊查询客户
+        customerInfo(){
+            if (this.customerInfo) {
+                this.$http
+                    .post("/TPA/aKsDa/option?nature=客户&name=" + this.customerInfo).then(res => {
+                        if (res.data.code === 0) {
+                            this.customerList = res.data.data;
+                        } else {
+                            error(res.data.msg);
+                            this.customerList = [];
+                        }
+                    })
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });
+            } else {
+                this.customerList = []
+            }
+        }
+    },
 
     // 引入组件
     components: {
-        NavMenu
+        NavMenu,vagueSearch
     }
 };
 </script>

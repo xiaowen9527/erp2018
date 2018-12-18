@@ -217,7 +217,7 @@ export default {
 
         menuSelected(index) {
             this.list = []
-            if(parseInt(index)){
+            if(index.length>7){
                 this.getPageData(index);
                 this.getImages(index)
             }

@@ -222,17 +222,6 @@
             </ul>
         </div>
 
-        <el-dialog title="企划需求" :visible.sync="oldMenu">
-            <el-input v-model="searchSecondTable" placeholder="请输入你要查找的企划需求"></el-input>
-            <ul class="qihua_menu">
-                <li v-if="list.length===0">暂无数据</li>
-                <li v-for="(item,i) in list" :key="i" @click="getQihuaItem(item)" class="clearfix">
-                    <span>{{item.code}}</span>
-                    <span>{{item.lbch2Name}}</span>
-                    <span>{{item.crowd}}</span>
-                </li>
-            </ul>
-        </el-dialog>
         <el-dialog title="款式" :visible.sync="oldStyle">
             <ul class="srcond_menu">
                 <li v-if="style.length===0">暂无数据</li>
@@ -245,16 +234,6 @@
             </ul>
         </el-dialog>
 
-        <el-dialog title="颜色" :visible.sync="oldColor" class="mohu">
-            <el-input v-model="searchColor" placeholder="请输入你要查找的颜色"></el-input>
-            <ul class="srcond_menu">
-                <li v-if="color.length===0">暂无数据</li>
-                <li class="clearfix" v-for="(item,i) in color" :key="i">
-                    <span @click="getColorItem(item)">|--{{item.name}}</span>
-                    <span @click="getColorItem(item)">{{item.sn}}</span>
-                </li>
-            </ul>
-        </el-dialog>
 
         <el-dialog title="尺码" :visible.sync="oldSize" class="mohu">
             <el-input v-model="searchSize" placeholder="请输入你要查找的尺码"></el-input>
@@ -324,14 +303,18 @@
                     <el-button type="primary" @click="importErr">下载</el-button>
                 </span>
             </ul>
-        </el-dialog>      
+        </el-dialog>    
 
+        <!-- topNav模糊搜索企划需求 -->
+        <vagueSearch v-if="oldMenu" :onoff="oldMenu" :url="vagueOldMenuUrl" v-on:listenOnOff="listenToOnOff" v-on:listenItem="listenToItem"/>
+        <!-- topNav模糊搜索颜色 -->
+        <vagueSearch v-if="oldColor" :onoff="oldColor" :url="vagueColorUrl" v-on:listenOnOff="listenToColor" v-on:listenItem="listenToColorItem"/>
     </div>
 </template>
 
 <script>
 import "@/assets/js/import.js"; //导入请求超时拦截
-
+import vagueSearch from "@/components/pageCommon/vagueSearch";  //模糊查询组件
 import { mapState } from "vuex";
 import {
     NetworkAnomaly,
@@ -413,13 +396,14 @@ export default {
                 // originPsn: "" // 来源款号
             },
             oldMenu: false,
+            vagueOldMenuUrl:"/TPA/cSpqhA/option?sn=",        //搜索接口地址
+
             oldColor: false,
+            vagueColorUrl:"/TPA/aYscm/optionColor?name=",        //搜索接口地址
+
             oldStyle: false,
             oldSize: false,
-            list: [],
-            searchColor: "",
             searchSize: "",
-            color: [],
             style: [],
             size: [],
             unit:[],
@@ -427,7 +411,6 @@ export default {
             printList: [],
             imgArr:[],
             designer: [],
-            searchSecondTable: "",
 
             designbox: false,
             samplebox: false,
@@ -1386,53 +1369,11 @@ export default {
                     NetworkAnomaly();
                 });
         },
-
-
-        //点击选择企划
-        getQihua() {
-            this.oldMenu = true;
-            this.searchSecondTable = "";
-            this.list = [];
-        },
-        //选择需求
-        getQihuaItem(item) {
-            this.emptyFirstForm();
-            this.$http
-                .post("/TPA/cSpqhA/getById?id=" + item.id)
-                .then(res => {
-                    if (res.data.code === 0) {
-                        this.firstForm = res.data.data;
-                        this.firstForm.layoutId = item.id;
-                        this.firstForm.status = "3";
-                        this.firstForm.sh = "-1";
-                        this.firstForm.sp = "-1";
-
-                        this.oldMenu = false;
-                        this.noDisabledSecondForm();
-                        console.log(this.firstForm.lbch2Name)
-                        this.getStyle(this.firstForm.lbch2Name);
-                        this.getDesigner();
-                        this.getUnit()
-                    } else {
-                        error(res.data.msg);
-                    }
-                })
-                .catch(err => {
-                    NetworkAnomaly();
-                });
-        },
-
-
         //点击款式按钮
         getStyleBtn() {
             this.oldStyle = true;
         },
-        //点击颜色按钮
-        getColorBtn() {
-            this.oldColor = true;
-            this.searchColor = "";
-            this.color = [];
-        },
+
         //点击尺码按钮
         getSizeBtn() {
             this.oldSize = this.searchSize = "";
@@ -1445,13 +1386,6 @@ export default {
             this.oldStyle = false;
         },
 
-        //选择颜色
-        getColorItem(item) {
-            this.firstForm.colorSn = item.sn;
-            this.firstForm.colorName = item.name;
-            this.firstForm.colorPidName = item.pidName;
-            this.oldColor = false;
-        },
         //选择尺码
         getSizeItem(item) {
             this.firstForm.sizeSn = item.sn;
@@ -1478,6 +1412,67 @@ export default {
             return name;
         },
 
+        //点击查询企划
+        getQihua() {
+            this.oldMenu = true;
+        },  
+        //点击颜色按钮
+        getColorBtn() {
+            this.oldColor = true;
+        },              
+        //接收模糊查询企划开关
+        listenToOnOff(data){
+            this.oldMenu = data
+            
+        },
+        //接收模糊查询企划数据
+        listenToItem(data){
+            if(data.length>0){
+                this.emptyFirstForm();
+                let str = data.join('-')
+                
+                this.$http
+                    .post("/TPA/cSpqhA/getByCode?sn=" + str)
+                    .then(res => {
+                        if (res.data.code === 0) {
+                            this.firstForm = res.data.data;
+                            this.firstForm.layoutId = data[0];
+                            this.firstForm.status = "3";
+                            this.firstForm.sh = "-1";
+                            this.firstForm.sp = "-1";
+
+                            this.oldMenu = false;
+                            this.noDisabledSecondForm();
+                            console.log(this.firstForm.lbch2Name)
+                            this.getStyle(this.firstForm.lbch2Name);
+                            this.getDesigner();
+                            this.getUnit()
+                            console.log(this.firstForm);
+                            
+                        } else {
+                            error(res.data.msg);
+                        }
+                    })
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });
+            }
+                     
+        },     
+        //接收模糊查询颜色开关
+        listenToColor(data){
+            this.oldColor = data
+            
+        },
+        //接收模糊查询颜色数据
+        listenToColorItem(data){
+            if(data.length>0){
+                this.firstForm.colorSn = data[0];
+                this.firstForm.colorName = data[2];
+                this.firstForm.colorPidName = data[1];              
+            }
+                     
+        },     
     },
     mounted() {
         this.getYear();
@@ -1487,52 +1482,6 @@ export default {
     watch: {
         searchYear(){
             this.getnavMenu();
-        },
-        //模糊搜索
-        searchSecondTable(){
-            this.list = []
-            this.$http
-                .post("/TPA/cSpqhA/option?sn=" + this.searchSecondTable)
-                .then(res => {
-                    if (res.data.code === 0) {
-                        if(res.data.data.length>0){
-                            this.list = res.data.data
-                        }else{
-                            error('暂无数据')  
-                                this.list = []                            
-                        }
-                    } else {
-                        error(res.data.msg);
-                    }
-                })
-                .catch(err => {
-                    NetworkAnomaly();
-                });                
-        },
-        //模糊查询颜色
-        searchColor(){
-            this.color = []
-            this.$http
-                .post(
-                    "/TPA/aYscm/optionColor?name=" + this.searchColor
-                )
-                .then(res => {
-                    if (res.data.code === 0) {
-                        if(res.data.data.length>0){
-                            this.color = res.data.data;
-                        }else{
-                            error('暂无数据')   
-                                this.color = []                              
-                        }
-                    } else {
-                        error(res.data.msg);
-                    }
-                })
-                .catch(err => {
-                    NetworkAnomaly();
-                });             
-
-
         },
         //模糊查询尺码
         searchSize(){
@@ -1571,7 +1520,7 @@ export default {
         ...mapState(["collapse"])
     },
     components: {
-        NavMenu
+        NavMenu,vagueSearch
     }
 };
 </script>

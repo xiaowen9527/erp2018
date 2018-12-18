@@ -80,16 +80,16 @@
                     <ul>
                         <li class="category">
                             <label>品类</label>
-                            <input type="text" :disabled="secondFormOn" class="category_num" readonly v-model="secondForm.lbch1Sn">
-                            <input type="text" :disabled="secondFormOn" readonly v-model="secondForm.lbch1Name">
-                            <input type="text" :disabled="secondFormOn" class="category_num" readonly v-model="secondForm.lbch2Sn">
-                            <input type="text" :disabled="secondFormOn" readonly v-model="secondForm.lbch2Name">
+                            <input type="text" :disabled="secondFormOn" class="category_num" readonly v-model="secondForm.lbch1Sn" @click="openCategory">
+                            <input type="text" :disabled="secondFormOn" readonly v-model="secondForm.lbch1Name" @click="openCategory">
+                            <input type="text" :disabled="secondFormOn" class="category_num" readonly v-model="secondForm.lbch2Sn" @click="openCategory">
+                            <input type="text" :disabled="secondFormOn" readonly v-model="secondForm.lbch2Name" @click="openCategory">
                             <button :disabled="secondFormOn" :class="{btn:!secondFormOn}" @click="openCategory">。。。</button>
                         </li>
                         <li class="cloth">
                             <label>面料类别</label>
-                            <input type="text" :disabled="secondFormOn" class="cloth_num" readonly v-model="secondForm.lbch3">
-                            <input type="text" :disabled="secondFormOn" readonly v-model="secondForm.lbch3Name">
+                            <input type="text" :disabled="secondFormOn" class="cloth_num" readonly v-model="secondForm.lbch3" @click="openCloth">
+                            <input type="text" :disabled="secondFormOn" readonly v-model="secondForm.lbch3Name" @click="openCloth">
                             <button :disabled="secondFormOn" :class="{btn:!secondFormOn}" @click="openCloth">。。。</button>
                         </li>
                         <li class="old">

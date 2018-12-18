@@ -37,7 +37,7 @@
                         </li>
                         <li>
                             <label>款号</label>
-                            <input type="text" v-model="form.psn" @click="searchSn" :disabled="formOff">
+                            <input type="text" v-model="form.psn" @click="searchSn" :disabled="formOff" readonly>
                         </li>
                         <li>
                             <label>生效日期</label>
@@ -98,7 +98,7 @@
         </div>
 
         <!-- 输入查询弹出框 -->
-        <el-dialog title="款号" :visible.sync="psnSearch">
+        <!-- <el-dialog title="款号" :visible.sync="psnSearch">
             <el-input v-model="searchXun" placeholder="请输入你要查找的款号"></el-input>
             <ul class="srcond_menu">
                 <li v-if="searchList.length===0">暂无数据</li>
@@ -106,7 +106,7 @@
                     <span class="search" @click="getSearchItem(item)">|--{{item.psn}}</span>
                 </li>
             </ul>
-        </el-dialog>
+        </el-dialog> -->
 
         <!-- 查询按钮弹出框 -->
         <el-dialog title="查询" :visible.sync="searchFormShow" width="30%">
@@ -190,13 +190,16 @@
                 </span>
             </ul>
         </el-dialog>
+
+        <!-- topNav模糊搜索生产订单号 -->
+        <vagueSearch v-if="psnSearch" :onoff="psnSearch" :url="vagueSearchUrl" v-on:listenOnOff="listenToOnOff" v-on:listenItem="listenToItem"/>        
     </div>
 </template>
 
 <script>
 import "@/assets/js/import.js"; //导入请求超时拦截
 import { mapState } from "vuex";
-
+import vagueSearch from "@/components/pageCommon/vagueSearch";  //模糊查询组件
 import {
   NetworkAnomaly,
   succ,
@@ -235,10 +238,7 @@ export default {
       khPosition: 0,
       // 输入查询弹出框开关
       psnSearch: false,
-      // 模糊查询的值
-      searchXun: "",
-      // 模糊查询列表
-      searchList: [],
+        vagueSearchUrl:"/TPA/cSpda/option?psnXz=1&psn=",        //搜索接口地址
       // 查询弹出框
       searchFormShow: false,
       searchForm: {
@@ -635,17 +635,7 @@ export default {
 
     // 款号查询
     searchSn() {
-      this.searchXun = "";
-      this.searchList = [];
       this.psnSearch = true;
-    },
-
-
-
-    // 选择查询
-    getSearchItem(item) {
-      this.psnSearch = false;
-      this.form.psn = item.psn;
     },
 
     // 点击查询弹出框查询按钮
@@ -838,7 +828,20 @@ export default {
           colspan: _col_2
         };
       }
-    }
+    },
+
+        //接收模糊查询开关
+        listenToOnOff(data){
+            this.psnSearch = data
+            
+        },
+        //接收模糊查询数据
+        listenToItem(data){
+            if(data.length>0){
+                this.form.psn = data[0];
+            }
+                     
+        },      
   },
   mounted() {
     this.getBrand();
@@ -854,33 +857,11 @@ export default {
             }
             this.getPageData();
         },
-        // 模糊查询款号
-        searchXun() {
-            if (this.searchXun) {
-                this.$http
-                .post("/TPA/cSpda/option?psnXz=1&psn=" + this.searchXun)
-                .then(res => {
-                    if(res.data.data.length>0){
-                        this.searchList = res.data.data;
-                    }else{
-                        error('暂无数据')
-                    }
-                })
-                .catch(err => {
-                    NetworkAnomaly();
-                });
-            } else {
-                this.searchList = []
-            }
-        },        
-    // page() {
-    //   this.currentPage();
-    // }
   },
 
   // 引入组件
   components: {
-    NavMenu
+    NavMenu,vagueSearch
   }
 };
 </script>

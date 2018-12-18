@@ -527,7 +527,8 @@ export default {
         //选择公司
         getItemGsName(item) {
             this.oldGsName = false;
-
+            this.firstForm.gsName = item.name
+            this.firstForm.gsSn = item.sn
         },
         //选择查询
         getItemSearch(item) {

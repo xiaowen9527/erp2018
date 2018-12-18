@@ -21,8 +21,8 @@
                     <ul>
                         <li class="gui">
                             <label>品类</label>
-                            <input placeholder="顶级"  type="text" class="guiNum" v-model="firstForm.pidSn" :disabled="firstFormGui">
-                            <input placeholder="顶级" type="text" v-model="firstForm.pidName" :disabled="firstFormGui">
+                            <input placeholder="顶级"  type="text" class="guiNum" v-model="firstForm.pidSn" :disabled="firstFormGui" @click="oldMenu=true">
+                            <input placeholder="顶级" type="text" v-model="firstForm.pidName" :disabled="firstFormGui" @click="oldMenu=true">
                             <button :disabled="firstFormGui" @click="oldMenu=true">。。。</button>
                         </li>
                         <li>

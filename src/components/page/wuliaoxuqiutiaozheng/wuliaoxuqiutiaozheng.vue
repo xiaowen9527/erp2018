@@ -4,7 +4,7 @@
         <p class="page_title">物料需求调整</p>
         <div class="btn-box">
             <label>生产单号</label>
-            <input type="text" class="doSearch" v-model="orderSn" readonly placeholder="请选择" @click="handleSearch">            
+            <input type="text" class="doSearch" v-model="orderSn" readonly placeholder="请选择" @click="handleSearch">
             <label>款号</label>
             <input type="text" class="doSearch" readonly v-model="psn" placeholder="请选择" @click="handleSearch">
 
@@ -115,14 +115,14 @@
                             <p>{{ scope.row.demand }}</p>
                         </el-tooltip>
                     </template>
-                </el-table-column>  
+                </el-table-column>
                 <el-table-column prop="purchase" label="采购需求量" width="110px">
                     <template slot-scope="scope">
                         <el-tooltip :content="String(scope.row.purchase)" placement="top" :enterable="false">
                             <p>{{ scope.row.purchase }}</p>
                         </el-tooltip>
                     </template>
-                </el-table-column>                              
+                </el-table-column>
                 <el-table-column prop="type" label="类别" width="110px">
                 </el-table-column>
                 <el-table-column prop="remark" label="说明" width="110px">
@@ -308,7 +308,7 @@
                     <el-select v-model="dialog.type" placeholder="请选择(必选)">
                         <el-option v-for="item in this.type" :key="item.name" :label="item.name" :value="item.name">
                         </el-option>
-                    </el-select>                    
+                    </el-select>
                 </el-form-item>
                 <el-form-item label="说明">
                     <el-input v-model="dialog.remark" placeholder="必填(最多200字符)" type="textarea" maxlength="200"></el-input>
@@ -351,7 +351,7 @@ export default {
             editVisible: false, //编辑弹窗开关
             idx: 0,
             dialog: {}, //编辑弹出框数据
-            type:[],            //类别列表
+            type: [], //类别列表
             //分页：当前页码/总数量/每页显示条数
             page: 0,
             total: "",
@@ -405,7 +405,7 @@ export default {
                             this.materiaList = res.data.data.list;
                         } else {
                             error("暂无可添加物料！");
-                            this.materiaList = []
+                            this.materiaList = [];
                         }
                         this.materialpageOnOff = false;
                         this.materiaTotal = res.data.data.total;
@@ -487,30 +487,35 @@ export default {
         },
         //修改
         handleEdit(index, row) {
-            this.getType()
+            this.getType();
             this.idx = index;
-            const item = this.list[index];       
-            this.dialog = item 
-            this.editVisible = true    
+            const item = this.list[index];
+            this.dialog = item;
+            this.editVisible = true;
         },
         //保存修改
         saveEdit() {
-            let terms = this.dialog.demand&&this.dialog.purchase&&this.dialog.type&&this.dialog.remark
+            let terms =
+                this.dialog.demand &&
+                this.dialog.purchase &&
+                this.dialog.type &&
+                this.dialog.remark;
             if (terms) {
-                this.$http.post('/TPA/eMatDemand/update',qs.stringify(this.dialog))
-                    .then(res=>{
-                        if(res.data.code===0){
+                this.$http
+                    .post("/TPA/eMatDemand/update", qs.stringify(this.dialog))
+                    .then(res => {
+                        if (res.data.code === 0) {
                             this.$set(this.list, this.idx, this.dialog);
                             this.editVisible = false;
                             succ(res.data.msg);
                             // this.getPageData(this.pageParams);
-                        }else{
-                            error(res.data.msg)
+                        } else {
+                            error(res.data.msg);
                         }
                     })
-                    .catch(err=>{
-                        NetworkAnomaly()
-                    })
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });
             } else {
                 error("请完善表单必填项");
             }
@@ -576,18 +581,19 @@ export default {
                 });
         },
         //获取类别
-        getType(){
-            this.$http.post('/TPA/aLbJb/getBySn?sn=030')
-                .then(res=>{
-                    if(res.data.code===0){
-                        this.type = res.data.data
-                    }else{
-                        error(res.data.msg)
+        getType() {
+            this.$http
+                .post("/TPA/aLbJb/getBySn?sn=030")
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.type = res.data.data;
+                    } else {
+                        error(res.data.msg);
                     }
                 })
-                .catch(err=>{
-                    NetworkAnomaly()
-                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
         },
         //获取当前页码
         currentPage(val) {
@@ -606,7 +612,7 @@ export default {
                             this.list = res.data.data.list;
                         } else {
                             error("暂无数据！");
-                            this.list = []
+                            this.list = [];
                         }
                         this.pageOnOff = false;
                         this.total = res.data.data.total;
@@ -629,14 +635,18 @@ export default {
     },
     watch: {
         page() {
-            if(this.page>0){this.pageParams.page = this.page - 1;}
-            
+            if (this.page > 0) {
+                this.pageParams.page = this.page - 1;
+            }
+
             this.getPageData(this.pageParams);
         },
         materialpage() {
-            if(this.materialpage>0){this.materialpageParams.page = this.materialpage - 1;}
+            if (this.materialpage > 0) {
+                this.materialpageParams.page = this.materialpage - 1;
+            }
             console.log(this.materialpageParams);
-            
+
             this.getmaterialpageData(this.materialpageParams);
         },
         orderSn() {

@@ -119,28 +119,6 @@
 				</li> -->
             </ul>
         </div>
-        <el-dialog title="查询" :visible.sync="oldSearch">
-            <el-input v-model="searchXun" placeholder="请输入你要查找的款号"></el-input>
-            <button class="button_btn" @click="vagueSearch">查询</button>
-            <ul class="srcond_menu">
-                <li v-if="searchList.length===0">暂无数据</li>
-                <li class="clearfix" v-for="(item,i) in searchList" :key="i">
-                    <span class="search" @click="getSearchItem(item)">|--{{item.psn}}</span>
-                </li>
-            </ul>
-        </el-dialog>
-
-        <el-dialog title="颜色" :visible.sync="oldColor">
-            <el-input v-model="searchColor" placeholder="请输入你要查找的颜色"></el-input>
-            <button class="button_btn" @click="vagueColor">查询</button>
-            <ul class="srcond_menu">
-                <li v-if="colorList.length===0">暂无数据</li>
-                <li class="clearfix" v-for="(item,i) in colorList" :key="i">
-                    <span @click="getColorItem(item)">|--{{item.name}}</span>
-                    <span @click="getColorItem(item)">{{item.sn}}</span>
-                </li>
-            </ul>
-        </el-dialog>
 
         <!-- 导入弹窗 -->
         <el-dialog class="importExport" title="导入尺码" :visible.sync="importbox" width="30%" :showClose="false" :show-file-list="false">
@@ -182,6 +160,12 @@
                 <el-button type="primary" @click="designUpload" plain>确 定</el-button>
             </span>
         </el-dialog>
+
+        <!-- topNav模糊搜索款号 -->
+        <vagueSearch v-if="oldSearch" :onoff="oldSearch" :url="vagueSearchUrl" v-on:listenOnOff="listenToOnOff" v-on:listenItem="listenToItem"/>   
+
+        <!-- topNav模糊搜索颜色 -->
+        <vagueSearch v-if="oldColor" :onoff="oldColor" :url="vagueColorUrl" v-on:listenOnOff="listenToColor" v-on:listenItem="listenToColorItem"/>             
     </div>
 </template>
 
@@ -198,6 +182,7 @@ import {
     imgUrl
 } from "../../../assets/js/message.js";
 import NavMenu from "./NavMenu";
+import vagueSearch from "@/components/pageCommon/vagueSearch";  //模糊查询组件
 import qs from "qs";
 export default {
     name: "chanpinfusema",
@@ -245,14 +230,10 @@ export default {
             size: [],
 
             //模糊查询框的值
-            searchXun: "",
-            searchColor: "",
-            //模糊查询框列表
-            searchList: [],
-            colorList: [],
-            //模糊查询框开关
             oldSearch: false,
+            vagueSearchUrl:"/TPA/cSpda/option?psn=",        //搜索接口地址
             oldColor: false,
+            vagueColorUrl:"/TPA/aYscm/optionColor?name=",        //搜索接口地址
 
             //table列表
             TableSizeList: [],
@@ -403,31 +384,6 @@ export default {
             this.colorList = []
         },
 
-        //选择查询
-        getSearchItem(item) {
-            this.oldSearch = false;
-            this.doCancel = false;
-            this.search = item.psn;
-
-            //获取当前单号的尺码列表
-            this.getSizeList(item.psn);
-
-            //获取当前单号的颜色列表
-            this.getColorList(item.psn);
-
-            //获取所有尺码组
-            this.getAllSize();
-
-            this.getLastTime(item.psn);
-            this.getImages(item.psn);
-        },
-        //选择颜色
-        getColorItem(item) {
-            this.oldColor = false;
-            this.color = item;
-            this.secondSave = true;
-            this.searchColor = "";
-        },
         //退出
         doOuts() {
             this.$emit("getOut", this.$route.name);
@@ -605,6 +561,7 @@ export default {
                     });
             }
         },
+        //获取图片
         getImages(name) {
             if (name.length > 7) {
                 this.$http
@@ -785,34 +742,7 @@ export default {
                 });
         },
 
-        //模糊查询
-        vagueSearch(){
-            if(this.searchXun){
-                let search = {
-                    psn: 17 + "|" + this.searchXun
-                };
-                let searchStr = JSON.stringify(search);
-                this.$http
-                    .post("/TPA/psn/search?sp=1&search=" + searchStr)
-                    .then(res => {
-                        if(res.data.code===0){
-                            if(res.data.data.list.length>0){
-                                this.searchList = res.data.data.list;
-                            }else{
-                                error('暂无数据') 
-                                this.searchList = []                              
-                            }
-                        }else{
-                            error(res.data.msg)
-                        }
-                    })
-                    .catch(err => {
-                        NetworkAnomaly();
-                    });                
-            }else{
-                error('请输入搜索条件！') 
-            }
-        },
+
         //模糊查询颜色
         vagueColor(){
             if (this.searchColor.length !== 0) {
@@ -844,8 +774,49 @@ export default {
             } else {
                 this.colorList = [];
             }
-        }
+        },
         
+        //接收模糊查询开关
+        listenToOnOff(data){
+            this.oldSearch = data
+            
+        },
+        //接收模糊查询数据
+        listenToItem(data){
+            if(data.length>0){
+            this.doCancel = false;
+            this.search = data[0];
+
+            //获取当前单号的尺码列表
+            this.getSizeList( data[0]);
+
+            //获取当前单号的颜色列表
+            this.getColorList( data[0]);
+
+            //获取所有尺码组
+            this.getAllSize();
+
+            this.getLastTime( data[0]);
+            this.getImages( data[0]);
+            }
+                     
+        },  
+        //接收模糊查询颜色开关
+        listenToColor(data){
+            this.oldColor = data
+            
+        },
+        //接收模糊查询颜色数据
+        listenToColorItem(data){
+            if(data.length>0){
+                this.color.name = data[2]
+                this.color.pidName = data[2]
+                this.color.sn = data[0]
+                this.secondSave = true;
+        
+            }
+                     
+        },                
     },
     mounted() {
         this.getYear();
@@ -858,7 +829,8 @@ export default {
     components: {
         NavMenu,
         swiper,
-        swiperSlide
+        swiperSlide,
+        vagueSearch
     },
     watch: {
 
@@ -908,16 +880,7 @@ export default {
     line-height 2.5vh
     font-weight bold
     padding 1vh 2vh
-    .el-input
-        width 80%
-        float left
-    button
-        height 40px 
-        width 60px
-        background #ffffff
-        margin-left 10px 
-        border 1px solid #409EFF
-        color #409EFF       
+     
     li
         &:hover
             background #d2d2d2
