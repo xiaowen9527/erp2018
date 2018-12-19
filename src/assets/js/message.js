@@ -56,7 +56,10 @@ function getOut() {
 
 }
 
-const imgUrl='http://218.16.212.90:16452'; //图片目录
+
+
+//图片目录
+const imgUrl='http://218.16.212.90:16452'; 
 
 export {
   NetworkAnomaly,

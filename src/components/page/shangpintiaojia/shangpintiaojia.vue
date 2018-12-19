@@ -9,12 +9,13 @@
             <button class="button_btn" @click="doCancels">取消</button>
             <button :disabled='doExport' :class="{button_btn:!doExport}" @click="doExports">导出</button>
             <button :disabled='doImport' :class="{button_btn:!doImport}" @click="doImports">导入</button>
+            <button @click="doUpdates" class="save" :class="{button_btn: secondForm.masterSn}" :disabled="(!secondForm.masterSn)">修改</button>
             <button @click="doSearchs" class="button_btn">查询</button>
-            <input type="text" class="queryInfo" v-model="queryInfo"/>
+            <input type="text" class="queryInfo" @click="searchSnFun" v-model="queryInfo"/>
             <button class="button_btn" @click="doOuts">退出</button>
             <div class="btn_right">
-                <button class="button_btn" @click="doExamines">审核</button>
-                <button class="button_btn" @click="doExamineAgains">反审</button>
+                <button class="save" :class="{button_btn:firstForm.sh == 0}" :disabled="(firstForm.sh != 0)" @click="doExamines">审核</button>
+                <button class="save" :class="{button_btn:firstForm.sh == 1}" :disabled="(firstForm.sh != 1)" @click="doExamineAgains">反审</button>
             </div>
         </div>
 
@@ -38,9 +39,9 @@
                     </li>
                 </ul>
                 <div class="customer">
-                  <button class="save" :disabled="firstFormOff" :class="{customer_btn: !firstFormOff}" @click="customerFun">添加客户</button>
+                  <button class="save" :class="{customer_btn: !firstFormOff}" :disabled="firstFormOff" @click="customerFun">添加客户</button>
                   <div class="customer_box">
-                    <el-tag v-for="tag in customerTag" :key="tag.customer" closable disable-transitions="true"  @close="handleClose(tag)">
+                    <el-tag v-for="tag in customerTag" :key="tag.customer" :closable="!firstFormOff" :disable-transitions="true" @close="handleClose(tag)">
                       {{tag.customer}}
                     </el-tag>
                   </div>
@@ -49,7 +50,7 @@
                 <ul class="clearfix">
                     <li>
                         <label>款号</label>
-                        <input type="text" v-model="secondForm.psn" @click="searchSn" :disabled="secondFormOff">
+                        <input type="text" v-model="secondForm.psn" :disabled="secondFormOff">
                     </li>
                     <li>
                         <label>价格类型</label>
@@ -67,42 +68,35 @@
             </div>
 
             <!-- 表格内容 -->
-            <div class="order_table fl" style="width: 20%; margin-right: 5px">
-              <el-table :data="list" stripe border>
-                  <el-table-column prop="clientSn" label="客户">
+            <div class="order_table client_table fl">
+              <el-table :data="clientList" stripe border height="298px">
+                  <el-table-column prop="sn" label="客户">
                   </el-table-column>
-                  <!-- <el-table-column prop="clientName" label="客户名称" min-width="9%">
-                    <template slot-scope="scope">
-                      <el-tooltip :content="scope.row.clientName" placement="top" :enterable="false">
-                          <p>{{ scope.row.clientName }}</p>
-                      </el-tooltip>
-                    </template>
-                  </el-table-column> -->
               </el-table>
             </div>
 
             <div class="order_table fl" style="width: 78%">
-                <el-table :data="list" stripe border index style="width: 100%" ref="multipleTable" tooltip-effect="dark" @sort-change='sortChange' :default-sort="{prop: 'psn', order: 'ascending'}">
-                    <el-table-column prop="sn" label="调价单号" min-width="11%">
+                <el-table :data="list" stripe border index style="width: 100%" ref="multipleTable" tooltip-effect="dark" @sort-change='sortChange' :span-method="objectSpanMethod" :default-sort="{prop: 'psn', order: 'ascending'}">
+                    <el-table-column prop="sn" label="调价单号" min-width="12.5%">
                     </el-table-column>
-                    <el-table-column prop="psn" label="款号" min-width="9%" sortable='custom'>
+                    <el-table-column prop="psn" label="款号" min-width="12.5%" sortable='custom'>
                     </el-table-column>
-                    <el-table-column prop="priceType" label="价格类型" min-width="9%" sortable='custom'>
+                    <el-table-column prop="priceType" label="价格类型" min-width="12.5%" sortable='custom'>
                     </el-table-column>
-                    <el-table-column prop="price" label="价格" min-width="9%">
+                    <el-table-column prop="price" label="价格" min-width="12.5%">
                     </el-table-column>
-                    <el-table-column prop="activeDate" label="生效日期" min-width="9%" sortable='custom'>
+                    <el-table-column prop="activeDate" label="生效日期" min-width="12.5%" sortable='custom'>
                     </el-table-column>
-                    <el-table-column prop="stopDate" label="截止日期" min-width="9%" sortable='custom'>
+                    <el-table-column prop="stopDate" label="截止日期" min-width="12.5%">
                     </el-table-column>
-                    <el-table-column prop="addUser" label="编制人" min-width="9%">
+                    <el-table-column prop="addUser" label="编制人" min-width="10%">
                     </el-table-column>
-                    <el-table-column fixed="right" label="操作" min-width="26%">
+                    <el-table-column fixed="right" label="操作" min-width="15%">
                         <template slot-scope="scope">
                             <el-button :disabled="(scope.row.sh == 1)" :class="{btn:scope.row.sh == 1}" type="text" @click="handleEdit(scope.$index, scope.row)">修改</el-button>
                             <el-button :disabled="(scope.row.sh == 1)" :class="{btn:scope.row.sh == 1}" type="text" @click="tableDelete(scope.$index, scope.row)">删除</el-button>
-                            <el-button :disabled="(scope.row.sh == 1)" :class="{btn:scope.row.sh == 1}" type="text" @click="tableDelete(scope.$index, scope.row)">审核</el-button>
-                            <el-button :disabled="(scope.row.sh == 0)" :class="{btn:scope.row.sh == 0}" type="text" @click="tableDelete(scope.$index, scope.row)">反审</el-button>
+                            <!-- <el-button :disabled="(scope.row.sh == 1)" :class="{btn:scope.row.sh == 1}" type="text" @click="tableDelete(scope.$index, scope.row)">审核</el-button>
+                            <el-button :disabled="(scope.row.sh == 0)" :class="{btn:scope.row.sh == 0}" type="text" @click="tableDelete(scope.$index, scope.row)">反审</el-button> -->
                         </template>
                     </el-table-column>
                 </el-table>
@@ -110,8 +104,34 @@
 
             <!-- 底部页码 -->
             <div class="pageBox">
-                <el-pagination @current-change="currentPage" :current-page='page' v-if="pageOnOff" background :page-size="pageSize" :pager-count="5" :total="total">
-                </el-pagination>
+              <ul class="pageData">
+                <li>
+                    <span>编制人：</span>
+                    <span>{{this.bottom.addUser}}</span>
+                </li>
+                <li>
+                    <span>编制日期：</span>
+                    <span>{{this.bottom.addDate}}</span>
+                </li>
+                <li>
+                    <span>修改人：</span>
+                    <span>{{this.bottom.updateUser}}</span>
+                </li>
+                <li>
+                    <span>修改日期：</span>
+                    <span>{{this.bottom.updateDate}}</span>
+                </li>
+                <li>
+                    <span>审核人：</span>
+                    <span>{{this.bottom.shUser}}</span>
+                </li>
+                <li>
+                    <span>审核日期：</span>
+                    <span>{{this.bottom.shDate}}</span>
+                </li>
+              </ul>
+              <el-pagination @current-change="currentPage" :current-page='page' v-if="pageOnOff" background :page-size="pageSize" :pager-count="5" :total="total">
+              </el-pagination>
             </div>
         </div>
 
@@ -142,16 +162,21 @@
             </ul>
         </el-dialog>
 
+        <!-- 单号弹窗 -->
+        <el-dialog title="调价单号" :visible.sync="SearchSnOff">
+            <el-input v-model="searchSn" placeholder="请输入你要查找的调价单号"></el-input>
+            <ul class="srcond_menu">
+                <li v-if="searchSnList.length===0">暂无数据</li>
+                <li class="clearfix" v-for="(item,i) in searchSnList" :key="i">
+                    <span class="search" @click="getspdaPsnItem(item)">|--{{item.sn}}</span>
+                </li>
+            </ul>
+        </el-dialog>
+
         <!-- 获取客户信息弹窗 -->
         <el-dialog title="客户信息" :visible.sync="customerOff">
             <el-input v-model="customerInfo" placeholder="客户编号 / 客户名称"></el-input>
-            <el-button @click="customerInfoFun">查询</el-button>
-            <!-- <ul class="srcond_menu">
-                <li v-if="customerList.length===0">暂无数据</li>
-                <li class="clearfix" v-for="(item,i) in customerList" :key="i">
-                    <span class="search" @click="getSearchItem(item)">|--{{item.sn}}-{{item.name}}</span>
-                </li>
-            </ul> -->
+            <!-- <el-button @click="customerInfoFun">查询</el-button> -->
             <div class="customer_mask">
               <el-table :data="customerList" stripe @selection-change="handleSelectionChange">
                 <el-table-column type="selection" min-width="10%"></el-table-column>
@@ -166,9 +191,6 @@
             <el-form :model="dialog" label-width="100px">
                 <el-form-item label="价格">
                     <el-input v-model="dialog.price"></el-input>
-                </el-form-item>
-                <el-form-item label="生效日期">
-                    <el-date-picker format="yyyy 年 MM 月 dd 日" value-format="yyyy-MM-dd" v-model="dialog.activeDate" type="date" placeholder="选择日期"> </el-date-picker>
                 </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
@@ -211,8 +233,8 @@ export default {
         activeDate: "",
         stopDate: "",
         sn: "",
-        client: []
-          
+        client: [],
+        sh: ""
       },
       secondForm: {
         masterSn: "",
@@ -224,19 +246,20 @@ export default {
       secondFormOff: true, // 第二个保存开关
       Type: [],
       list: [],
-      // rowList: [],
-      // djArr: [],
-      // khArr: [],
-      // djPosition: 0,
-      // khPosition: 0,
+      clientList: [],
+      rowList: [],
+      djArr: [],
+      khArr: [],
+      djPosition: 0,
+      khPosition: 0,
       //分页：当前页码/总数量/每页显示条数
       page: 0,
       total: "",
-      pageSize: 2,
+      pageSize: 10,
       pageOnOff: false,
       //分页排序查询条件
       pageParams: {
-        orderBy: "type"
+        orderBy: "price_type"
       },
       // 客户弹窗内容
       customerOff: false,
@@ -247,11 +270,18 @@ export default {
       // 修改弹窗内容
       editVisible: false,
       dialog: {},
+
+      // 单号模糊查询
+      SearchSnOff: false,
+      searchSnList: [],
+      searchSn: "",
+
+      bottom: {}
     };
   },
 
   methods: {
-      //导入按纽
+    //导入按纽
     doImports() {
       this.importbox = true;
     },
@@ -314,59 +344,132 @@ export default {
 
     // 新增
     doNews() {
-        this.doCancels();
-        this.firstFormOff = false;
+      this.doCancels();
+      this.firstFormOff = false;
     },
 
     // 取消
     doCancels() {
-        this.firstForm = {
-          activeDate: "",
-          sn: "",
-          clientSn: "",
-          clientName: ""
-        }
-        this.secondForm = {
-          masterSn: "",
-          psn: "",
-          priceType: "",
-          price: ""
-        }
-        this.list = [];
-        this.firstFormOff = true;
-        this.secondFormOff = true;
+      this.firstForm = {
+        activeDate: "",
+        stopDate: "",
+        sn: "",
+        sh: "",
+        client: []
+      };
+      this.secondForm = {
+        masterSn: "",
+        psn: "",
+        priceType: "",
+        price: ""
+      };
+      this.list = [];
+      this.clientList = [];
+      this.customerTag = [];
+      this.queryInfo = "";
+      this.pageOnOff = false;
+      this.firstFormOff = true;
+      this.secondFormOff = true;
+    },
+
+    // 表单修改
+    doUpdates() {
+      this.firstFormOff = false;
+      this.secondFormOff = false;
     },
 
     // 查询
     doSearchs() {
       if (this.queryInfo != "") {
-        this.page = 1;
-        let params = {
-          name: this.queryInfo,
-          page: this.page - 1,
-          count: this.pageSize
-        }
-        this.pageParams = params;
-        this.getPageData();
+        this.searchForm(this.queryInfo);
+        this.queryInfo = "";
       } else {
         error("请输入查询内容");
       }
     },
 
-    // 款号查询
-    searchSn() {
+    // 查询表单内容
+    searchForm(sn) {
+      this.$http.post("/TPA/dAdjustPrice/getBy?sn=" + sn).then(res => {
+        if (res.data.code === 0) {
+          this.firstForm.activeDate = res.data.data[0].activeDate;
+          this.firstForm.stopDate = res.data.data[0].stopDate;
+          this.firstForm.sh = res.data.data[0].sh;
+          this.firstForm.id = res.data.data[0].id;
+          this.secondForm.masterSn = res.data.data[0].sn;
+
+          let Arr = res.data.data[0].client.split(",");
+          this.customerTag = [];
+          for (var i = 0; i < Arr.length - 1; i++) {
+             let obj = {};
+              obj.customer = Arr[i];
+              this.customerTag.push(obj);
+          }
+
+          this.page = 1;
+          let params = {
+            orderBy: "price_type",
+            name: sn,
+            page: this.page - 1,
+            count: this.pageSize
+          };
+          this.pageParams = params;
+          this.getPageData();
+        } else {
+          error(res.data.msg);
+        }
+      })
+      .catch(err => {
+        NetworkAnomaly();
+      })
+    },
+
+    // 打开款号查询弹窗
+    searchSnFun() {
+      this.SearchSnOff = true;
+      this.searchSn = "";
+      this.searchSnList = [];
+    },
+
+    // 款号查询弹窗选择
+    getspdaPsnItem(item) {
+      this.SearchSnOff = false;
+      this.queryInfo = item.sn;
     },
 
     // 退出
     doOuts() {
-        this.$emit("getOut", this.$route.name);
+      this.$emit("getOut", this.$route.name);
     },
 
     // 审核
-    doExamines() {},
+    doExamines() {
+      console.log(1)
+      this.$http.post("/TPA/dAdjustPrice/auditing?status=1&id=" + this.firstForm.id).then(res => {
+        if(res.data.code === 0) {
+          this.searchForm(res.data.data.sn);
+        } else {
+          error(res.data.msg);
+        }
+      })
+      .catch(err => {
+        NetworkAnomaly();
+      })
+    },
 
     // 反审
-    doExamineAgains() {},
+    doExamineAgains() {
+      this.$http.post("/TPA/dAdjustPrice/auditing?status=0&id=" + this.firstForm.id).then(res => {
+        if(res.data.code === 0) {
+          this.searchForm(res.data.data.sn);
+        } else {
+          error(res.data.msg);
+        }
+      })
+      .catch(err => {
+        NetworkAnomaly();
+      })
+    },
 
     // 打开获取客户信息弹窗
     customerFun() {
@@ -376,28 +479,31 @@ export default {
     },
 
     // 点击获取客户信息弹窗查询
-    customerInfoFun() {
-      if (this.customerInfo != "") {
-        this.$http.post("/TPA/aKsDa/option?name=" + this.customerInfo).then(res => {
-          if (res.data.code === 0) {
-            // this.customerList = res.data.data;
-            this.customerList = [];
-            for (var i in res.data.data) {
-              let obj = {}
-              obj.customer = res.data.data[i].sn + "_" + res.data.data[i].name
-              this.customerList.push(obj)
-            }
-          } else {
-            error(res.data.msg);
-          }
-        })
-        .catch(err => {
-          NetworkAnomaly();
-        })
-      } else {
-        error("请输入查询内容");
-      }
-    },
+    // customerInfoFun() {
+    //   if (this.customerInfo != "") {
+    //     this.$http
+    //       .post("/TPA/aKsDa/option?name=" + this.customerInfo)
+    //       .then(res => {
+    //         if (res.data.code === 0) {
+    //           // this.customerList = res.data.data;
+    //           this.customerList = [];
+    //           for (var i in res.data.data) {
+    //             let obj = {};
+    //             obj.customer =
+    //               res.data.data[i].sn + "_" + res.data.data[i].name;
+    //             this.customerList.push(obj);
+    //           }
+    //         } else {
+    //           error(res.data.msg);
+    //         }
+    //       })
+    //       .catch(err => {
+    //         NetworkAnomaly();
+    //       });
+    //   } else {
+    //     error("请输入查询内容");
+    //   }
+    // },
 
     // 选择要添加的客户
     handleSelectionChange(val) {
@@ -406,20 +512,11 @@ export default {
 
     // 添加客户
     addCustomer() {
-      // let customerTag = [];
-      for(var i in this.multipleSelection) {
-        this.customerTag.push(this.multipleSelection[i])
+      for (var i in this.multipleSelection) {
+        this.customerTag.push(this.multipleSelection[i]);
       }
-      // this.customerTag = customerTag;
       this.customerOff = false;
     },
-
-    // 客户弹窗选择
-    // getSearchItem(item) {
-    //     this.customerOff = false;
-    //     this.form.clientSn = item.sn;
-    //     this.form.clientName = item.name;
-    // },
 
     // 删除客户
     handleClose(tag) {
@@ -430,30 +527,44 @@ export default {
     doSaves1() {
       let customerTag = "";
       for (var i in this.customerTag) {
-        customerTag += (this.customerTag[i].customer + ",")
+        customerTag += this.customerTag[i].customer + ",";
       }
       this.firstForm.client = customerTag;
-      if (this.firstForm.activeDate.length === 0) {
-        error("生效日期不能为空");
-      } else if (this.firstForm.stopDate.length === 0) {
-        error("截止日期不能为空");
-      } else if (this.firstForm.client.length === 0) {
-        error("客户不能为空");
+
+      if (this.secondForm.masterSn) {
+        this.$http.post("/TPA/dAdjustPrice/update", qs.stringify(this.firstForm)).then(res => {
+          if (res.data.code === 0) {
+            this.searchForm(this.secondForm.masterSn)
+          } else {
+            error(res.data.msg)
+          }
+        })
+        .catch(err => {
+          NetworkAnomaly();
+        })
       } else {
-        this.$http
-          .post("/TPA/dAdjustPrice/insert", qs.stringify(this.firstForm))
-          .then(res => {
-            if (res.data.code === 0) {
-              this.secondForm.masterSn = res.data.data.sn;
-              this.firstFormOff = true;
-              this.secondFormOff = false;
-            } else {
-              error(res.data.msg);
-            }
-          })
-          .catch(err => {
-            NetworkAnomaly();
-          });
+        if (this.firstForm.activeDate.length === 0) {
+          error("生效日期不能为空");
+        } else if (this.firstForm.stopDate.length === 0) {
+          error("截止日期不能为空");
+        } else if (this.firstForm.client.length === 0) {
+          error("客户不能为空");
+        } else {
+          this.$http
+            .post("/TPA/dAdjustPrice/insert", qs.stringify(this.firstForm))
+            .then(res => {
+              if (res.data.code === 0) {
+                this.secondForm.masterSn = res.data.data.sn;
+                this.firstFormOff = true;
+                this.secondFormOff = false;
+              } else {
+                error(res.data.msg);
+              }
+            })
+            .catch(err => {
+              NetworkAnomaly();
+            });
+        }
       }
     },
 
@@ -466,20 +577,17 @@ export default {
       } else if (this.secondForm.price.length === 0) {
         error("价格不能为空");
       } else {
-        this.$http.post("/TPA/dAdjustPriceA/insert", qs.stringify(this.secondForm)).then(res => {
-          console.log(res)
-          if (res.data.code === 0) {
-              // this.page = 1;
-              // let params = {
-              //   name: this.secondForm.sn,
-              //   page: this.page - 1,
-              //   count: this.pageSize,
-              //   orderBy: "price_type"
-              // }
-              // this.pageParams = params;
-              // this.getPageData();
-          }
-        })
+        this.$http
+          .post("/TPA/dAdjustPriceA/insert", qs.stringify(this.secondForm))
+          .then(res => {
+            if (res.data.code === 0) {
+              this.searchForm(res.data.data.masterSn)
+              this.secondForm.priceType = "";
+              this.secondForm.price = "";
+            } else {
+              error(res.data.msg)
+            }
+          });
       }
     },
 
@@ -489,25 +597,18 @@ export default {
       const item = this.list[index];
       this.dialog = {
         id: item.id,
-        psn: item.psn,
-        type: item.type,
         price: item.price,
-        activeDate: item.activeDate
       },
       this.editVisible = true;
     },
 
     // 保存修改
     saveRevise() {
-      if (this.dialog.type.length == 0) {
-        error("价格类别不能为空");
-      } else if (this.dialog.price.length == 0) {
+      if (this.dialog.price.length == 0) {
         error("价格不能为空");
-      } else if (this.dialog.activeDate.length == 0) {
-        error("生效日期不能为空");
       } else {
         this.$http
-          .post("/TPA/cProductPrice/update", qs.stringify(this.dialog))
+          .post("/TPA/dAdjustPriceA/update", qs.stringify(this.dialog))
           .then(res => {
             if (res.data.code === 0) {
               this.getPageData();
@@ -527,10 +628,10 @@ export default {
       this.idx = index;
       const item = this.list[index];
       this.$http
-        .post("/TPA/cProductPrice/delete?status=1&id=" + item.id)
+        .post("/TPA/dAdjustPriceA/delete?id=" + item.id)
         .then(res => {
           if (res.data.code === 0) {
-            this.getPageData();
+            console.log(res)
           } else {
             error(res.data.msg);
           }
@@ -539,26 +640,48 @@ export default {
           NetworkAnomaly();
         });
     },
-    
+
     // 分页
     getPageData() {
-      this.$http.post("/TPA/dAdjustPrice/getPage", qs.stringify(this.pageParams)).then(res => {
-        if (res.data.code === 0) {
-          succ(res.data.msg);
-          this.list = res.data.data;
-          this.total = res.data.attachment.total;
-          if(this.total > this.pageSize) {
-            this.pageOnOff = true;
+      this.$http
+        .post("/TPA/dAdjustPrice/getPage", qs.stringify(this.pageParams))
+        .then(res => {
+          if (res.data.code === 0) {
+            succ(res.data.msg);
+            this.list = res.data.data;
+
+            let clientList = res.data.attachment.sn;
+            let Arr = [];
+            for (var i in clientList) {
+              let obj = {};
+              obj.sn = clientList[i];
+              Arr.push(obj);
+            }
+            this.clientList = Arr;
+
+            this.bottom = res.data.data;
+
+            // 重置表格合并
+            this.rowList = [];
+            this.djArr = [];
+            this.djPosition = 0;
+            this.khArr = [];
+            this.khPosition = 0;
+            this.rowspan();
+
+            this.total = res.data.attachment.total;
+            if (this.total > this.pageSize) {
+              this.pageOnOff = true;
+            } else {
+              this.pageOnOff = false;
+            }
           } else {
-            this.pageOnOff = false;
+            error(res.data.msg);
           }
-        } else {
-          error(res.data.msg)
-        }
-      })
-      .catch(err => {
-        NetworkAnomaly();
-      })
+        })
+        .catch(err => {
+          NetworkAnomaly();
+        });
     },
 
     // 获取类型
@@ -580,14 +703,14 @@ export default {
     // 排序
     sortChange(column) {
       if (this.pageParams.orderBy.length !== 0) {
-        if (column.prop == "type" && column.order == "ascending") {
-          this.pageParams.orderBy = "type";
+        if (column.prop == "price_type" && column.order == "ascending") {
+          this.pageParams.orderBy = "price_type";
         } else if (column.prop == "activeDate" && column.order == "ascending") {
           this.pageParams.orderBy = "active_date";
         } else if (column.prop == "psn" && column.order == "ascending") {
           this.pageParams.orderBy = "psn";
         } else {
-          this.pageParams.orderBy = "type";
+          this.pageParams.orderBy = "price_type";
         }
       }
       if (this.list.length !== 0) {
@@ -597,7 +720,7 @@ export default {
 
     // 获取当前页码
     currentPage(val) {
-        this.page = val;
+      this.page = val;
     },
 
     rowspan() {
@@ -615,10 +738,7 @@ export default {
             this.djArr.push(1);
             this.djPosition = index;
           }
-          if (
-            this.list[index].psn === this.list[index - 1].psn &&
-            this.list[index].sn === this.list[index - 1].sn
-          ) {
+          if (this.list[index].psn === this.list[index - 1].psn) {
             this.khArr[this.khPosition] += 1;
             this.khArr.push(0);
           } else {
@@ -630,28 +750,28 @@ export default {
     },
     objectSpanMethod({ row, column, rowIndex, columnIndex }) {
       //表格合并行
-      if (columnIndex === 1) {
+      if (columnIndex === 0) {
         // 第一列合并单号
-        const _row_1 = this.djArr[rowIndex];
+        const _row_0 = this.djArr[rowIndex];
+        const _col_0 = _row_0 > 0 ? 1 : 0;
+        return {
+          rowspan: _row_0,
+          colspan: _col_0
+        };
+      }
+      if (columnIndex === 1) {
+        const _row_1 = this.khArr[rowIndex];
         const _col_1 = _row_1 > 0 ? 1 : 0;
         return {
           rowspan: _row_1,
           colspan: _col_1
         };
       }
-      if (columnIndex === 2) {
-        const _row_2 = this.khArr[rowIndex];
-        const _col_2 = _row_2 > 0 ? 1 : 0;
-        return {
-          rowspan: _row_2,
-          colspan: _col_2
-        };
-      }
     }
   },
 
   mounted() {
-      this.getBrand();
+    this.getBrand();
   },
 
   watch: {
@@ -659,6 +779,52 @@ export default {
       if (this.page > 0) {
         this.pageParams.page = this.page - 1;
         this.getPageData();
+      }
+    },
+
+    searchSn() {
+      if (this.searchSn.length !== 0) {
+        this.$http
+          .post("/TPA/dAdjustPrice/getSn?name=" + this.searchSn)
+          .then(res => {
+            if (res.data.code === 0) {
+              this.searchSnList = res.data.data;
+            } else {
+              error(res.data.msg);
+              this.searchSnList = [];
+            }
+          })
+          .catch(err => {
+            NetworkAnomaly();
+          });
+      } else {
+        this.searchSnList = [];
+      }
+    },
+
+    customerInfo() {
+      if (this.customerInfo != "") {
+        this.$http
+          .post("/TPA/aKsDa/option?name=" + this.customerInfo)
+          .then(res => {
+            if (res.data.code === 0) {
+              // this.customerList = res.data.data;
+              this.customerList = [];
+              for (var i in res.data.data) {
+                let obj = {};
+                obj.customer = res.data.data[i].sn + "_" + res.data.data[i].name;
+                this.customerList.push(obj);
+              }
+            } else {
+              error(res.data.msg);
+              this.customerList = [];
+            }
+          })
+          .catch(err => {
+            NetworkAnomaly();
+          });
+      } else {
+        this.customerList = [];
       }
     }
   },

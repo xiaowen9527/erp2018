@@ -46,8 +46,8 @@
                         </li>
                         <li class="menuLi">
                             <label>客户</label>
-                            <input type="text" class="first" placeholder="必填" v-model="form.clientSn" :disabled="formOff" @click="customerFun">
-                            <input type="text" v-model="form.clientName" :disabled="formOff" @click="customerFun">
+                            <input type="text" class="first" placeholder="必填" v-model="form.clientSn" :disabled="formOff" @click="customerFun" readonly>
+                            <input type="text" v-model="form.clientName" :disabled="formOff" @click="customerFun" readonly>
                             <button :disabled="formOff" @click="customerFun">。。。</button>
                         </li>
                         <li>
@@ -212,17 +212,6 @@
             </el-pagination>
         </div>
 
-        <!-- 获取客户信息弹窗 -->
-        <el-dialog title="客户信息" :visible.sync="customerOff">
-            <el-input v-model="customerInfo" placeholder="客户编号 / 客户名称"></el-input>
-            <ul class="srcond_menu">
-                <li v-if="customerList.length===0">暂无数据</li>
-                <li class="clearfix" v-for="(item,i) in customerList" :key="i">
-                    <span class="search" @click="getSearchItem(item)">|--{{item.sn}}-{{item.name}}</span>
-                </li>
-            </ul>
-        </el-dialog>
-
         <!-- 款号弹窗 -->
         <el-dialog title="款号" :visible.sync="spdaPsnSearchOff">
             <el-input v-model="searchSpdaPsn" placeholder="请输入你要查找的款号"></el-input>
@@ -255,20 +244,20 @@
                         <label for="">标准价</label>
                         <input type="text" disabled v-model="standarPrice">
                     </li>
-                     <li class="fl">
+                    <li class="fl">
                         <label for="">结算价</label>
                         <input type="text" disabled v-model="money">
                     </li>
                 </ul>
                 <el-button @click="savesCencel">取 消</el-button>
                 <el-button type="primary" @click="savesCommit" plain>保 存</el-button>
-            </span> 
+            </span>
         </el-dialog>
 
         <!-- 修改弹窗 -->
         <el-dialog title="修改" :visible.sync="editVisible" class="tableDialog">
             <el-table :data="updateBody">
-                <el-table-column :label="tit" v-for="(tit, key) in updateTit" :key="key"  width="150px">
+                <el-table-column :label="tit" v-for="(tit, key) in updateTit" :key="key" width="150px">
                     <template slot-scope="scope">
                         <input class="changeInput" :disabled="(updateBody[scope.$index][key] == updateBody[scope.$index][0]) || 
                         (updateBody[scope.$index][key] == updateBody[scope.$index][1]) || (!Number(updateBody[scope.$index][key]+1))" type="text" v-model="updateBody[scope.$index][key]" />
@@ -285,14 +274,14 @@
                         <label for="">标准价</label>
                         <input type="text" disabled v-model="standarPrice">
                     </li>
-                     <li class="fl">
+                    <li class="fl">
                         <label for="">结算价</label>
                         <input type="text" disabled v-model="money">
                     </li>
                 </ul>
                 <el-button @click="editVisible=false">取 消</el-button>
                 <el-button type="primary" @click="saveRevise" plain>确 定</el-button>
-            </span> 
+            </span>
         </el-dialog>
 
         <!-- 双击显示更多信息弹窗 -->
@@ -345,6 +334,10 @@
                 </span>
             </ul>
         </el-dialog>
+        <!-- 模糊搜索客户 -->
+         <vagueSearch v-if="oldONoFF" :onoff="oldONoFF" :tip="oldONoFFTip" :url="vagueSearchUrl" v-on:listenOnOff="listenToOnOff" v-on:listenItem="listenToItem"/>
+
+
     </div>
 </template>
 
@@ -360,6 +353,7 @@ import {
 } from "../../../assets/js/message.js";
 import qs from "qs";
 import NavMenu from "./NavMenu";
+import vagueSearch from "@/components/pageCommon/vagueSearch";  //模糊查询组件
 export default {
     name: "xiaoshoudingdan",
     data() {
@@ -405,7 +399,7 @@ export default {
             priceType: [], // 价格类型选择
             currency: [], // 币别选择
             balanceMode: [], // 结算方式选择
-            
+
             list: [], // 表格内容
             rowList: [],
             khArr: [],
@@ -415,9 +409,9 @@ export default {
             nameArr: [],
             namePosition: 0,
 
-            customerInfo: "", // 客户弹窗查询内容
-            customerOff: false, // 客户弹窗开关
-            customerList: [], // 客户弹窗列表
+            oldONoFF:false,
+            oldONoFFTip:"请输入客户编号或客户名称",
+            vagueSearchUrl:"/TPA/aKsDa/option?nature=客户&name=",  
 
             spdaPsnSearchOff: false, // 款号弹出框开关
             searchSpdaPsn: "", // 模糊查询的值
@@ -580,36 +574,38 @@ export default {
 
         // 查询方法 查询、分页都用这个
         searchFun(params) {
-            this.$http.post("/TPA/dSellOrderA/search", qs.stringify(params)).then(res => {
-                if (res.data.code === 0) {
-                    this.list = res.data.data;
-                    this.pageOnOff = false;
-
-                    // 重置表格合并
-                    this.rowList = [];
-                    this.khArr = [];
-                    this.khPosition = 0;
-                    this.plArr = [];
-                    this.plPosition = 0;
-                    this.nameArr = [];
-                    this.namePosition = 0;
-                    this.rowspan();
-
-                    this.total = res.data.attachment.total;
-                    if (this.total > this.pageSize) {
-                        this.pageOnOff = true;
-                    } else {
+            this.$http
+                .post("/TPA/dSellOrderA/search", qs.stringify(params))
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.list = res.data.data;
                         this.pageOnOff = false;
-                    }
 
-                    succ(res.data.msg);
-                } else {
-                    error(res.data.msg);
-                }
-            })
-            .catch(err => {
-                NetworkAnomaly();
-            })
+                        // 重置表格合并
+                        this.rowList = [];
+                        this.khArr = [];
+                        this.khPosition = 0;
+                        this.plArr = [];
+                        this.plPosition = 0;
+                        this.nameArr = [];
+                        this.namePosition = 0;
+                        this.rowspan();
+
+                        this.total = res.data.attachment.total;
+                        if (this.total > this.pageSize) {
+                            this.pageOnOff = true;
+                        } else {
+                            this.pageOnOff = false;
+                        }
+
+                        succ(res.data.msg);
+                    } else {
+                        error(res.data.msg);
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
         },
 
         // 查询
@@ -620,33 +616,39 @@ export default {
                     sn: this.queryInfo,
                     page: this.page - 1,
                     count: this.pageSize
-                }
+                };
                 this.pageParams = params;
                 this.searchFun(this.pageParams);
                 // 根据订单号获取表单数据
-                this.$http.post("/TPA/dSellOrder/getBySn?sn=" + this.queryInfo).then(res => {
-                    if(res.data.code === 0) {
-                        this.form = res.data.data;
+                this.$http
+                    .post("/TPA/dSellOrder/getBySn?sn=" + this.queryInfo)
+                    .then(res => {
+                        if (res.data.code === 0) {
+                            this.form = res.data.data;
 
-                        // 根据客户编号获取导航数据
-                        this.$http.post("/TPA/dSellOrder/tree?name=" + res.data.data.clientSn).then(res => {
-                            if (res.data.code === 0) {
-                                this.navMenus = res.data.data;
-                            } else {
-                                error(res.data.msg);
-                            }
-                        })
-                        .catch(err => {
-                            NetworkAnomaly();
-                        })
-
-                    } else {
-                        error(res.data.msg);
-                    }
-                })
-                .catch(err => {
-                    NetworkAnomaly();
-                })
+                            // 根据客户编号获取导航数据
+                            this.$http
+                                .post(
+                                    "/TPA/dSellOrder/tree?name=" +
+                                        res.data.data.clientSn
+                                )
+                                .then(res => {
+                                    if (res.data.code === 0) {
+                                        this.navMenus = res.data.data;
+                                    } else {
+                                        error(res.data.msg);
+                                    }
+                                })
+                                .catch(err => {
+                                    NetworkAnomaly();
+                                });
+                        } else {
+                            error(res.data.msg);
+                        }
+                    })
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });
             }
         },
 
@@ -664,116 +666,165 @@ export default {
 
         // 删除订单
         doDeletes() {
-            this.$http.post("/TPA/dSellOrder/delete?status=1&id=" + this.form.id).then(res => {
-                if (res.data.code === 0) {
-                    this.$http.post("/TPA/dSellOrder/getBySn?sn=" + this.pageParams.sn).then(res => {
-                        this.form = res.data.data;
+            this.$http
+                .post("/TPA/dSellOrder/delete?status=1&id=" + this.form.id)
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.$http
+                            .post(
+                                "/TPA/dSellOrder/getBySn?sn=" +
+                                    this.pageParams.sn
+                            )
+                            .then(res => {
+                                this.form = res.data.data;
 
-                        this.doRefreshs();
-                    })
-                } else {
-                    error(res.data.msg)
-                }
-            })
-            .catch(err => {
-                NetworkAnomaly();
-            });
+                                this.doRefreshs();
+                            });
+                    } else {
+                        error(res.data.msg);
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
         },
 
         // 审核
         doExamines() {
-            this.$http.post("/TPA/dSellOrder/auditing?status=1&id=" + this.form.id).then(res => {
-                if (res.data.code === 0) {
-                    this.$http.post("/TPA/dSellOrder/getBySn?sn=" + this.pageParams.sn).then(res => {
-                        this.form = res.data.data;
-                    })
-                } else {
-                    error(res.data.msg)
-                }
-            })
-            .catch(err => {
-                NetworkAnomaly();
-            });
+            this.$http
+                .post("/TPA/dSellOrder/auditing?status=1&id=" + this.form.id)
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.$http
+                            .post(
+                                "/TPA/dSellOrder/getBySn?sn=" +
+                                    this.pageParams.sn
+                            )
+                            .then(res => {
+                                this.form = res.data.data;
+                            });
+                    } else {
+                        error(res.data.msg);
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
         },
 
         // 反审核
         doExamineAgains() {
-            this.$http.post("/TPA/dSellOrder/auditing?status=0&id=" + this.form.id).then(res => {
-                if (res.data.code === 0) {
-                    this.$http.post("/TPA/dSellOrder/getBySn?sn=" + this.pageParams.sn).then(res => {
-                        this.form = res.data.data;
-                    })
-                } else {
-                    error(res.data.msg)
-                }
-            })
-            .catch(err => {
-                NetworkAnomaly();
-            });
+            this.$http
+                .post("/TPA/dSellOrder/auditing?status=0&id=" + this.form.id)
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.$http
+                            .post(
+                                "/TPA/dSellOrder/getBySn?sn=" +
+                                    this.pageParams.sn
+                            )
+                            .then(res => {
+                                this.form = res.data.data;
+                            });
+                    } else {
+                        error(res.data.msg);
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
         },
 
         // 终止
         doStops() {
-            this.$http.post("/TPA/dSellOrder/stop?status=1&id=" + this.form.id).then(res => {
-                if (res.data.code === 0) {
-                    this.$http.post("/TPA/dSellOrder/getBySn?sn=" + this.pageParams.sn).then(res => {
-                        this.form = res.data.data;
-                    })
-                } else {
-                    error(res.data.msg)
-                }
-            })
-            .catch(err => {
-                NetworkAnomaly();
-            });
+            this.$http
+                .post("/TPA/dSellOrder/stop?status=1&id=" + this.form.id)
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.$http
+                            .post(
+                                "/TPA/dSellOrder/getBySn?sn=" +
+                                    this.pageParams.sn
+                            )
+                            .then(res => {
+                                this.form = res.data.data;
+                            });
+                    } else {
+                        error(res.data.msg);
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
         },
 
         // 反终止
         NotStops() {
-            this.$http.post("/TPA/dSellOrder/stop?status=0&id=" + this.form.id).then(res => {
-                if (res.data.code === 0) {
-                    this.$http.post("/TPA/dSellOrder/getBySn?sn=" + this.pageParams.sn).then(res => {
-                        this.form = res.data.data;
-                    })
-                } else {
-                    error(res.data.msg)
-                }
-            })
-            .catch(err => {
-                NetworkAnomaly();
-            });
+            this.$http
+                .post("/TPA/dSellOrder/stop?status=0&id=" + this.form.id)
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.$http
+                            .post(
+                                "/TPA/dSellOrder/getBySn?sn=" +
+                                    this.pageParams.sn
+                            )
+                            .then(res => {
+                                this.form = res.data.data;
+                            });
+                    } else {
+                        error(res.data.msg);
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
         },
 
         // 开单
         doOrders() {
-            this.$http.post("/TPA/dSellOrder/close?status=0&id=" + this.form.id).then(res => {
-                if (res.data.code === 0) {
-                    this.$http.post("/TPA/dSellOrder/getBySn?sn=" + this.pageParams.sn).then(res => {
-                        this.form = res.data.data;
-                    })
-                } else {
-                    error(res.data.msg)
-                }
-            })
-            .catch(err => {
-                NetworkAnomaly();
-            });
+            this.$http
+                .post("/TPA/dSellOrder/close?status=0&id=" + this.form.id)
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.$http
+                            .post(
+                                "/TPA/dSellOrder/getBySn?sn=" +
+                                    this.pageParams.sn
+                            )
+                            .then(res => {
+                                this.form = res.data.data;
+                            });
+                    } else {
+                        error(res.data.msg);
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
         },
 
         // 关单
         closeOrders() {
-            this.$http.post("/TPA/dSellOrder/close?status=1&id=" + this.form.id).then(res => {
-                if (res.data.code === 0) {
-                    this.$http.post("/TPA/dSellOrder/getBySn?sn=" + this.pageParams.sn).then(res => {
-                        this.form = res.data.data;
-                    })
-                } else {
-                    error(res.data.msg)
-                }
-            })
-            .catch(err => {
-                NetworkAnomaly();
-            });
+            this.$http
+                .post("/TPA/dSellOrder/close?status=1&id=" + this.form.id)
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.$http
+                            .post(
+                                "/TPA/dSellOrder/getBySn?sn=" +
+                                    this.pageParams.sn
+                            )
+                            .then(res => {
+                                this.form = res.data.data;
+                            });
+                    } else {
+                        error(res.data.msg);
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
         },
 
         // 获取左侧树形导航数据
@@ -869,30 +920,19 @@ export default {
                 page: this.page - 1,
                 count: this.pageSize,
                 sn: e
-            }
+            };
             this.pageParams = params;
             this.searchFun(this.pageParams);
-            console.log(this.page)
+            console.log(this.page);
             this.$http.post("/TPA/dSellOrder/getBySn?sn=" + e).then(res => {
                 this.form = res.data.data;
-            })
+                this.doChanges();
+            });
         },
 
         // 点击弹出客户弹窗
         customerFun() {
-            this.customerInfo = "";
-            this.customerOff = true;
-            this.customerList = [];
-        },
-
-
-
-        // 客户弹窗选择
-        getSearchItem(item) {
-            this.customerInfo = "";
-            this.customerOff = false;
-            this.form.clientSn = item.sn;
-            this.form.clientName = item.name;
+            this.oldONoFF = true;
         },
 
         // 表单保存
@@ -910,29 +950,37 @@ export default {
                 this.form.balanceMode;
             if (terms) {
                 if (this.form.sn != "") {
-                    this.$http.post("/TPA/dSellOrder/insert", qs.stringify(this.form)).then(res => {
-                        // let sn = this.form.sn;
-                        // this.form = res.data.data;
-                        // this.form.sn = sn;
+                    this.$http
+                        .post("/TPA/dSellOrder/insert", qs.stringify(this.form))
+                        .then(res => {
+                            // let sn = this.form.sn;
+                            // this.form = res.data.data;
+                            // this.form.sn = sn;
 
-                        this.spdaPsnOff = false;
-                        this.formOff = true;
-                        this.formChange = true;
-                    });
+                            this.spdaPsnOff = false;
+                            this.formOff = true;
+                            this.formChange = true;
+                        });
                 } else {
-                    this.$http.post("/TPA/dSellOrder/insert", qs.stringify(this.form)).then(res => {
-                        this.form.sn = res.data.data.sn;
-                        this.spdaPsnOff = false;
-                        this.formOff = true;
-                        this.formChange = true;
+                    this.$http
+                        .post("/TPA/dSellOrder/insert", qs.stringify(this.form))
+                        .then(res => {
+                            this.form.sn = res.data.data.sn;
+                            this.spdaPsnOff = false;
+                            this.formOff = true;
+                            this.formChange = true;
 
-                        this.getnavMenu();
-                        this.$http.post("/TPA/dSellOrder/getBySn?sn=" + res.data.data.sn).then(res => {
-                            this.form = res.data.data;
-                        })
-                    });
+                            this.getnavMenu();
+                            this.$http
+                                .post(
+                                    "/TPA/dSellOrder/getBySn?sn=" +
+                                        res.data.data.sn
+                                )
+                                .then(res => {
+                                    this.form = res.data.data;
+                                });
+                        });
                 }
-                
             } else {
                 error("请填写所有必填项");
             }
@@ -948,19 +996,21 @@ export default {
         // 款号弹窗模糊查询
         searchSpdaPsnFun() {
             if (this.searchSpdaPsn.length !== 0) {
-                this.$http.post("/TPA/cSpda/option?psn=" + this.searchSpdaPsn).then(res => {
+                this.$http
+                    .post("/TPA/cSpda/option?psn=" + this.searchSpdaPsn)
+                    .then(res => {
                         if (res.data.code === 0) {
                             this.searchSpdaPsnList = res.data.data;
                         } else {
                             error(res.data.msg);
-                            this.customerList = [];
+                            this.searchSpdaPsnList = [];
                         }
                     })
                     .catch(err => {
                         NetworkAnomaly();
                     });
             } else {
-                error("请输入要查询的款号")
+                error("请输入要查询的款号");
             }
         },
 
@@ -973,16 +1023,24 @@ export default {
         // 打开保存弹窗
         openSaves() {
             if (this.spdaPsn) {
-                this.$http.post("/TPA/dSellOrder/order?psn=" + this.spdaPsn + "&id=" + this.form.id).then(res => {
-                       if(res.data.code === 0) {
+                this.$http
+                    .post(
+                        "/TPA/dSellOrder/order?psn=" +
+                            this.spdaPsn +
+                            "&id=" +
+                            this.form.id
+                    )
+                    .then(res => {
+                        if (res.data.code === 0) {
                             this.tableTit = res.data.attachment.head;
                             this.tableBody = res.data.data;
-                            this.standarPrice = res.data.attachment.standarPrice;
+                            this.standarPrice =
+                                res.data.attachment.standarPrice;
                             this.discount = res.data.attachment.discount;
                             this.saveOff = true;
-                       } else {
-                           error(res.data.msg);
-                       }
+                        } else {
+                            error(res.data.msg);
+                        }
                     })
                     .catch(err => {
                         NetworkAnomaly();
@@ -1005,87 +1063,95 @@ export default {
         // 保存弹窗确认
         savesCommit() {
             //获取所有尺码的数量
-            let lists = []
-            for(let i in this.tableBody){
-                for(let j=2;j<this.tableBody[i].length;j++)
-                    lists.push(this.tableBody[i][j])
+            let lists = [];
+            for (let i in this.tableBody) {
+                for (let j = 2; j < this.tableBody[i].length; j++)
+                    lists.push(this.tableBody[i][j]);
             }
-            
+
             //把款号跟颜色拿出来遍历成数组
-            let Arrs = []
-            for(let i in this.tableBody){
-                for(let j=2;j<this.tableBody[i].length;j++){
-                    let obj = {}
+            let Arrs = [];
+            for (let i in this.tableBody) {
+                for (let j = 2; j < this.tableBody[i].length; j++) {
+                    let obj = {};
                     // obj.sn = this.tableBody[i][0]
-                    obj.color = this.tableBody[i][1]
-                    Arrs.push(obj)
+                    obj.color = this.tableBody[i][1];
+                    Arrs.push(obj);
                 }
             }
 
             // 获取表头尺码名称
-            let sizeLists = []
-            for(let i in this.tableBody){
-                for(let j=2;j<this.tableTit.length;j++){
-                    sizeLists.push(this.tableTit[j])
-                }      
-            }
-            
-            //把每个尺码的数量加到数组里，并把其他字段加上
-            let B = [];
-            for(let i in Arrs){
-                if (Number(lists[i]+1)) {
-                    Arrs[i].number = lists[i]
-                    Arrs[i].size = sizeLists[i]
-                    Arrs[i].masterSn =this.form.sn,
-                    Arrs[i].psn = this.spdaPsn,
-                    Arrs[i].standarPrice = this.standarPrice;
-                    Arrs[i].discount = this.discount;
-                    Arrs[i].remark = this.form.remark
-                    B.push(Arrs[i])
+            let sizeLists = [];
+            for (let i in this.tableBody) {
+                for (let j = 2; j < this.tableTit.length; j++) {
+                    sizeLists.push(this.tableTit[j]);
                 }
             }
-            if(this.discount.length){
-                this.$http.post("/TPA/dSellOrderA/insert", B).then(res => {
-                    if (res.data.code === 0) {
-                        this.saveOff = false;
-                        this.page = 1;
-                        let params = {
-                            page: this.page - 1,
-                            count: this.pageSize,
-                            sn: this.form.sn
-                        }
-                        this.pageParams = params;
-                        this.searchFun(this.pageParams);
-                    } else {
-                        error(res.data.msg);
-                    }
-                })
-                .catch(err => {
-                    NetworkAnomaly();
-                })
-            }else{
-                error('折扣不能为空！')
-            }
 
+            //把每个尺码的数量加到数组里，并把其他字段加上
+            let B = [];
+            for (let i in Arrs) {
+                if (Number(lists[i] + 1)) {
+                    Arrs[i].number = lists[i];
+                    Arrs[i].size = sizeLists[i];
+                    (Arrs[i].masterSn = this.form.sn),
+                        (Arrs[i].psn = this.spdaPsn),
+                        (Arrs[i].standarPrice = this.standarPrice);
+                    Arrs[i].discount = this.discount;
+                    Arrs[i].remark = this.form.remark;
+                    B.push(Arrs[i]);
+                }
+            }
+            if (this.discount.length) {
+                this.$http
+                    .post("/TPA/dSellOrderA/insert", B)
+                    .then(res => {
+                        if (res.data.code === 0) {
+                            this.saveOff = false;
+                            this.page = 1;
+                            let params = {
+                                page: this.page - 1,
+                                count: this.pageSize,
+                                sn: this.form.sn
+                            };
+                            this.pageParams = params;
+                            this.searchFun(this.pageParams);
+                        } else {
+                            error(res.data.msg);
+                        }
+                    })
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });
+            } else {
+                error("折扣不能为空！");
+            }
         },
 
         // 打开表格修改
         tableUpdate(index, row) {
             this.idx = index;
             const item = this.list[index];
-            console.log(item.psn)
+            console.log(item.psn);
             localStorage.setItem("psn", item.psn);
 
-            this.$http.post("/TPA/dSellOrder/order?psn=" + item.psn + "&id=" + this.form.id).then(res => {
-                   if(res.data.code === 0) {
+            this.$http
+                .post(
+                    "/TPA/dSellOrder/order?psn=" +
+                        item.psn +
+                        "&id=" +
+                        this.form.id
+                )
+                .then(res => {
+                    if (res.data.code === 0) {
                         this.updateTit = res.data.attachment.head;
                         this.updateBody = res.data.data;
                         this.standarPrice = res.data.attachment.standarPrice;
                         this.discount = res.data.attachment.discount;
                         this.editVisible = true;
-                   } else {
-                       error(res.data.msg);
-                   }
+                    } else {
+                        error(res.data.msg);
+                    }
                 })
                 .catch(err => {
                     NetworkAnomaly();
@@ -1098,155 +1164,169 @@ export default {
             localStorage.clear();
 
             //获取所有尺码的数量
-            let lists = []
-            for(let i in this.updateBody){
-                for(let j=2;j<this.updateBody[i].length;j++){
-                    lists.push(this.updateBody[i][j])
+            let lists = [];
+            for (let i in this.updateBody) {
+                for (let j = 2; j < this.updateBody[i].length; j++) {
+                    lists.push(this.updateBody[i][j]);
                 }
             }
-            
+
             //把款号跟颜色拿出来遍历成数组
-            let Arrs = []
-            for(let i in this.updateBody){
-                for(let j=2;j<this.updateBody[i].length;j++){
-                    let obj = {}
+            let Arrs = [];
+            for (let i in this.updateBody) {
+                for (let j = 2; j < this.updateBody[i].length; j++) {
+                    let obj = {};
                     // obj.sn = this.tableBody[i][0]
-                    obj.color = this.updateBody[i][1]
-                    Arrs.push(obj)
+                    obj.color = this.updateBody[i][1];
+                    Arrs.push(obj);
                 }
             }
 
             // 获取表头尺码名称
-            let sizeLists = []
-            for(let i in this.updateBody){
-                for(let j=2;j<this.updateTit.length;j++){
-                    sizeLists.push(this.updateTit[j])
-                }      
-            }
-            
-            //把每个尺码的数量加到数组里，并把其他字段加上
-            let B = [];
-            for(let i in Arrs){
-                if (Number(lists[i]+1)) {
-                    Arrs[i].number = lists[i]
-                    Arrs[i].size = sizeLists[i]
-                    Arrs[i].masterSn =this.form.sn,
-                    Arrs[i].psn = psn,
-                    Arrs[i].standarPrice = this.standarPrice;
-                    Arrs[i].discount = this.discount;
-                    Arrs[i].remark = this.form.remark
-                    B.push(Arrs[i])
+            let sizeLists = [];
+            for (let i in this.updateBody) {
+                for (let j = 2; j < this.updateTit.length; j++) {
+                    sizeLists.push(this.updateTit[j]);
                 }
             }
 
-            this.$http.post("/TPA/dSellOrderA/update", B).then(res => {
-                if (res.data.code === 0) {
-                    this.editVisible = false;
-                    this.page = 1;
-                    let params = {
-                        page: this.page - 1,
-                        count: this.pageSize,
-                        sn: this.form.sn
-                    }
-                    this.pageParams = params;
-                    this.searchFun(this.pageParams);
-                } else {
-                    error(res.data.msg)
+            //把每个尺码的数量加到数组里，并把其他字段加上
+            let B = [];
+            for (let i in Arrs) {
+                if (Number(lists[i] + 1)) {
+                    Arrs[i].number = lists[i];
+                    Arrs[i].size = sizeLists[i];
+                    (Arrs[i].masterSn = this.form.sn),
+                        (Arrs[i].psn = psn),
+                        (Arrs[i].standarPrice = this.standarPrice);
+                    Arrs[i].discount = this.discount;
+                    Arrs[i].remark = this.form.remark;
+                    B.push(Arrs[i]);
                 }
-            })
-            .catch(err => {
-                NetworkAnomaly();
-            })
+            }
+
+            this.$http
+                .post("/TPA/dSellOrderA/update", B)
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.editVisible = false;
+                        this.page = 1;
+                        let params = {
+                            page: this.page - 1,
+                            count: this.pageSize,
+                            sn: this.form.sn
+                        };
+                        this.pageParams = params;
+                        this.searchFun(this.pageParams);
+                    } else {
+                        error(res.data.msg);
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
         },
 
         // 表格删除
         tableDelete(index, row) {
             this.idx = index;
             const item = this.list[index];
-            this.$http.post("/TPA/dSellOrderA/delete?id=" + item.id).then(res => {
-                if (res.data.code === 0) {
-                    this.searchFun(this.pageParams);
-                } else {
-                    error(res.data.msg)
-                }
-            })
-            .catch(err => {
-                NetworkAnomaly();
-            })
+            this.$http
+                .post("/TPA/dSellOrderA/delete?id=" + item.id)
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.searchFun(this.pageParams);
+                    } else {
+                        error(res.data.msg);
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
         },
 
         // 终止
         tableStop(index, row) {
             this.idx = index;
             const item = this.list[index];
-            this.$http.post("/TPA/dSellOrderA/stop?status=1&id=" + item.id).then(res => {
-                if (res.data.code === 0) {
-                    this.searchFun(this.pageParams);
-                } else {
-                    error(res.data.msg)
-                }
-            })
-            .catch(err => {
-                NetworkAnomaly();
-            })
+            this.$http
+                .post("/TPA/dSellOrderA/stop?status=1&id=" + item.id)
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.searchFun(this.pageParams);
+                    } else {
+                        error(res.data.msg);
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
         },
 
         // 启用
         tableStart(index, row) {
             this.idx = index;
             const item = this.list[index];
-            this.$http.post("/TPA/dSellOrderA/stop?status=0&id=" + item.id).then(res => {
-                if (res.data.code === 0) {
-                    this.searchFun(this.pageParams);
-                } else {
-                    error(res.data.msg)
-                }
-            })
-            .catch(err => {
-                NetworkAnomaly();
-            })
+            this.$http
+                .post("/TPA/dSellOrderA/stop?status=0&id=" + item.id)
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.searchFun(this.pageParams);
+                    } else {
+                        error(res.data.msg);
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
         },
 
         // 关单
         tableClose(index, row) {
             this.idx = index;
             const item = this.list[index];
-            this.$http.post("/TPA/dSellOrderA/close?status=1&id=" + item.id).then(res => {
-                if (res.data.code === 0) {
-                    this.searchFun(this.pageParams);
-                } else {
-                    error(res.data.msg)
-                }
-            })
-            .catch(err => {
-                NetworkAnomaly();
-            })
+            this.$http
+                .post("/TPA/dSellOrderA/close?status=1&id=" + item.id)
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.searchFun(this.pageParams);
+                    } else {
+                        error(res.data.msg);
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
         },
 
         // 开单
         tableOpen(index, row) {
             this.idx = index;
             const item = this.list[index];
-            this.$http.post("/TPA/dSellOrderA/close?status=0&id=" + item.id).then(res => {
-                if (res.data.code === 0) {
-                    this.searchFun(this.pageParams);
-                } else {
-                    error(res.data.msg)
-                }
-            })
-            .catch(err => {
-                NetworkAnomaly();
-            })
+            this.$http
+                .post("/TPA/dSellOrderA/close?status=0&id=" + item.id)
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.searchFun(this.pageParams);
+                    } else {
+                        error(res.data.msg);
+                    }
+                })
+                .catch(err => {
+                    NetworkAnomaly();
+                });
         },
 
         // 双击当前行
         chooseRow(e) {
-            this.$http.post("/TPA/dSellOrderA/getByPsn?psn=" + e.psn).then(res => {
-                if (res.data.code === 0) {
-                    this.moreInfo = res.data.data;
-                    this.moreInfoOff = true;
-                }
-            })
+            this.$http
+                .post("/TPA/dSellOrderA/getByPsn?psn=" + e.psn)
+                .then(res => {
+                    if (res.data.code === 0) {
+                        this.moreInfo = res.data.data;
+                        this.moreInfoOff = true;
+                    }
+                });
         },
 
         // 获取当前页码
@@ -1268,10 +1348,16 @@ export default {
                     this.namePosition = 0;
                 } else {
                     // 合并品类
-                    if (this.list[index].lbch1Name === this.list[index - 1].lbch1Name && this.list[index].lbch2Name === this.list[index - 1].lbch2Name && this.list[index].psn === this.list[index - 1].psn) {
+                    if (
+                        this.list[index].lbch1Name ===
+                            this.list[index - 1].lbch1Name &&
+                        this.list[index].lbch2Name ===
+                            this.list[index - 1].lbch2Name &&
+                        this.list[index].psn === this.list[index - 1].psn
+                    ) {
                         this.plArr[this.plPosition] += 1;
                         this.plArr.push(0);
-                         this.nameArr[this.namePosition] += 1;
+                        this.nameArr[this.namePosition] += 1;
                         this.nameArr.push(0);
                         this.khArr[this.khPosition] += 1;
                         this.khArr.push(0);
@@ -1292,8 +1378,8 @@ export default {
                 const _row_0 = this.khArr[rowIndex];
                 const _col_0 = _row_0 > 0 ? 1 : 0;
                 return {
-                rowspan: _row_0,
-                colspan: _col_0
+                    rowspan: _row_0,
+                    colspan: _col_0
                 };
             }
 
@@ -1302,8 +1388,8 @@ export default {
                 const _row_1 = this.khArr[rowIndex];
                 const _col_1 = _row_1 > 0 ? 1 : 0;
                 return {
-                rowspan: _row_1,
-                colspan: _col_1
+                    rowspan: _row_1,
+                    colspan: _col_1
                 };
             }
 
@@ -1312,11 +1398,20 @@ export default {
                 const _row_2 = this.khArr[rowIndex];
                 const _col_2 = _row_2 > 0 ? 1 : 0;
                 return {
-                rowspan: _row_2,
-                colspan: _col_2
+                    rowspan: _row_2,
+                    colspan: _col_2
                 };
             }
-        }
+        },
+        //接收模糊查询开关状态
+        listenToOnOff(data){
+            this.oldONoFF = data
+        },  
+        //接收选择的客户
+        listenToItem(data){
+            this.form.clientSn = data[0]
+            this.form.clientName = data[1]        
+        },         
     },
 
     mounted() {
@@ -1332,26 +1427,7 @@ export default {
             }
             this.searchFun(this.pageParams);
         },
-        //模糊查询客户
-        customerInfo(){
-            if (this.customerInfo) {
-                this.$http
-                    .post("/TPA/aKsDa/option?nature=客户&name=" + this.customerInfo).then(res => {
-                        if (res.data.code === 0) {
-                            this.customerList = res.data.data;
-                        } else {
-                            error(res.data.msg);
-                            this.customerList = [];
-                        }
-                    })
-                    .catch(err => {
-                        NetworkAnomaly();
-                    });
-            } else {
-                this.customerList = []
-            }
-        }
-
+    
     },
 
     computed: {
@@ -1360,7 +1436,7 @@ export default {
 
     // 引入组件
     components: {
-        NavMenu
+        NavMenu,vagueSearch
     }
 };
 </script>

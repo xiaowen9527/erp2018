@@ -306,9 +306,9 @@
         </el-dialog>    
 
         <!-- topNav模糊搜索企划需求 -->
-        <vagueSearch v-if="oldMenu" :onoff="oldMenu" :url="vagueOldMenuUrl" v-on:listenOnOff="listenToOnOff" v-on:listenItem="listenToItem"/>
+        <vagueSearch v-if="oldMenu" :onoff="oldMenu" :tip="oldMenuTip" :url="vagueOldMenuUrl" v-on:listenOnOff="listenToOnOff" v-on:listenItem="listenToItem"/>
         <!-- topNav模糊搜索颜色 -->
-        <vagueSearch v-if="oldColor" :onoff="oldColor" :url="vagueColorUrl" v-on:listenOnOff="listenToColor" v-on:listenItem="listenToColorItem"/>
+        <vagueSearch v-if="oldColor" :onoff="oldColor" :tip="oldColorTip" :url="vagueColorUrl" v-on:listenOnOff="listenToColor" v-on:listenItem="listenToColorItem"/>
     </div>
 </template>
 
@@ -396,9 +396,11 @@ export default {
                 // originPsn: "" // 来源款号
             },
             oldMenu: false,
+            oldMenuTip: "请输入企划需求单号",
             vagueOldMenuUrl:"/TPA/cSpqhA/option?sn=",        //搜索接口地址
 
             oldColor: false,
+            oldColorTip: "请输入颜色名称",
             vagueColorUrl:"/TPA/aYscm/optionColor?name=",        //搜索接口地址
 
             oldStyle: false,

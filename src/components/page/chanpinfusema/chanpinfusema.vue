@@ -162,10 +162,10 @@
         </el-dialog>
 
         <!-- topNav模糊搜索款号 -->
-        <vagueSearch v-if="oldSearch" :onoff="oldSearch" :url="vagueSearchUrl" v-on:listenOnOff="listenToOnOff" v-on:listenItem="listenToItem"/>   
+        <vagueSearch v-if="oldSearch" :onoff="oldSearch" :tip="oldSearchTip" :url="vagueSearchUrl" v-on:listenOnOff="listenToOnOff" v-on:listenItem="listenToItem"/>   
 
         <!-- topNav模糊搜索颜色 -->
-        <vagueSearch v-if="oldColor" :onoff="oldColor" :url="vagueColorUrl" v-on:listenOnOff="listenToColor" v-on:listenItem="listenToColorItem"/>             
+        <vagueSearch v-if="oldColor" :onoff="oldColor" :tip="oldColorTip" :url="vagueColorUrl" v-on:listenOnOff="listenToColor" v-on:listenItem="listenToColorItem"/>             
     </div>
 </template>
 
@@ -231,8 +231,10 @@ export default {
 
             //模糊查询框的值
             oldSearch: false,
+            oldSearchTip: "请输入款号",
             vagueSearchUrl:"/TPA/cSpda/option?psn=",        //搜索接口地址
             oldColor: false,
+            oldColorTip: "请输入颜色名称",
             vagueColorUrl:"/TPA/aYscm/optionColor?name=",        //搜索接口地址
 
             //table列表

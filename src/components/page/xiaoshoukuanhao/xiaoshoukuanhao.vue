@@ -101,16 +101,7 @@
             </div>
         </div>
 
-        <!-- 获取客户信息弹窗 -->
-        <!-- <el-dialog title="客户信息" :visible.sync="customerOff">
-            <el-input v-model="customerInfo" placeholder="客户编号 / 客户名称"></el-input>
-            <ul class="srcond_menu">
-                <li v-if="customerList.length===0">暂无数据</li>
-                <li class="clearfix" v-for="(item,i) in customerList" :key="i">
-                    <span class="search" @click="getSearchItem(item)">|--{{item.sn}}-{{item.name}}</span>
-                </li>
-            </ul>
-        </el-dialog> -->
+
 
         <!-- 修改弹窗 -->
         <el-dialog title="修改" :visible.sync="handleEditOff">
@@ -164,7 +155,8 @@
             </ul>
         </el-dialog>
 
-        <vagueSearch v-if="oldONoFF" :url="vagueSearchUrl"  :display="displaySearch" v-on:listenOnOff="listenToOnOff" v-on:listenItem="listenToItem"/>
+        <!-- 模糊搜索客户 -->
+         <vagueSearch v-if="oldONoFF" :onoff="oldONoFF" :tip="oldONoFFTip" :url="vagueSearchUrl" v-on:listenOnOff="listenToOnOff" v-on:listenItem="listenToItem"/>
 
     </div>
 </template>
@@ -186,9 +178,9 @@ export default {
     name: "xiaoshoukuanhao",
     data() {
         return {
-            oldONoFF:true,
-            vagueSearchUrl:"/TPA/aKsDa/option?nature=客户&name=",
-            displaySearch:['sn','name'],            
+            oldONoFF:false,
+            oldONoFFTip:"请输入客户编号或客户名称",
+            vagueSearchUrl:"/TPA/aKsDa/option?nature=客户&name=",        
 
             queryInfo: "", // 顶部查询内容
             navMenus: [], // 左侧导航栏数据
@@ -200,10 +192,7 @@ export default {
             },
             formOff: true, // 表单禁用、开启
             list: [], // 表格内容
-            customerInfo: "", // 客户弹窗查询内容
-            customerOff: false, // 客户弹窗开关
             handleEditOff: false, // 修改弹窗开关
-            customerList: [], // 客户弹窗列表
             dialog: {}, // 弹窗内容
             //导入弹出开关
             importbox: false,
@@ -379,18 +368,7 @@ export default {
 
         // 点击弹出客户弹窗
         customerFun() {
-            this.customerOff = true;
-            this.customerInfo = ""
-            this.customerList = []           
-        },
-
-        // 客户弹窗选择
-        getSearchItem(item) {
-            this.customerInfo = "";
-            this.customerList = [];
-            this.customerOff = false;
-            this.form.clientSn = item.sn;
-            this.form.clientName = item.name;
+            this.oldONoFF = true;     
         },
 
         // 表单保存
@@ -510,7 +488,15 @@ export default {
             this.pageParams.page = val - 1;
             this.searchFun(this.pageParams);
         },
-
+        //接收模糊查询开关状态
+        listenToOnOff(data){
+            this.oldONoFF = data
+        },  
+        //接收选择的客户
+        listenToItem(data){
+            this.form.clientSn = data[0]
+            this.form.clientName = data[1]        
+        }, 
     },
 
     mounted() {

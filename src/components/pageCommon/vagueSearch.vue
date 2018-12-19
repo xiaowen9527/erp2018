@@ -1,9 +1,10 @@
+
 <template>
     <div class="vagueSearch">
 
-        <el-dialog title="查询" :visible.sync="oldSearch">
+        <el-dialog :title="tip" :visible.sync="oldSearch">
 
-            <el-input v-model="search" placeholder="查询"></el-input>
+            <el-input v-model="search" :placeholder="tip" autofocus="autofocus"></el-input>
 
             <ul class="srcond_menu">
                 <li v-if="searchList.length===0">暂无数据</li>
@@ -19,14 +20,25 @@
             
         </el-dialog>
     </div>
+<!--
 
+使用方法
+
+1、import 引入组件，并在 components 注册组件
+2、父组件创建状态开关变量 oldSearch 与接口变量 vagueSearchUrl
+3、创建 listenToOnOff 函数（接收开关状态->data）和 listenToItem 函数（接收选择的内容->data）
+4、调用模板代码<vagueSearch v-if="oldSearch" :tip="oldSearchTip" :onoff="oldSearch" :url="vagueSearchUrl" v-on:listenOnOff="listenToOnOff" v-on:listenItem="listenToItem"/>
+
+
+
+-->
 </template>
 
 <script>
 import { NetworkAnomaly,error} from "@/assets/js/message.js";       //引入“网络错误”和“错误消息提醒”
 export default {
     name: "vagueSearch",
-    props: ["onoff", "url"], //开关，接口
+    props: ["onoff", "url","tip"], //开关，接口 ,文字提示
     data() {
         return {
             oldSearch: true,
@@ -40,12 +52,13 @@ export default {
         getItemSearch(item) {
             // console.log(item);
             this.item = item.split("-");
+            this.$emit("listenItem", this.item);        //把选择时候的值传回父组件
             this.cancel();                  
         },
-        //关闭弹窗，给父组件传值
+        //关闭弹窗
         cancel() {
             this.$emit("listenOnOff", false);           //关闭弹窗，并把设置父组件的开关状态
-            this.$emit("listenItem", this.item);        //把选择时候的值传回父组件
+            
         }
     },
     watch: {
@@ -98,7 +111,7 @@ export default {
 
 <style lang="stylus" scoped>
 .vagueSearch>>>.el-dialog
-    width 500px
+    width 500px !important
     height 500px !important
 .vagueSearch>>>.el-dialog__body
     cursor pointer !important
@@ -110,10 +123,14 @@ export default {
     .el-input
         width 100%
         float left
+        &.el-input__inner
+            padding-left 10px !important
     li
         :hover
             background #d2d2d2
         span
             padding-left 2vh
             line-height 3vh
+            width 100% !important
+            padding-left 1vh !important
 </style>

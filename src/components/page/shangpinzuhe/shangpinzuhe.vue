@@ -143,17 +143,7 @@
                 </li>
             </ul>
         </el-dialog>
-        <!-- 修改时查询款号 -->
-        <el-dialog title="查询" :visible.sync="oldDialogSn">
-            <el-input v-model="dialogSn" placeholder="款号"></el-input>
-            <button class="button_btn" @click="vagueDialogSn">查询</button>
-            <ul class="srcond_menu">
-                <p v-if="oldDialogSnList.length===0">暂无数据</p>
-                <li v-for="(item,i) in oldDialogSnList" :key="i" class="clearfix">
-                    <span @click="getItemDialogSn(item)">{{item.psn}}</span>
-                </li>
-            </ul>
-        </el-dialog>
+
 
         <!-- 编辑弹出框 -->
         <el-dialog title="编辑" class="edit" :visible.sync="editVisible" width="30%">
@@ -251,10 +241,6 @@ export default {
             sn: "",
             oldSn: false,
             oldSnList: [],
-
-            dialogSn: "",
-            oldDialogSn: false,
-            oldDialogSnList: [],
 
             navMenus: [], //导航数据
 
@@ -556,11 +542,6 @@ export default {
             this.secondForm.psn = item.psn;
             this.oldSn = false;
         },
-        //修改时选择款号
-        getItemDialogSn(item) {
-            this.dialog.psn = item.psn;
-            this.oldDialogSn = false;
-        },
         //获取颜色列表
         getColor(sn) {
             this.$http
@@ -807,30 +788,6 @@ export default {
                             } else {
                                 error("暂无数据");
                                 this.oldSnList = [];
-                            }
-                        } else {
-                            error(res.data.msg);
-                        }
-                    })
-                    .catch(err => {
-                        NetworkAnomaly();
-                    });
-            } else {
-                error("请输入搜索条件！");
-            }
-        },
-        //修改时模糊搜索款号
-        vagueDialogSn() {
-            if (this.dialogSn) {
-                this.$http
-                    .post("/TPA/cSpda/option?psnXz=0&psn=" + this.dialogSn)
-                    .then(res => {
-                        if (res.data.code === 0) {
-                            if (res.data.data.length > 0) {
-                                this.oldDialogSnList = res.data.data;
-                            } else {
-                                error("暂无数据");
-                                this.oldDialogSnList = [];
                             }
                         } else {
                             error(res.data.msg);

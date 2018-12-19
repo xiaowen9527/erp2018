@@ -24,8 +24,8 @@
                     <ul>
                         <li class="menuLi">
                             <label>类别</label>
-                            <input placeholder="顶级" v-model="form.pidSn" :disabled="gui" readonly class="first">
-                            <input placeholder="顶级" v-model="form.pidName" :disabled="gui" readonly>
+                            <input placeholder="顶级" v-model="form.pidSn" :disabled="gui" readonly class="first" @click="open_box">
+                            <input placeholder="顶级" v-model="form.pidName" :disabled="gui" readonly @click="open_box">
                             <button :disabled="gui" @click="open_box">。。。</button>
                         </li>
                         <li>

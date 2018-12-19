@@ -34,15 +34,15 @@
                         </li>
                         <li>
                             <label>研发工号</label>
-                            <input type="text" :disabled="firstFormOn" v-model="firstForm.rdSn">
+                            <input type="text" :disabled="firstFormOn" v-model="firstForm.rdSn" placeholder="必填">
                         </li>
                         <li>
                             <label>姓名</label>
-                            <input type="text" :disabled="firstFormOn" v-model="firstForm.rdName">
+                            <input type="text" :disabled="firstFormOn" v-model="firstForm.rdName" placeholder="必填">
                         </li>
                         <li>
                             <label>负责工序</label>
-                            <el-select :disabled="firstFormOn" v-model="firstForm.rdProcedure" placeholder="请选择">
+                            <el-select :disabled="firstFormOn" v-model="firstForm.rdProcedure" placeholder="请选择(必选)">
                                 <el-option v-for="item in this.rdProcedure" :key="item.name" :label="item.name" :value="item.name">
                                 </el-option>
                             </el-select>
@@ -137,7 +137,7 @@
             </ul>
         </el-dialog>      
         <!-- topNav模糊搜索 -->
-        <vagueSearch v-if="oldSearch" :onoff="oldSearch" :url="vagueSearchUrl" v-on:listenOnOff="listenToOnOff" v-on:listenItem="listenToItem"/>
+        <vagueSearch v-if="oldSearch" :onoff="oldSearch" :tip="oldSearchTip" :url="vagueSearchUrl" v-on:listenOnOff="listenToOnOff" v-on:listenItem="listenToItem"/>
 
     </div>
 </template>
@@ -170,6 +170,7 @@ export default {
 
             //bind值
             oldSearch:false,                                        //头部模糊搜索组件开关
+            oldSearchTip:"请输入研发姓名",
             vagueSearchUrl:"/TPA/cYffg/getName?name=",              //搜索接口地址
 
             navMenus: [], //导航数据
@@ -311,16 +312,21 @@ export default {
         },
         //保存
         firstSave() {
-            // let a = [{"colorName":"1"},{"colorName":"2"},{"colorName":"3"}]
+            // let a = [{colorName:1},{colorName:2},{colorName:3},{colorName:4}]
             // let b = "字符串"
             // let data = JSON.stringify(a)
             // let data2 = JSON.stringify(b)
-            // // console.log(data,data2);
+            // let form = {
+            //     list:JSON.stringify(a),
+            //     code:b
+            // }
+            // console.log(form);
+
             
             // // console.log(JSON.stringify(a));
-            // this.$http.post('/TPA/eMatPurchaseA/insert?list='+data+"&code="+data2,{
+            // this.$http.post('/TPA/eMatPurchaseA/insert',form,{
             //     headers:{
-            //         "Content-Type":'application/json'
+            //         "Content-Type":'application/json;charset=utf-8'
             //     }
             // })
             //     .then(res=>{
@@ -348,31 +354,36 @@ export default {
             //     .catch(err=>{
             //         NetworkAnomaly()
             //     })
-            
-            this.firstForm.rdProcedureSn = this.getSn(
-                this.rdProcedure,
-                this.firstForm.rdProcedure
-            );
-            this.$http
-                .post("/TPA/cYffg/insert", qs.stringify(this.firstForm))
-                .then(res => {
-                    if (res.data.code === 0) {
-                        succ(res.data.msg);
-                        this.getnavMenu();
+            let terms = this.firstForm.rdSn==false||this.firstForm.rdName==false||this.firstForm.rdProcedureSn==false||this.firstForm.rdProcedure==false
+            if(!terms){
+                this.firstForm.rdProcedureSn = this.getSn(
+                    this.rdProcedure,
+                    this.firstForm.rdProcedure
+                );
+                this.$http
+                    .post("/TPA/cYffg/insert", qs.stringify(this.firstForm))
+                    .then(res => {
+                        if (res.data.code === 0) {
+                            succ(res.data.msg);
+                            this.getnavMenu();
 
-                        this.pageParams.rdProcedureSn = this.firstForm.rdProcedureSn;
-                        this.pageParams.page = 0;
-                        this.pageParams.count = this.pageSize;
-                        this.getPageData();
+                            this.pageParams.rdProcedureSn = this.firstForm.rdProcedureSn;
+                            this.pageParams.page = 0;
+                            this.pageParams.count = this.pageSize;
+                            this.getPageData();
 
-                        this.doCancels();
-                    } else {
-                        error(res.data.msg);
-                    }
-                })
-                .catch(err => {
-                    NetworkAnomaly();
-                });
+                            this.doCancels();
+                        } else {
+                            error(res.data.msg);
+                        }
+                    })
+                    .catch(err => {
+                        NetworkAnomaly();
+                    });
+            }else{
+                error('请完善表单必填项')
+            }
+
         },
 
         //table有效

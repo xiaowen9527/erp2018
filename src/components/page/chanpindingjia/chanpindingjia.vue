@@ -192,7 +192,7 @@
         </el-dialog>
 
         <!-- topNav模糊搜索生产订单号 -->
-        <vagueSearch v-if="psnSearch" :onoff="psnSearch" :url="vagueSearchUrl" v-on:listenOnOff="listenToOnOff" v-on:listenItem="listenToItem"/>        
+        <vagueSearch v-if="psnSearch" :onoff="psnSearch" :tip="psnSearchTip" :url="vagueSearchUrl" v-on:listenOnOff="listenToOnOff" v-on:listenItem="listenToItem"/>        
     </div>
 </template>
 
@@ -238,6 +238,7 @@ export default {
       khPosition: 0,
       // 输入查询弹出框开关
       psnSearch: false,
+      psnSearchTip:"请输入款号",
         vagueSearchUrl:"/TPA/cSpda/option?psnXz=1&psn=",        //搜索接口地址
       // 查询弹出框
       searchFormShow: false,
@@ -879,7 +880,6 @@ export default {
   width: 100% !important
   font-size: 1.6vh
   height: 3.5vh !important
-  padding-left: 3.5vh !important
   border-radius: 0
 // 日期
 .container>>> .el-date-editor.el-input

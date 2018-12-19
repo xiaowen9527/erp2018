@@ -12,8 +12,8 @@
             <button class="button_btn" @click="doOuts">退出</button>
             <div class="btn_right">
 
-                <button  class="button_btn" @click="doExamines">审核</button>
-                <button  class="button_btn" @click="doExamineAgains">反审</button>
+                <button :disabled="multipleSelection.length==0"  :class="{button_btn:multipleSelection.length>0}" @click="doExamines">审核</button>
+                <button  :disabled="multipleSelection.length==0" :class="{button_btn:multipleSelection.length>0}" @click="doExamineAgains">反审</button>
             </div>
         </div>
         <div class="set_box">
@@ -112,26 +112,6 @@
             </div>
         </div>
 
-        <!-- 查询框 -->
-        <el-dialog title="请输入您要查询的设计款号" :visible.sync="oldSearch">
-            <el-input v-model="search" placeholder="请输入您要查询的设计款号"></el-input>
-            <ul class="srcond_menu">
-                <p v-if="oldSearchList.length===0">暂无数据</p>
-                <li v-for="(item,i) in oldSearchList" :key="i" class="clearfix">
-                    <span @click="getItemSearch(item)">{{item.psn}}</span>
-                </li>
-            </ul>
-        </el-dialog>
-        <el-dialog title="请输入您要查询的设计款号" :visible.sync="oldPsn">
-            <el-input v-model="psn" placeholder="请输入您要查询的设计款号"></el-input>
-            <ul class="srcond_menu">
-                <p v-if="oldPsnList.length===0">暂无数据</p>
-                <li v-for="(item,i) in oldPsnList" :key="i" class="clearfix">
-                    <span @click="getItemPsn(item)">{{item.psn}}</span>
-                </li>
-            </ul>
-        </el-dialog>
-
         <!-- 编辑弹出框 -->
         <el-dialog title="编辑" :visible.sync="editVisible" width="30%">
             <el-form :model="dialog" label-width="100px">
@@ -187,7 +167,11 @@
                 </span>
             </ul>
         </el-dialog>    
-          <!-- console.log(item.id,item.sort,item.workshop,item.name,item.require,item.tool,) -->
+        <!-- topNav模糊搜索 -->
+        <vagueSearch v-if="oldSearch" :onoff="oldSearch" :tip="oldSearchTip" :url="vagueSearchUrl" v-on:listenOnOff="listenToOnOff" v-on:listenItem="listenToItem"/>
+        <!-- topNav模糊搜索设计款号 -->
+        <vagueSearch v-if="oldPsn" :onoff="oldPsn" :tip="oldPsnTip" :url="vaguePsnUrl" v-on:listenOnOff="listenToPsn" v-on:listenItem="listenToPsnItem"/>
+
 
     </div>
 </template>
@@ -196,11 +180,13 @@
 import "@/assets/js/import.js"; //导入请求超时拦截
 import { mapState } from "vuex";
 import {
-    NetworkAnomaly,
-    succ,
-    error,
-    getOut
+    NetworkAnomaly,             //网络错误
+    succ,                       //成功
+    error,                      //失败
+    getOut,                     //退出
+    terms                       //条件判断是否为空
 } from "../../../assets/js/message.js";
+import vagueSearch from "@/components/pageCommon/vagueSearch";  //模糊查询组件
 import qs from "qs";
 export default {
     name: "shengchangongxu",
@@ -212,12 +198,14 @@ export default {
             doImport: false,
             doPrint: true,
 
-            search: "",
-            oldSearch: false,
-            oldSearchList: [],
-            psn: "",
+            search:"",
+            oldSearch:false,                                        //头部模糊搜索组件开关
+            oldSearchTip:"请输入您要查询的设计款号",
+            vagueSearchUrl:"/TPA/cSpda/option?psnXz=1&psn=",              //搜索接口地址
+
             oldPsn: false,
-            oldPsnList: [],
+            oldPsnTip:"请输入您要查询的设计款号",
+            vaguePsnUrl:"/TPA/cSpda/option?psnXz=1&psn=",              //搜索接口地址
 
             firstFormNo: true,
             firstFormOn: true,
@@ -346,7 +334,9 @@ export default {
         },
         //first保存
         firstSave() {
-            if(this.firstForm.psn){
+            let terms = this.firstForm.psn==false||this.firstForm.workshop==false||this.firstForm.name==false||this.firstForm.sort==false||this.firstForm.require==false||this.firstForm.tool==false
+            
+            if(!terms){
                 this.$http.post('/TPA/cStandardOper/insert',qs.stringify(this.firstForm))
                     .then(res=>{
                         if(res.data.code===0){
@@ -374,7 +364,7 @@ export default {
                         NetworkAnomaly()
                     })
             }else{
-                error('请选择设计款号！')
+                error('请完善表单必填项')
             }
         },
 
@@ -404,7 +394,7 @@ export default {
                 .then(res => {
                     if (res.data.code === 0) {
                         succ(res.data.msg);
-                        this.getPageData()
+                        this.getPageData(this.pageParams)
                     } else {
                         error(res.data.msg);
                     }
@@ -428,7 +418,7 @@ export default {
                 .then(res => {
                     if (res.data.code === 0) {
                         succ(res.data.msg);
-                        this.getPageData()
+                        this.getPageData(this.pageParams)
                     } else {
                         error(res.data.msg);
                     }
@@ -517,40 +507,6 @@ export default {
         //导出
         doExports() {
             window.location.href = "/TPA/cStandardOper/exportExcel";
-        },
-
-        //选择查询的设计编号
-        getItemSearch(item) {
-            this.emptyBtnTo();
-            this.oldSearch = false;
-            this.search = ""
-            this.disabledFirstForm()
-
-            let params = {
-                psn: item.pSn,
-                page: 0,
-                count: this.pageSize
-            };
-            this.pageParams = params;
-            this.getPageData(this.pageParams);
-
-            // this.oldSearch = false
-            // this.search = ""
-
-            // let params = {
-            //     psn:this.firstForm.psn,
-            //     page:0,
-            //     count:this.pageSize
-            // }
-            // this.pageParams = params
-            // this.getPageData(this.pageParams)
-        },
-        //选择设计编号
-        getItemPsn(item) {
-            this.firstForm.psn = item.psn;
-            this.emptyBtnTo();
-            this.oldPsn = false;
-            this.psn = ""
         },
 
         //编辑单条数据
@@ -642,7 +598,40 @@ export default {
         currentPage(val) {
             this.page = val;
         },
+        
+        //接收模糊查询开关
+        listenToOnOff(data){
+            this.oldSearch = data
+        },
+        //接收模糊查询数据
+        listenToItem(data){
+            if(data.length>0){
+                this.emptyBtnTo();
+                this.search = ""
+                this.disabledFirstForm()
 
+                let params = {
+                    psn: data[0],
+                    page: 0,
+                    count: this.pageSize
+                };
+                this.pageParams = params;
+                this.getPageData(this.pageParams);
+            }
+                     
+        },   
+        //接收模糊查询设计款号开关
+        listenToPsn(data){
+            this.oldPsn = data
+        },
+        //接收模糊查询设计款号数据
+        listenToPsnItem(data){
+            if(data.length>0){
+                this.firstForm.psn = data[0];
+                this.emptyBtnTo();                
+            }
+                     
+        },   
 
     },
     computed: {
@@ -664,57 +653,10 @@ export default {
             if(!this.oldSearch){
                 this.search = ""
             }
-        },
-        //模糊查询
-        search(){
-            if (this.search) {
-                this.$http
-                    .post("/TPA/cSpda/option?psnXz=1&psn=" + this.search)
-                    .then(res => {
-                        if (res.data.code === 0) {
-                            if(res.data.data.length>0){
-                                this.oldSearchList = res.data.data;
-                            }else{
-                                error('暂无数据')  
-                                this.oldSearchList = []                                                               
-                            }
-                        } else {
-                            error(res.data.msg);
-                        }
-                    })
-                    .catch(err => {
-                        NetworkAnomaly();
-                    });
-            } else {
-                this.oldSearchList = []                  
-            }
-            this.doAdd = false;            
-        },
-        //模糊查询psn
-        psn(){
-            if (this.psn) {
-                this.$http
-                    .post("/TPA/cSpda/option?psnXz=1&psn=" + this.psn)
-                    .then(res => {
-                        if (res.data.code === 0) {
-                            if(res.data.data.length>0){
-                                this.oldPsnList = res.data.data
-                            }else{
-                                error('暂无数据')   
-                                this.oldPsnList = []                            
-                            }
-                        } else {
-                            error(res.data.msg);
-                        }
-                    })
-                    .catch(err => {
-                        NetworkAnomaly();
-                    });
-            } else {
-                this.oldPsnList = []
-            }
-            this.doAdd = false;
-        }        
+        },      
+    },
+    components: {
+        vagueSearch
     }
 };
 </script>

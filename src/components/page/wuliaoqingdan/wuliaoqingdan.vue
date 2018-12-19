@@ -1,25 +1,15 @@
 <template>
     <div class="container" :class="{container_collapse:collapse}">
-
         <p class="page_title">物料清单</p>
-
         <div class="btn-box">
-
             <button :disabled='doAdd' :class="{button_btn:!doAdd}" @click="doAdds">新增</button>
-
             <button :disabled='doCancel' :class="{button_btn:!doCancel}" @click="doCancels">取消</button>
-
             <button :disabled='doPrint' :class="{button_btn:!doPrint}" @click="doPrints">打印</button>
-
             <button :disabled='doImport' :class="{button_btn:!doImport}" @click="doImports">导入</button>
             <button :disabled='doImport' :class="{button_btn:!doImport}" @click="doExports">导出</button>
-
             <input type="text" placeholder="请输入产品的设计款号" class="doSearch" v-model="search">
-
             <button @click="doSearchs" :class="{button_btn:!doSearch}" :disabled="doSearch">查询</button>
-
             <button class="button_btn" @click="doOuts">退出</button>
-
             <div class="btn_right">
 
                 <button :disabled="firstForm.sh==1||firstForm.sh=='-1'" :class="{button_btn:firstForm.sh == 0}" @click="doExamines">审核</button>
@@ -27,11 +17,9 @@
                 <button :disabled="firstForm.sh==0||firstForm.sh=='-1'" :class="{button_btn:firstForm.sh==1}" @click="doExamineAgains">反审</button>
 
             </div>
-
         </div>
 
         <div class="set_box">
-
             <div class="set_info">
 
                 <div class="firstForm">
@@ -167,9 +155,9 @@
 
                         <div class="order_table fl_table">
 
-                            <el-table :data="list" height="52vh" border style="width: 100%">
+                            <el-table :data="list" height="46vh" border style="width: 100%">
 
-                                <el-table-column prop="materialSn" label="物料编号" min-width="6.6%">
+                                <el-table-column prop="materialSn" label="物料编号" width="100px">
                                     <template slot-scope="scope">
                                         <el-tooltip :content="scope.row.materialSn" placement="top" :enterable="false">
                                             <p>{{ scope.row.materialSn }}</p>
@@ -177,7 +165,7 @@
                                     </template>
                                 </el-table-column>
 
-                                <el-table-column prop="materialName" label="名称" min-width="6.6%">
+                                <el-table-column prop="materialName" label="名称" width="100px">
                                     <template slot-scope="scope">
                                         <el-tooltip :content="scope.row.materialName" placement="top" :enterable="false">
                                             <p>{{ scope.row.materialName }}</p>
@@ -185,7 +173,7 @@
                                     </template>
                                 </el-table-column>
 
-                                <el-table-column prop="kz" label="克重" min-width="6.6%">
+                                <el-table-column prop="kz" label="克重" width="100px">
                                     <template slot-scope="scope">
                                         <el-tooltip :content="String(scope.row.kz)" placement="top" :enterable="false">
                                             <p>{{ scope.row.kz }}</p>
@@ -193,7 +181,7 @@
                                     </template>
                                 </el-table-column>
 
-                                <el-table-column prop="size" label="布宽" min-width="6.6%">
+                                <el-table-column prop="size" label="布宽" width="100px">
                                     <template slot-scope="scope">
                                         <el-tooltip :content="String(scope.row.size)" placement="top" :enterable="false">
                                             <p>{{ scope.row.size }}</p>
@@ -201,7 +189,7 @@
                                     </template>
                                 </el-table-column>
 
-                                <el-table-column prop="dosageUnit" label="用量单位" min-width="6.6%">
+                                <el-table-column prop="dosageUnit" label="用量单位" width="100px">
                                     <template slot-scope="scope">
                                         <el-tooltip :content="scope.row.dosageUnit" placement="top" :enterable="false">
                                             <p>{{ scope.row.dosageUnit }}</p>
@@ -210,7 +198,7 @@
 
                                 </el-table-column>
 
-                                <el-table-column prop="dosage" label="用量" min-width="6.6%">
+                                <el-table-column prop="dosage" label="用量" width="100px">
                                     <template slot-scope="scope">
                                         <el-tooltip :content="String(scope.row.dosage)" placement="top" :enterable="false">
                                             <p>{{ scope.row.dosage }}</p>
@@ -219,7 +207,7 @@
 
                                 </el-table-column>
 
-                                <el-table-column prop="zhxs" label="转换系数" min-width="6.6%">
+                                <el-table-column prop="zhxs" label="转换系数" width="100px">
                                     <template slot-scope="scope">
                                         <el-tooltip :content="String(scope.row.zhxs)" placement="top" :enterable="false">
                                             <p>{{ scope.row.zhxs }}</p>
@@ -228,7 +216,7 @@
 
                                 </el-table-column>
 
-                                <el-table-column prop="purchaseUnit" label="采购单位" min-width="6.6%">
+                                <el-table-column prop="purchaseUnit" label="采购单位" width="100px">
                                     <template slot-scope="scope">
                                         <el-tooltip :content="scope.row.purchaseUnit" placement="top" :enterable="false">
                                             <p>{{ scope.row.purchaseUnit }}</p>
@@ -237,7 +225,7 @@
 
                                 </el-table-column>
 
-                                <el-table-column prop="func" label="领用部门" min-width="6.6%">
+                                <el-table-column prop="func" label="领用部门" width="100px">
                                     <template slot-scope="scope">
                                         <el-tooltip :content="scope.row.func" placement="top" :enterable="false">
                                             <p>{{ scope.row.func }}</p>
@@ -246,7 +234,7 @@
 
                                 </el-table-column>
 
-                                <el-table-column prop="part" label="应用部位" min-width="6.6%">
+                                <el-table-column prop="part" label="应用部位" width="100px">
                                     <template slot-scope="scope">
                                         <el-tooltip :content="scope.row.part" placement="top" :enterable="false">
                                             <p>{{ scope.row.part }}</p>
@@ -254,7 +242,7 @@
                                     </template>
                                 </el-table-column>
 
-                                <el-table-column prop="explain" label="规格说明" min-width="6.6%">
+                                <el-table-column prop="explain" label="规格说明" width="100px">
                                     <template slot-scope="scope">
                                         <el-tooltip :content="scope.row.explain" placement="top" :enterable="false">
                                             <p>{{ scope.row.explain }}</p>
@@ -263,7 +251,7 @@
 
                                 </el-table-column>
 
-                                <el-table-column prop="nature" label="性质" min-width="6.6%">
+                                <el-table-column prop="nature" label="性质" width="100px">
                                     <template slot-scope="scope">
                                         <el-tooltip :content="scope.row.nature" placement="top" :enterable="false">
                                             <p>{{ scope.row.nature }}</p>
@@ -271,7 +259,7 @@
                                     </template>
                                 </el-table-column>
 
-                                <el-table-column prop="loss" label="生产损耗" min-width="6.6%">
+                                <el-table-column prop="loss" label="生产损耗" width="100px">
                                     <template slot-scope="scope">
                                         <el-tooltip :content="(scope.row.loss+'%')" placement="top" :enterable="false">
                                             <p>{{ scope.row.loss }}%</p>
@@ -279,7 +267,7 @@
                                     </template>
                                 </el-table-column>
 
-                                <el-table-column prop="isCode" label="按码算" min-width="6.6%">
+                                <el-table-column prop="isCode" label="按码算" width="100px">
                                     <template slot-scope="scope">
                                         <el-tooltip :content="scope.row.isCode" placement="top" :enterable="false">
                                             <p>{{ scope.row.isCode }}</p>
@@ -287,7 +275,7 @@
                                     </template>
                                 </el-table-column>
 
-                                <el-table-column label="操作" min-width="8.8%">
+                                <el-table-column label="操作" width="105px" fixed="right">
 
                                     <template slot-scope="scope">
 
@@ -356,18 +344,8 @@
             </el-pagination>
         </div>
 
-        <el-dialog title="请输入您要查询的设计款号" :visible.sync="oldPsn">
-            <el-input v-model="psn" placeholder="请输入您要查询的设计款号"></el-input>
-            <ul class="srcond_menu">
-                <p v-if="oldPsnList.length===0">暂无数据</p>
-                <li v-for="(item,i) in oldPsnList" :key="i" class="clearfix">
-                    <span @click="getItemPsn(item)">{{item.psn}}</span>
-                </li>
-            </ul>
-        </el-dialog>
-
         <!-- 物料档案编号弹窗 -->
-        <el-dialog title="请输入您要查询的物料名称" :visible.sync="oldMaterial">
+        <!-- <el-dialog title="请输入您要查询的物料名称" :visible.sync="oldMaterial">
             <el-input v-model="material" placeholder="请输入您要查询的物料名称"></el-input>
             <ul class="srcond_menu">
                 <p v-if="oldMaterialList.length===0">暂无数据</p>
@@ -375,7 +353,7 @@
                     <span class="material" @click="getItemMaterial(item)">{{item.sn}}-{{item.name}}</span>
                 </li>
             </ul>
-        </el-dialog>
+        </el-dialog> -->
 
         <el-dialog title="请选择物料颜色" :visible.sync="oldMaterialColor">
             <ul class="srcond_menu">
@@ -457,13 +435,16 @@
                 </span>
             </ul>
         </el-dialog>
-
+        <!-- topNav模糊搜索款号 -->
+        <vagueSearch v-if="oldPsn" :onoff="oldPsn" :url="vaguePsnUrl" :tip="oldPsnTip"  v-on:listenOnOff="listenToOnOff" v-on:listenItem="listenToItem"/>
+        <!-- topNav模糊搜索物料 -->
+        <vagueSearch v-if="oldMaterial" :onoff="oldMaterial" :url="vagueMaterialUrl" :tip="oldMaterialTip" v-on:listenOnOff="listenToMaterial" v-on:listenItem="listenToMaterialItem"/>
     </div>
 </template>
 
 <script>
 import "@/assets/js/import.js"; //导入请求超时拦截
-
+import vagueSearch from "@/components/pageCommon/vagueSearch";  //模糊查询组件
 import { mapState } from "vuex";
 
 import {
@@ -472,164 +453,101 @@ import {
     error,
     getOut
 } from "../../../assets/js/message.js";
-
 import qs from "qs";
-
 export default {
     name: "wuliaoqingdan",
-
     data() {
         return {
             listColor: [],
-
             //按钮disabled
-
             doAdd: false,
-
             doCancel: true,
-
             doImport: false,
-
             doPrint: true,
-
             doSearch: true,
-
             search: "",
-
             oldSearch: false,
-
             oldSearchList: [],
 
-            psn: "", //设计款号查询框
+            oldPsn: false, //模糊搜索款号开关
+            oldPsnTip:"请输入款号",   //文字信息
+            vaguePsnUrl:"/TPA/cSpda/option?psnXz=1&psn=",
 
-            oldPsn: false, //设计款号查询框开关
 
-            oldPsnList: [], //设计款号查询框列表
-
-            material: "",
-
-            oldMaterial: false, //颜色查询框开关
-
-            oldMaterialList: [], //颜色查询框列表
-
+            oldMaterial: false, //模糊搜索物料开关
+            oldMaterialTip:"请输入物料名称",
+            vagueMaterialUrl:"/TPA/cWlda/option?name=",
+         
             oldFunc: false, //部门开关
-
             oldFuncList: [],
-
             dosageUnit: [], //用量单位
-
             DesignColor: [],
-
             firstFormNo: true,
-
             firstFormOn: true,
-
             firstFormGui: true,
-
             firstForm: {
                 psn: "",
-
                 sh: "-1", // 审核
-
                 addUser: "",
-
                 addDate: "",
-
                 updateUser: "",
-
                 updateDate: "",
-
                 shUser: "",
-
                 shDate: "",
-
                 materialSn: "", //物料编号
-
                 materialName: "", //物料名称
-
                 amount: "", //开发用量
-
                 nature: "", //性质编号
-
                 productSn: "", //成品编号
-
                 func: "", //领用部门名称
-
                 part: "", //应用部位
-
                 loss: "", //生产损耗
-
                 dosage: "", //大量货用量
-
                 dosageUnit: "",
-
                 dosageUnitSn: "",
-                
                 isCode:false,   //是否按码算
-
                 explain: "" //说明
             },
-
             oldMaterialColor: false,
-
             materialItem: {}, //当前选择的物料
-
             materialColorItem: "", //选择的物料颜色
-
             materialColorList: [], //物料颜色列表
-
             materialColor: [], //所有的产品颜色
-
             natureList: [], //性质列表
-
             //表格数据
 
             list: [],
-
             printList: [],
 
             //导入弹出开关
-
             importbox: false,
-
             importZhe: false, //导入遮罩
-
             isCover: false, //默认导入不覆盖
-
             project: "", //错误文件名
 
             //上传的文件
 
             fileList: [],
-
             Tips: "", //错误提示
-
             tipOffON: false, //错误文件下载开关
 
             //编辑弹窗开关
 
             editVisible: false,
-
             idx: 0,
 
             //编辑弹出框数据
-
             dialog: {},
 
             //分页：当前页码/总数量/每页显示条数
-
             page: 0,
-
             total: "",
-
             pageSize: 10,
-
             pageOnOff: false,
 
             //分页排序查询条件
 
             pageParams: {},
-
             // 表头colorName数组
             tableTit: []
         };
@@ -898,11 +816,6 @@ export default {
 
         handlePsn() {
             this.oldPsn = true;
-
-            this.noDisabledFirstForm();
-
-            this.psn = "";
-            this.oldPsnList = []
         },
 
         //点击物料编号
@@ -1397,46 +1310,6 @@ export default {
                 })
         },
 
-        //选择设计编号
-
-        getItemPsn(item) {
-            this.firstForm.psn = item.psn;
-            console.log(this.firstForm.psn);
-            
-            this.getSh(this.firstForm.psn)
-
-
-            this.emptyBtnTo();
-            this.oldPsn = false;
-            let params = {
-                psn: item.psn,
-                count: this.pageSize,
-                page: 0
-            };
-            this.pageParams = params;
-            this.getPageData(this.pageParams);
-            this.getDesignColor(item.psn);
-
-            this.psn = "";
-            this.search = item.psn;
-        },
-
-        //选择物料
-
-        getItemMaterial(item) {
-            console.log(item);
-
-            this.firstForm.materialSn = item.sn;
-
-            this.firstForm.materialName = item.name;
-
-            this.firstForm.loss = item.loss;
-
-            this.oldMaterial = false;
-
-            this.material = "";
-        },
-
         //选择物料颜色
 
         getmaterialColorItem(item) {
@@ -1559,31 +1432,47 @@ export default {
             this.page = val;
         },
 
-        //模糊查询无聊
-        vagueMaterial(){
-            if (this.material) {
-                this.$http.post("/TPA/cWlda/getByName?name=" + this.material)
-                    .then(res => {
-                        console.log(res);
-                        if (res.data.code === 0) {
-                            if(res.data.data.length>0){
-                                this.oldMaterialList = res.data.data;
-                            }else{
-                                error('暂无数据')
-                                 this.oldMaterialList = []
-                            }
-                        } else {
-                            error(res.data.msg);
-                        }
-                    })
+        //接收模糊查询款号开关
+        listenToOnOff(data){
+            this.oldPsn = data
+        },
+        //接收模糊查询款号数据
+        listenToItem(data){
+            if(data.length>0){
+                this.firstForm.psn = data[0];
+                
+                this.getSh(this.firstForm.psn)
 
-                    .catch(err => {
-                        NetworkAnomaly();
-                    });
-            } else {
-                error('请输入搜索条件！') 
-            }            
-        }
+                this.emptyBtnTo();
+                this.oldPsn = false;
+                let params = {
+                    psn: data[0],
+                    count: this.pageSize,
+                    page: 0
+                };
+                this.pageParams = params;
+                this.getPageData(this.pageParams);
+                this.getDesignColor(data[0]);
+
+                this.psn = "";
+                this.search = data[0]                
+            }
+                     
+        },   
+        //接收模糊查询物料开关
+        listenToMaterial(data){
+            this.oldMaterial = data
+        },
+        //接收模糊查询物料数据
+        listenToMaterialItem(data){
+            if(data.length>0){
+                this.firstForm.materialSn = data[0];
+                this.firstForm.materialName = data[2];
+                this.firstForm.loss = data[1];
+
+            }
+                     
+        },   
     },
 
     computed: {
@@ -1628,31 +1517,11 @@ export default {
                this.oldPsnList = []
             }            
         },
-        //模糊查询物料
-        material(){
-            if (this.material) {
-                this.$http.post("/TPA/cWlda/option?name=" + this.material)
-                    .then(res => {
-                        if (res.data.code === 0) {
-                            if(res.data.data.length>0){
-                                this.oldMaterialList = res.data.data;
-                            }else{
-                                error('暂无数据')
-                                 this.oldMaterialList = []
-                            }
-                        } else {
-                            error(res.data.msg);
-                        }
-                    })
+      
 
-                    .catch(err => {
-                        NetworkAnomaly();
-                    });
-            } else {
-                this.oldMaterialList = [    ]
-            }             
-        }
-
+    },
+    components: {
+        vagueSearch
     }
 };
 </script>

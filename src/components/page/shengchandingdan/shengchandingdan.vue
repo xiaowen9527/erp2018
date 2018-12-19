@@ -300,11 +300,11 @@
         </el-dialog>
 
         <!-- topNav模糊搜索生产订单号 -->
-        <vagueSearch v-if="oldSearch" :onoff="oldSearch" :url="vagueSearchUrl" v-on:listenOnOff="listenToOnOff" v-on:listenItem="listenToItem"/>
-        <!-- topNav模糊搜索销售订单号 -->
-        <vagueSearch v-if="oldPsn" :onoff="oldPsn" :url="vaguePsnUrl" v-on:listenOnOff="listenToOldPsn" v-on:listenItem="listenToOldPsnItem"/>
-        <!-- topNav模糊搜索款号 -->
-        <vagueSearch v-if="oldSellSn" :onoff="oldSellSn" :url="vagueSellSnUrl" v-on:listenOnOff="listenTooldSellSn" v-on:listenItem="listenTooldSellSnItem"/>
+        <vagueSearch v-if="oldSearch" :onoff="oldSearch" :tip="oldSearchTip" :url="vagueSearchUrl" v-on:listenOnOff="listenToOnOff" v-on:listenItem="listenToItem"/>
+        <!-- 模糊搜索销售订单号 -->
+        <vagueSearch v-if="oldPsn" :onoff="oldPsn" :tip="oldPsnTip" :url="vaguePsnUrl" v-on:listenOnOff="listenToOldPsn" v-on:listenItem="listenToOldPsnItem"/>
+        <!-- 模糊搜索款号 -->
+        <vagueSearch v-if="oldSellSn" :onoff="oldSellSn" :tip="oldSellSnTip" :url="vagueSellSnUrl" v-on:listenOnOff="listenTooldSellSn" v-on:listenItem="listenTooldSellSnItem"/>
     </div>
 </template>
 
@@ -341,13 +341,16 @@ export default {
             secondFormGui: true,
 
             oldSearch:false,                                        //头部模糊搜索组件开关
+            oldSearchTip:"请输入生产订单号",
             vagueSearchUrl:"/TPA/dProductOrder/getSn?name=",        //搜索接口地址
 
 
             oldSellSn:false,                //查询销售单号开关
+            oldSellSnTip:"请输入销售单号",
             vagueSellSnUrl:"/TPA/dSellOrder/option?name=",              //擦和讯销售单号接口
 
             oldPsn:false,                   //款号开关
+            oldPsnTip:"请输入款号",
             vaguePsnUrl:'',                 //搜索接口地址(下面动态生成)          
 
             addEdit:true,                  //保存修改状态开关

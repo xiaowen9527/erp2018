@@ -188,25 +188,6 @@
             </el-pagination>
         </div>
 
-        <el-dialog title="材质+名称+规格" :visible.sync="oldMenu">
-            <el-input v-model="name" placeholder="请输入你要查找的物料规格名称"></el-input>
-            <ul class="srcond_menu">
-                <li v-for="(item,i) in nameList" :key="i">
-                    <span @click="getOldMenu(item)">|--{{item.name}}&nbsp;&nbsp;-&nbsp;&nbsp;{{item.type}}</span>
-                </li>
-            </ul>
-        </el-dialog>
-        <el-dialog title="请输入面料档案编号" :visible.sync="oldSearch">
-            <el-input v-model="search" placeholder="请输入面料档案编号"></el-input>
-            <button class="button_btn" @click="vagueSearch">查询</button>
-            <ul class="srcond_menu">
-                <li v-if="searchList.length===0">暂无数据</li>
-                <li v-for="(item,i) in searchList" :key="i">
-                    <span @click="getSearch(item)">|--{{item.sn}}&nbsp;&nbsp;-&nbsp;&nbsp;{{item.name}}&nbsp;&nbsp;-&nbsp;&nbsp;{{item.typeName}}</span>
-                </li>
-            </ul>
-        </el-dialog>
-
         <!-- 导入弹窗 -->
         <el-dialog class="importExport" title="导入" :visible.sync="importbox" width="30%" :showClose="false" :show-file-list="false">
             <a class="down" href="/TPA/cWlda/downExcel">下载导入模板</a>
@@ -234,27 +215,10 @@
             </ul>
         </el-dialog>     
 
-        <!-- 编辑弹出框 -->
-        <!-- <el-dialog title="编辑" :visible.sync="editVisible" width="30%">
-            <el-form :model="dialog" label-width="100px">
-                <el-form-item label="编号">
-                    <el-input v-model="dialog.sn" disabled></el-input>
-                </el-form-item>
-                <el-form-item label="色号">
-                    <el-input v-model="dialog.yscmSn" disabled></el-input>
-                </el-form-item>
-                <el-form-item label="名称">
-                    <el-input v-model="dialog.yscmName" disabled></el-input>
-                </el-form-item>
-                <el-form-item label="供应商色号">
-                    <el-input v-model="dialog.gysYsSn"></el-input>
-                </el-form-item>
-            </el-form>
-            <span slot="footer" class="dialog-footer">
-                <el-button @click="editVisible = false">取 消</el-button>
-                <el-button type="primary" @click="saveEdit">确 定</el-button>
-            </span>
-        </el-dialog> -->
+        <!-- topNav模糊搜索 -->
+        <vagueSearch v-if="oldSearch" :onoff="oldSearch" :tip="oldSearchTip" :url="vagueSearchUrl" v-on:listenOnOff="listenToOnOff" v-on:listenItem="listenToItem"/>
+        <!-- topNav模糊获取 材质+名称+规格 -->
+        <vagueSearch v-if="oldMenu" :onoff="oldMenu" :tip="oldMenuTip"  :url="vagueNameUrl" v-on:listenOnOff="listenToName" v-on:listenItem="listenToNameItem"/>
 
     </div>
 </template>
@@ -263,6 +227,7 @@
 import "@/assets/js/import.js"; //导入请求超时拦截
 import { mapState } from "vuex";
 import NavMenu from "./NavMenu";
+import vagueSearch from "@/components/pageCommon/vagueSearch";  //模糊查询组件
 import {
     NetworkAnomaly,
     succ,
@@ -279,8 +244,7 @@ export default {
             doCancel: true,
             doImport: false,
             doExport: false,
-            oldMenu: false,
-            oldColor: false,
+            
             addEdit: true, //新增修改开关
             //form的disabled
             firstFormNo: true,
@@ -290,13 +254,16 @@ export default {
             secondFormOn: true,
             secondFormGui: true,
             //bind值
-            oldSearch: false,
-            search: "", //查询
-            searchList: [],
+            oldSearch:false,                                        //头部模糊搜索组件开关
+            oldSearchTip:"请输入面料档案编号",
+            vagueSearchUrl:"/TPA/cWlda/option?name=",              //搜索接口地址
+            oldMenu: false,
+            oldMenuTip:"请输入物料名称",
+            vagueNameUrl:"/TPA/cSpecification/option?name=",
+
+            search:"",
             navMenus: [], //导航数据
             tableList: [],
-            name: "",
-            nameList: [], //名称规格材质  弹出数组
             firstForm: {
                 typeSn: "", //归属编号
                 typeName: "", //归属名称
@@ -468,7 +435,6 @@ export default {
             this.disabledFirstForm();
             this.disabledSecondForm();
             this.list = [];
-            this.search = "";
             this.pageOnOff = false;
             this.tableList = [];
         },
@@ -581,8 +547,6 @@ export default {
         //查询
         doSearchs() {
             this.oldSearch = true
-            this.search = ""
-            this.searchList = []
         },
         //退出
         doOuts() {
@@ -856,46 +820,6 @@ export default {
         },
 
 
-        //选择 材质+名称+规格
-        getOldMenu(item) {
-            this.firstForm.typeSn = item.typeSn;
-            this.firstForm.typeName = item.type;
-            this.firstForm.nameSn = item.sn
-            this.firstForm.name = item.name
-            this.oldMenu = false;
-            console.log(this.firstForm)
-        },
-        //选择search模糊查询
-        getSearch(item) {
-            this.search = item.sn
-            this.oldSearch = false;
-            this.$http
-                .post("/TPA/cWlda/getBySn?sn=" + this.search)
-                .then(res => {
-                    if (res.data.code === 0) {
-                        this.doCancels();
-                        this.search = "";
-                        this.firstForm = res.data.data[0];
-                        //查询表格数据
-                        let params = {
-                            masterSn: this.firstForm.sn,
-                            orderBy: "gys_ys_sn asc",
-                            page: 0,
-                            count: this.pageSize
-                        };
-                        this.pageParams = params;
-                        this.getGysColorGys();
-                        this.noDisabledSecondForm();
-                    } else {
-                        error(res.data.msg);
-                        this.search = ""
-                    }
-                })
-                .catch(err => {
-                    NetworkAnomaly();
-                });
-        },
-
         //获取供应商色号
         getGysColorGys() {
             console.log(this.pageParams);
@@ -996,63 +920,58 @@ export default {
                 }
             }
         },
-        //模糊查询
-        vagueSearch(){
-            this.searchList = []
-            if (this.search) {
-                let search = {
-                    sn: 17 + "|" + this.search
-                };
-                let searchStr = JSON.stringify(search);
+
+
+        //接收模糊查询开关
+        listenToOnOff(data){
+            this.oldSearch = data
+        },
+        //接收模糊查询数据
+        listenToItem(data){
+            if(data.length>0){
+                this.search = data[0]
                 this.$http
-                    .post("/TPA/cWlda/search?search=" + searchStr)
+                    .post("/TPA/cWlda/getBySn?sn=" + this.search)
                     .then(res => {
-                        if(res.data.code===0){
-                            if(res.data.data.list.length>0){
-                                this.searchList = res.data.data.list;
-                            }else{
-                                error('暂无数据')
-                                this.searchList = []
-                            }
-                        }else{
-                            error(res.data.msg)
+                        if (res.data.code === 0) {
+                            this.doCancels();
+                            this.search = "";
+                            this.firstForm = res.data.data[0];
+                            //查询表格数据
+                            let params = {
+                                masterSn: this.firstForm.sn,
+                                orderBy: "gys_ys_sn asc",
+                                page: 0,
+                                count: this.pageSize
+                            };
+                            this.pageParams = params;
+                            this.getGysColorGys();
+                            this.noDisabledSecondForm();
+                        } else {
+                            error(res.data.msg);
+                            this.search = ""
                         }
                     })
                     .catch(err => {
                         NetworkAnomaly();
                     });
-            }else{
-                error('请输入搜索条件！')              
             }
+                     
+        },  
+        //接收材质+名称+规格开关
+        listenToName(data){
+            this.oldMenu = data
         },
-        //获取 材质+名称+规格
-        vagueGetOld() {
-            this.nameList = []
-            if(this.name){
-                let search = {
-                    name: 17 + "|" + name
-                };
-                let searchStr = JSON.stringify(search);
-                this.$http.post('/TPA/cSpecification/search?status=1&search=' + searchStr)
-                    .then(res => {
-                        if (res.data.code === 0) {
-                            if(res.data.data.list.length>0){
-                                this.nameList = res.data.data.list
-                            }else{
-                                error('暂无数据')  
-                                this.nameList = []                        
-                            }
-                            
-                        } else {
-                            error(res.data.msg)
-                        }
-                    })
-                    .catch(err => {
-                        NetworkAnomaly()
-                    })
+        //接收模糊查询材质+名称+规格数据
+        listenToNameItem(data){
+            if(data.length>0){
+                console.log(data);
+                this.firstForm.typeSn = data[0];
+                this.firstForm.typeName = data[2];
+                this.firstForm.name = data[1]
             }
-
-        },
+                     
+        },  
     },
     watch: {
         page() {
@@ -1082,31 +1001,7 @@ export default {
             for (let i = 0; i < this.list.length; i++) {
                 this.list[i].sn = this.firstForm.sn;
             }
-        },
-        //获取 材质+名称+规格
-        name(){
-            if(this.name){
-                this.$http.post('/TPA/cSpecification/option?name=' + this.name)
-                    .then(res => {
-                        if (res.data.code === 0) {
-                            if(res.data.data.length>0){
-                                this.nameList = res.data.data
-                            }else{
-                                error('暂无数据')  
-                                this.nameList = []                        
-                            }
-                            
-                        } else {
-                            error(res.data.msg)
-                        }
-                    })
-                    .catch(err => {
-                        NetworkAnomaly()
-                    })                
-            }else{
-                this.nameList = []
-            }
-        },
+        },      
 
 
     },
@@ -1114,7 +1009,7 @@ export default {
         ...mapState(["collapse"])
     },
     components: {
-        NavMenu
+        NavMenu,vagueSearch
     }
 };
 </script>
@@ -1243,6 +1138,11 @@ export default {
             input
                 height 2.5vh
                 line-height 2.5vh
+                word-break normal
+                white-space: nowrap!important
+                text-overflow: ellipsis!important
+                overflow: hidden!important
+                cursor pointer
                     &.guiNum
                         width 15%
             button
