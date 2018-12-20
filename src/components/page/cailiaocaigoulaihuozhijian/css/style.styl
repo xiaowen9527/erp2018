@@ -1,0 +1,244 @@
+.btn-box
+    min-width 1510px
+.set_box
+    height 76vh
+    .menu_box
+        width 18%
+        height 75.4vh
+    .set_info
+        width 81.2%
+        overflow hidden
+        margin-right 1vh
+        .firstForm
+            min-width 980px
+            ul
+                li
+                    width 30%
+                    &.gui
+                        width 35%
+                        label
+                            width 20%
+                        .gui_num
+                            width 25%
+                        .gui_input
+                            width: 45%
+                        input
+                            width 60%
+                    &.date
+                        .el-date-editor
+                            width: 60%
+
+
+                .save
+                    padding 0 1vh
+                    height 3.5vh
+                    border 0.1vh solid #d2d2d2
+                    background none
+                    line-height 3.5vh
+                    text-align center
+                    border-radius 0.5vh
+                    cursor pointer
+                    margin 1vh
+                .btn
+                    border 0.1vh solid #409eff !important
+                    font-weight bold
+                    color #409eff
+
+.container>>>.el-textarea
+        height: 3.5vh
+        width: 60%
+        .el-textarea__inner
+            height: 3.5vh !important
+//下拉
+.container>>>.el-select>.el-input 
+  display: inline-block;
+.container>>> .el-date-editor.el-input 
+  width: 60%;
+  font-size: 1.4vh;
+.container>>> .size 
+  width: 55% !important;
+  margin-right: 1vh;
+  input 
+    padding: 0
+.container>>> .el-input__icon 
+  height: auto;
+        
+//表单日期选择器
+.container>>>.el-input__inner
+     width: 100% !important  
+     padding-right: 1vh    
+.container>>>.el-input__icon      
+    display: none       
+// 导航
+.container>>>.el-submenu__title, .container>>>.el-menu-item
+    height 3vh
+    line-height 3vh
+    font-size 1.6vh !important
+// 弹出框
+.container>>>.look .el-dialog               //双击table弹出
+    height 500px
+.container>>>.look .el-dialog__body         //双击table弹出
+    height 380px 
+.container>>>.oldsn .el-dialog               //修改生产订单
+    height 500px
+.container>>>.oldsn .el-dialog__body         //修改生产订单
+    height 380px 
+    label
+        width: 80px !important
+    input
+        padding-left: 10px
+    .el-textarea
+        height auto
+        .el-textarea__inner
+            height 10vh !important
+.container>>>.addNUm .el-dialog             //添加数量
+    height 500px
+    width: 1000px
+.container>>>.addNUm .el-dialog__body       //添加数量
+    height 380px 
+.container>>>.addNUm .el-dialog__body .addNumTable
+    width: 1600px     
+.container>>>.importAddNUm .el-dialog               //导入款号
+    width: 800px
+    height 600px
+.container>>>.importAddNUm .el-dialog__body  
+    height 450px   
+.container>>>.oldSee .el-dialog__body            //导入查看详细
+    height 270px 
+    p
+        width: 50%
+        float left
+        &:hover
+            background: #d2d2d2
+        label
+            display: block
+            width: 50%
+            float left
+            font-size: 14px
+            line-height: 30px
+            text-align: center
+            cursor pointer            
+.container>>>.importAddNUm .el-table .cell,.container>>>.importAddNUm .el-table td
+    padding: 0 .5vh
+    height: 4vh
+    line-height: 4vh    
+    button
+        height 30px
+.addNUm>>>th, .order_table>>>.el-table td, .el-table th
+  padding: 0
+.addNUm>>>.info_form ul li, .container>>>.el-table .cell
+  height: 3.6vh
+  line-height: 3.6vh
+
+  text-align: center
+  font-size: 1.6vh
+.container>>>.el-table__empty-block
+  min-height: 3.5vh    
+// 改变saveList中的input样式
+.changeInput 
+  background: transparent
+  border: none
+  width: 100%
+  height 4vh
+  line-height: 4vh
+  text-align: center
+
+.container>>>.el-dialog
+    width 400px
+    height 400px
+.container>>>.el-dialog__body
+    cursor pointer !important
+    line-height 2.5vh
+    font-weight bold
+    padding 1vh 2vh
+    height 340px
+    overflow-y: auto
+   
+    li  
+        :hover
+            background: #d2d2d2
+        span 
+            padding-left: 2vh
+// 修改弹窗input样式
+.el-dialog__body .el-form-item
+  margin-bottom: 5px
+.el-dialog__body .el-form-item .el-form-item__content .el-input
+  width: 70%
+
+//弹出窗表单
+.el-form-item
+    height 4vh
+    margin-bottom: 12px !important
+.el-form-item>>>.el-form-item__label
+        width: 10% !important
+        text-align: center !important
+.el-form-item>>>.el-form-item__content
+        height 4vh !important
+        margin 0 !important
+        .el-input 
+            width: 90% !important
+            &.gui_num
+                width 20% !important
+                margin-right: 5%
+            &.gui_input
+                width: 65% !important
+        
+ 
+// 表格
+.order_table
+  width: 99%
+  min-width 1080px
+  margin: 5px auto 0
+  overflow: hidden
+  .el-button
+    padding: 0.6vh 1vh
+    margin-top: 0.4vh
+    border: 1px solid #d2d2d2
+    color: #d2d2d2
+    &.btn
+        // font-size: 1.6vh
+        border: 1px solid #409eff
+        color: #409eff
+      
+
+
+.container>>>th, .order_table>>>.el-table td, .el-table th
+  padding: 0
+.container>>>.info_form ul li, .container>>>.el-table .cell
+  height: 4vh
+  line-height: 4vh
+  text-align: center
+  font-size: 1.6vh
+  word-break normal
+  white-space: nowrap!important;
+  text-overflow: ellipsis!important;
+  overflow: hidden!important;
+  cursor pointer
+//鼠标覆盖显示全部内容
+.container>>>.el-table .cell p
+  width 100%
+  height 4vh
+  line-height 4vh
+  word-break normal
+  white-space: nowrap!important;
+  text-overflow: ellipsis!important;
+  overflow: hidden!important;  
+  cursor:pointer
+.container>>>.el-table__empty-block
+  min-height: 3.5vh
+
+// 修改表格边框和表头背景色
+.container>>>.el-table th
+      background-color: #2d8cf0
+      color: #FFF
+.container>>>.el-table tr
+    background-color: #f1f1f1
+.container>>>.el-table, .container>>>tr, .container>>>td, .container>>>.el-table th
+    border : 0.5px solid #ccc
+.container>>>.el-table th
+    border-left: 0
+.container>>>.el-table th
+    &:last-child
+        border-right: 0
+    &:first-child
+        border-left: 1px solid #ccc

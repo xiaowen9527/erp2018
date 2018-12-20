@@ -151,16 +151,16 @@ export default {
     wuliaoxuqiutiaozheng: resolve =>require(["@/components/page/wuliaoxuqiutiaozheng/wuliaoxuqiutiaozheng"], resolve),                              //物料需求调整
     wuliaocaigouxuqiu: resolve =>require(["@/components/page/wuliaocaigouxuqiu/wuliaocaigouxuqiu"], resolve),                                       //物料采购需求
 
-    cailiaotihuanshenqing: resolve =>require(["@/components/page/cailiaotihuanshenqing/cailiaotihuanshenqing"], resolve),                               //材料替换申请
-    cailiaocaigoujinhuodingdan: resolve =>require(["@/components/page/cailiaocaigoujinhuodingdan/cailiaocaigoujinhuodingdan"], resolve),                     //材料采购进货订单
-    cailiaocaigoutuihuodingdan: resolve =>require(["@/components/page/cailiaocaigoutuihuodingdan/cailiaocaigoutuihuodingdan"], resolve),                      //材料采购退货订单
-    cailiaocaigoutuihuodingdan: resolve =>require(["@/components/page/cailiaocaigoulaihuozhijian/cailiaocaigoulaihuozhijian"], resolve),                       //材料采购来货质检
-    cailiaocaigoulaihuozhijian: resolve =>require(["@/components/page/cailiaocaigouzhijianruku/cailiaocaigouzhijianruku"], resolve),                            //材料采购质验入库
-    cailiaocaigouzhijieruku: resolve =>require(["@/components/page/cailiaocaigouzhijieruku/cailiaocaigouzhijieruku"], resolve),                              //材料采购直接入库
-    cailiaokucuntuihuozhijian: resolve =>require(["@/components/page/cailiaokucuntuihuozhijian/cailiaokucuntuihuozhijian"], resolve),                           //材料库存退货质检
-    cailiaozhijiantuihuochuku: resolve =>require(["@/components/page/cailiaozhijiantuihuochuku/cailiaozhijiantuihuochuku"], resolve),                           //材料质验退货出库
-    cailiaozhijietuihuochuku: resolve =>require(["@/components/page/cailiaozhijietuihuochuku/cailiaozhijietuihuochuku"], resolve),                             //材料直接退货出库
-    cailiaogongyijiagong: resolve =>require(["@/components/page/cailiaogongyijiagong/cailiaogongyijiagong"], resolve),                                       //材料工艺加工
+    cailiaotihuanshenqing: resolve =>require(["@/components/page/cailiaotihuanshenqing/cailiaotihuanshenqing"], resolve),                             //材料替换申请
+    cailiaocaigoujinhuodingdan: resolve =>require(["@/components/page/cailiaocaigoujinhuodingdan/cailiaocaigoujinhuodingdan"], resolve),               //材料采购进货订单
+    cailiaocaigoutuihuodingdan: resolve =>require(["@/components/page/cailiaocaigoutuihuodingdan/cailiaocaigoutuihuodingdan"], resolve),               //材料采购退货订单
+    cailiaocaigoulaihuozhijian: resolve =>require(["@/components/page/cailiaocaigoulaihuozhijian/cailiaocaigoulaihuozhijian"], resolve),            //材料采购来货质检
+    cailiaocaigouzhijianruku: resolve =>require(["@/components/page/cailiaocaigouzhijianruku/cailiaocaigouzhijianruku"], resolve),                    //材料采购质验入库
+    cailiaocaigouzhijieruku: resolve =>require(["@/components/page/cailiaocaigouzhijieruku/cailiaocaigouzhijieruku"], resolve),                       //材料采购直接入库
+    cailiaokucuntuihuozhijian: resolve =>require(["@/components/page/cailiaokucuntuihuozhijian/cailiaokucuntuihuozhijian"], resolve),                //材料库存退货质检
+    cailiaozhijiantuihuochuku: resolve =>require(["@/components/page/cailiaozhijiantuihuochuku/cailiaozhijiantuihuochuku"], resolve),                 //材料质验退货出库
+    cailiaozhijietuihuochuku: resolve =>require(["@/components/page/cailiaozhijietuihuochuku/cailiaozhijietuihuochuku"], resolve),                     //材料直接退货出库
+    cailiaogongyijiagong: resolve =>require(["@/components/page/cailiaogongyijiagong/cailiaogongyijiagong"], resolve),                                 //材料工艺加工
 
   }
 };

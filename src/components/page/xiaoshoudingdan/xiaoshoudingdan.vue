@@ -434,7 +434,6 @@ export default {
             //导入弹出开关
             importbox: false,
             importZhe: false, //导入遮罩
-            isCover: false, //默认导入不覆盖
             project: "", //错误文件名
             //上传的文件
             fileList: [],

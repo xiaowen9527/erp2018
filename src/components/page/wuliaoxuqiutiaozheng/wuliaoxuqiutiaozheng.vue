@@ -109,14 +109,14 @@
                 </el-table-column>
                 <el-table-column prop="nature" label="性质" width="110px">
                 </el-table-column>
-                <el-table-column prop="demand" label="用量需求量" width="110px">
+                <el-table-column prop="demand" label="用量单位需求量" width="110px">
                     <template slot-scope="scope">
                         <el-tooltip :content="String(scope.row.demand)" placement="top" :enterable="false">
                             <p>{{ scope.row.demand }}</p>
                         </el-tooltip>
                     </template>
                 </el-table-column>
-                <el-table-column prop="purchase" label="采购需求量" width="110px">
+                <el-table-column prop="purchase" label="采购单位需求量" width="110px">
                     <template slot-scope="scope">
                         <el-tooltip :content="String(scope.row.purchase)" placement="top" :enterable="false">
                             <p>{{ scope.row.purchase }}</p>
@@ -236,14 +236,14 @@
                 </el-table-column>
                 <el-table-column prop="zhxs" label="转换系数" width="110px">
                 </el-table-column>
-                <el-table-column prop="demand" label="用量需求量" width="110px">
+                <el-table-column prop="demand" label="用量单位需求量" width="110px">
                     <template slot-scope="scope">
                         <el-tooltip :content="String(scope.row.demand)" placement="top" :enterable="false">
                             <p>{{ scope.row.demand }}</p>
                         </el-tooltip>
                     </template>
                 </el-table-column>
-                <el-table-column prop="purchase" label="采购需求量" width="110px">
+                <el-table-column prop="purchase" label="采购单位需求量" width="110px">
                     <template slot-scope="scope">
                         <el-tooltip :content="String(scope.row.purchase)" placement="top" :enterable="false">
                             <p>{{ scope.row.purchase }}</p>
@@ -298,11 +298,11 @@
         <!-- 编辑弹出框 -->
         <el-dialog title="编辑" :visible.sync="editVisible" width="30%" class="edit">
             <el-form :model="dialog" label-width="100px">
-                <el-form-item label="用量需求量">
+                <el-form-item label="用量单位需求量">
                     <el-input v-model="dialog.demand" type="text" placeholder="必填"></el-input>
                 </el-form-item>
-                <el-form-item label="采购需求量">
-                    <el-input v-model="dialog.purchase" type="text" placeholder="必填"></el-input>
+                <el-form-item label="采购单位需求量">
+                    <el-input v-model="dialog.purchase" type="text" disabled placeholder="必填"></el-input>
                 </el-form-item>
                 <el-form-item label="类别">
                     <el-select v-model="dialog.type" placeholder="请选择(必选)">
@@ -492,6 +492,8 @@ export default {
             const item = this.list[index];
             this.dialog = item;
             this.editVisible = true;
+            console.log(this.dialog);
+            
         },
         //保存修改
         saveEdit() {
@@ -631,7 +633,10 @@ export default {
         }
     },
     computed: {
-        ...mapState(["collapse"])
+        ...mapState(["collapse"]),
+        getDialogDemand(){
+            return this.dialog.demand
+        },
     },
     watch: {
         page() {
@@ -663,6 +668,9 @@ export default {
                 this.orderSn = "";
                 this.list = [];
             }
+        },
+        getDialogDemand(){
+            this.dialog.purchase = this.dialog.demand * this.dialog.zhxs
         }
     }
 };
