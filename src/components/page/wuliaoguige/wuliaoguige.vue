@@ -28,10 +28,6 @@
                             <button :disabled="firstFormGui" :class="{btn:!firstFormGui}" @click="openGui">。。。</button>
                         </li>
                         <li>
-                            <label>编号</label>
-                            <input type="text" disabled v-model="firstForm.sn">
-                        </li>
-                        <li>
                             <label>物料规格名称</label>
                             <input type="text" :disabled="firstFormOn" v-model="firstForm.name" placeholder="请输入">
                         </li>
@@ -106,16 +102,6 @@
             </ul>
         </el-dialog>
 
-        <el-dialog title="查询" :visible.sync="oldSearch">
-            <el-input v-model="search" placeholder="请输入您要查询的物料规格名称" style="width:80%"></el-input>
-            <button class="button_btn" @click="vagueSearch" style="width:60px;height:40px;border:1px solid #409EFF;color:#409EFF;background:#fff;">查询</button>
-            <ul class="srcond_menu">
-                <li v-if="searchList.length===0">暂无数据</li>
-                <li class="clearfix" v-for="(item,i) in searchList" :key="i">
-                    <span class="search" @click="getSearchItem(item)">|--{{item.name}}</span>
-                </li>
-            </ul>
-        </el-dialog>
 
         <!-- 导入弹窗 -->
         <el-dialog class="importExport" title="导入" :visible.sync="importbox" width="30%" :showClose="false" :show-file-list="false">
@@ -143,6 +129,8 @@
                 </span>
             </ul>
         </el-dialog>
+        <!-- topNav模糊搜索 -->
+        <vagueSearch v-if="oldSearch" :onoff="oldSearch" :tip="oldSearchTip" :url="vagueSearchUrl" v-on:listenOnOff="listenToOnOff" v-on:listenItem="listenToItem"/>
 
     </div>
 </template>
@@ -158,6 +146,7 @@ import {
     getOut
 } from "../../../assets/js/message.js";
 import NavMenu from "./NavMenu";
+import vagueSearch from "@/components/pageCommon/vagueSearch";  //模糊查询组件
 export default {
     name: "wuliaoguige",
     data() {
@@ -173,12 +162,11 @@ export default {
             firstFormOn: true,
             firstFormGui: true,
 
+            search:"",
             //bind值
-            search: "", //查询
-            //模糊查询框开关
-            oldSearch: false,
-            //模糊查询框列表
-            searchList: [],
+            oldSearch:false,                                        //头部模糊搜索组件开关
+            oldSearchTip:"请输入研发姓名",
+            vagueSearchUrl:"/TPA/cSpecification/option?name=",              //搜索接口地址
 
             navMenus: [], //导航数据
 
@@ -292,13 +280,6 @@ export default {
             this.oldSearch = true;
             this.search = "";
             this.searchList = [];
-        },
-        //选择查询
-        getSearchItem(item) {
-            this.oldSearch = false;
-            this.doCancel = false;
-            this.search = item.name;
-            this.firstForm = item;
         },
 
         //退出
@@ -539,38 +520,26 @@ export default {
             this.page = val;
         },
 
-        //模糊查询
-        vagueSearch() {
-            if (this.search) {
-                let search = {
-                    name: 17 + "|" + this.search
-                };
-                let searchStr = JSON.stringify(search);
-                this.$http
-                    .post("/TPA/cSpecification/search?search=" + searchStr)
-                    .then(res => {
-                        if (res.data.code === 0) {
-                            if (res.data.data.list.length > 0) {
-                                this.searchList = res.data.data.list;
-                            } else {
-                                error("暂无数据");
-                                this.searchList = [];
-                            }
-                        }
-                    })
-                    .catch(err => {
-                        NetworkAnomaly();
-                    });
-            } else {
-                error("请输入搜索条件！");
+        //接收模糊查询开关
+        listenToOnOff(data){
+            this.oldSearch = data
+        },
+        //接收模糊查询数据
+        listenToItem(data){
+            if(data.length>0){
+                this.firstForm.typeSn = data[0];       
+                this.firstForm.type = data[2];       
+                this.firstForm.name = data[1];   
+                this.search = data[1]    
             }
-        }
+                     
+        },           
     },
     computed: {
         ...mapState(["collapse"])
     },
     components: {
-        NavMenu
+        NavMenu,vagueSearch
     },
     watch: {
         //翻页

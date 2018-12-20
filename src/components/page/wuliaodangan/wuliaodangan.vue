@@ -255,7 +255,7 @@ export default {
             secondFormGui: true,
             //bind值
             oldSearch:false,                                        //头部模糊搜索组件开关
-            oldSearchTip:"请输入面料档案编号",
+            oldSearchTip:"请输入面料档案编号或档案名称",
             vagueSearchUrl:"/TPA/cWlda/option?name=",              //搜索接口地址
             oldMenu: false,
             oldMenuTip:"请输入物料名称",

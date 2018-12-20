@@ -10,7 +10,7 @@
             <button :class="{button_btn:!doImport}" :disabled="doImport" @click="doImports">导入</button>
             <button :class="{button_btn:!doImport}" :disabled="doImport" @click="doExports">导出</button>
             <button class="button_btn" @click="doSearchs">查询</button>
-            <input type="text" class="doSearch" readonly placeholder="请选择" @click="doSearchs">
+            <input type="text" class="doSearch" readonly placeholder="请选择" @click="doSearchs" v-model="search">
             <button class="button_btn" @click="doOuts">退出</button>
             <button class="button_btn" @click="refresh">刷新</button>
             <div class="btn_right">
@@ -109,42 +109,6 @@
             </el-pagination>
         </div>
 
-        <!-- 查询框 -->
-        <el-dialog title="查询" :visible.sync="oldSearch">
-            <el-input v-model="search" placeholder="虚拟款号"></el-input>
-            <button class="button_btn" @click="vagueSearch">查询</button>
-            <ul class="srcond_menu">
-                <p v-if="oldSearchList.length===0">暂无数据</p>
-                <li v-for="(item,i) in oldSearchList" :key="i" class="clearfix">
-                    <span @click="getItemSearch(item)">{{item.fictPsn}}</span>
-                </li>
-            </ul>
-        </el-dialog>
-
-        <!-- 查询虚拟款号 -->
-        <el-dialog title="查询" :visible.sync="oldFictColor">
-            <el-input v-model="fictColor" placeholder="虚拟款号"></el-input>
-            <button class="button_btn" @click="vagueFictColor">查询</button>
-            <ul class="srcond_menu">
-                <p v-if="oldFictColorList.length===0">暂无数据</p>
-                <li v-for="(item,i) in oldFictColorList" :key="i" class="clearfix">
-                    <span @click="geiItemFictColor(item)">{{item.psn}}</span>
-                </li>
-            </ul>
-        </el-dialog>
-        <!-- 查询款号 -->
-        <el-dialog title="查询" :visible.sync="oldSn">
-            <el-input v-model="sn" placeholder="款号"></el-input>
-            <button class="button_btn" @click="vagueSn">查询</button>
-            <ul class="srcond_menu">
-                <p v-if="oldSnList.length===0">暂无数据</p>
-                <li v-for="(item,i) in oldSnList" :key="i" class="clearfix">
-                    <span @click="getItemSn(item)">{{item.psn}}</span>
-                </li>
-            </ul>
-        </el-dialog>
-
-
         <!-- 编辑弹出框 -->
         <el-dialog title="编辑" class="edit" :visible.sync="editVisible" width="30%">
             <el-form :model="dialog" label-width="100px">
@@ -197,12 +161,20 @@
                 </span>
             </ul>
         </el-dialog>
+        
+        <!-- topNav模糊搜索 -->
+        <vagueSearch v-if="oldSearch" :onoff="oldSearch" :tip="oldSearchTip" :url="vagueSearchUrl" v-on:listenOnOff="listenToOnOff" v-on:listenItem="listenToItem"/>
+        <!-- 模糊搜索虚拟款号 -->
+        <vagueSearch v-if="oldFictColor" :onoff="oldFictColor" :tip="oldFictColorTip" :url="vagueFictColorUrl" v-on:listenOnOff="listenToFictColor" v-on:listenItem="listenToFictColorItem"/>
+        <!-- 模糊搜索款号 -->
+        <vagueSearch v-if="oldSn" :onoff="oldSn" :tip="oldSnTip" :url="vagueSnUrl" v-on:listenOnOff="listenToSn" v-on:listenItem="listenToSnItem"/>
 
     </div>
 </template>
 
 <script>
 import "@/assets/js/import.js"; //导入请求超时拦截
+import vagueSearch from "@/components/pageCommon/vagueSearch";  //模糊查询组件
 import { mapState } from "vuex";
 
 import {
@@ -233,14 +205,21 @@ export default {
             secondFormGui: true,
 
             search: "",
-            oldSearch: false, //查询框开关
-            oldSearchList: [], //查询框列表
+            oldSearch:false,                                        //头部模糊搜索组件开关
+            oldSearchTip:"请输入虚拟款号",
+            vagueSearchUrl:"/TPA/cSpda/option?psnXz=1&psn=",              //搜索接口地址
+
             fictColor: "",
             oldFictColor: false,
             oldFictColorList: [],
-            sn: "",
+
+            oldFictColor:false,                                        //头部模糊搜索组件开关
+            oldFictColorTip:"请输入虚拟款号",
+            vagueFictColorUrl:"/TPA/cSpda/option?psnXz=1&psn=",              //搜索接口地址            
+            
             oldSn: false,
-            oldSnList: [],
+            oldSnTip:"请输入虚拟款号",
+            vagueSnUrl:"/TPA/cSpda/option?psnXz=0&psn=",              //搜索接口地址   
 
             navMenus: [], //导航数据
 
@@ -516,32 +495,6 @@ export default {
             window.location.href = "/TPA/aRepertory/exportExcel";
         },
 
-        //选择查询
-        getItemSearch(item) {
-            this.pageOnOff = false;
-            this.oldSearch = false;
-            let params = {
-                psn: item.fictPsn,
-                page: 0,
-                count: this.pageSize
-            };
-            this.pageParams = params;
-            this.doCancels();
-            this.getPageData(this.pageParams);
-        },
-        //选择虚拟款号
-        geiItemFictColor(item) {
-            this.firstForm.fictPsn = item.psn;
-            this.oldFictColor = false;
-
-            this.getColor(item.psn);
-            this.getSize(item.psn);
-        },
-        //选择款号
-        getItemSn(item) {
-            this.secondForm.psn = item.psn;
-            this.oldSn = false;
-        },
         //获取颜色列表
         getColor(sn) {
             this.$http
@@ -727,79 +680,50 @@ export default {
             this.page = val;
         },
 
-        //模糊搜索
-        vagueSearch() {
-            if (this.search) {
-                this.$http
-                    .post("/TPA/dGroupGoods/option?psn=" + this.search)
-                    .then(res => {
-                        if (res.data.code === 0) {
-                            console.log(res);
-                            if (res.data.data.length > 0) {
-                                this.oldSearchList = res.data.data;
-                            } else {
-                                error("暂无数据");
-                                this.oldSearchList = [];
-                            }
-                        } else {
-                            error(res.data.msg);
-                        }
-                    })
-                    .catch(err => {
-                        NetworkAnomaly();
-                    });
-            } else {
-                error("请输入搜索条件！");
-            }
+        //接收模糊查询开关
+        listenToOnOff(data){
+            this.oldSearch = data
         },
-        //模糊查询虚拟款号
-        vagueFictColor() {
-            if (this.fictColor) {
-                this.$http
-                    .post("/TPA/cSpda/option?psnXz=1&psn=" + this.fictColor)
-                    .then(res => {
-                        if (res.data.code === 0) {
-                            if (res.data.data.length > 0) {
-                                this.oldFictColorList = res.data.data;
-                            } else {
-                                error("暂无数据");
-                                this.oldFictColorList = [];
-                            }
-                        } else {
-                            error(res.data.msg);
-                        }
-                    })
-                    .catch(err => {
-                        NetworkAnomaly();
-                    });
-            } else {
-                error("请输入搜索条件！");
+        //接收模糊查询数据
+        listenToItem(data){
+            if(data.length>0){
+                let params = {
+                    psn: data[0],
+                    page: 0,
+                    count: this.pageSize
+                };
+                this.pageParams = params;
+                this.doCancels();
+                this.getPageData(this.pageParams);
             }
+                     
+        },         
+        //接收模糊查询虚拟款号开关
+        listenToFictColor(data){
+            this.oldFictColor = data
         },
-        //模糊搜索款号
-        vagueSn() {
-            if (this.sn) {
-                this.$http
-                    .post("/TPA/cSpda/option?psnXz=0&psn=" + this.sn)
-                    .then(res => {
-                        if (res.data.code === 0) {
-                            if (res.data.data.length > 0) {
-                                this.oldSnList = res.data.data;
-                            } else {
-                                error("暂无数据");
-                                this.oldSnList = [];
-                            }
-                        } else {
-                            error(res.data.msg);
-                        }
-                    })
-                    .catch(err => {
-                        NetworkAnomaly();
-                    });
-            } else {
-                error("请输入搜索条件！");
+        //接收模糊查询虚拟款号数据
+        listenToFictColorItem(data){
+            if(data.length>0){
+                this.firstForm.fictPsn = data[0];
+                this.getColor(data[0]);
+                this.getSize(data[0]);
             }
-        }
+                     
+        },         
+        //接收模糊查询款号开关
+        listenToSn(data){
+            this.oldSn = data
+        },
+        //接收模糊查询款号数据
+        listenToSnItem(data){
+            if(data.length>0){
+                this.secondForm.psn = data[0];
+                this.getColor(data[0]);
+                this.getSize(data[0]);                
+            }
+                     
+        },         
     },
     mounted() {
         this.getnavMenus();
@@ -822,7 +746,7 @@ export default {
 
     // 引入组件
     components: {
-        NavMenu
+        NavMenu,vagueSearch
     }
 };
 </script>
