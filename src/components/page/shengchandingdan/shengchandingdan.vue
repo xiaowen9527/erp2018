@@ -349,9 +349,8 @@ import vagueSearch from "@/components/pageCommon/vagueSearch";
 export default {
     data() {
         return {
-            oldONoFF:true,
+            oldONoFF:false,
             vagueSearchUrl:"/TPA/dProductOrder/getSn?name=",
-            displaySearch:['sn'],
 
             //按钮disabled
             doAdd: false,
