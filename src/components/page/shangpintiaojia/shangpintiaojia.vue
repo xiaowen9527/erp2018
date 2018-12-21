@@ -9,7 +9,7 @@
             <button class="button_btn" @click="doCancels">取消</button>
             <button :disabled='doExport' :class="{button_btn:!doExport}" @click="doExports">导出</button>
             <button :disabled='doImport' :class="{button_btn:!doImport}" @click="doImports">导入</button>
-            <button @click="doUpdates" class="save" :class="{button_btn: secondForm.masterSn}" :disabled="(!secondForm.masterSn)">修改</button>
+            <button @click="doUpdates" class="save" :class="{button_btn: (secondForm.masterSn) && (firstForm.sh == 0)}" :disabled="(!secondForm.masterSn || firstForm.sh != 0)">修改</button>
             <button @click="doSearchs" class="button_btn">查询</button>
             <input type="text" class="queryInfo" @click="searchSnFun" v-model="queryInfo"/>
             <button class="button_btn" @click="doOuts">退出</button>
@@ -392,11 +392,10 @@ export default {
     searchForm(sn) {
       this.$http.post("/TPA/dAdjustPrice/getBy?sn=" + sn).then(res => {
         if (res.data.code === 0) {
-          this.firstForm.activeDate = res.data.data[0].activeDate;
-          this.firstForm.stopDate = res.data.data[0].stopDate;
-          this.firstForm.sh = res.data.data[0].sh;
-          this.firstForm.id = res.data.data[0].id;
+          this.firstForm = res.data.data[0];
           this.secondForm.masterSn = res.data.data[0].sn;
+
+          this.bottom = res.data.data[0]
 
           let Arr = res.data.data[0].client.split(",");
           this.customerTag = [];
@@ -444,10 +443,11 @@ export default {
 
     // 审核
     doExamines() {
-      console.log(1)
       this.$http.post("/TPA/dAdjustPrice/auditing?status=1&id=" + this.firstForm.id).then(res => {
         if(res.data.code === 0) {
           this.searchForm(res.data.data.sn);
+          this.firstFormOff = true;
+          this.secondFormOff = true;
         } else {
           error(res.data.msg);
         }
@@ -631,7 +631,7 @@ export default {
         .post("/TPA/dAdjustPriceA/delete?id=" + item.id)
         .then(res => {
           if (res.data.code === 0) {
-            console.log(res)
+            this.getPageData();
           } else {
             error(res.data.msg);
           }
@@ -659,8 +659,6 @@ export default {
             }
             this.clientList = Arr;
 
-            this.bottom = res.data.data;
-
             // 重置表格合并
             this.rowList = [];
             this.djArr = [];
@@ -677,6 +675,8 @@ export default {
             }
           } else {
             error(res.data.msg);
+            this.list = [];
+            this.clientList = [];
           }
         })
         .catch(err => {

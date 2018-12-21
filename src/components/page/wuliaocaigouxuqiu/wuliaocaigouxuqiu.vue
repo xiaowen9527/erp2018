@@ -83,14 +83,14 @@
                 </el-table-column>
                 <el-table-column prop="zhxs" label="转换系数" min-width="110px">
                 </el-table-column>
-                <el-table-column prop="demand" label="库存扣减量" min-width="110px">
+                <el-table-column prop="demand" label="用量单位需求量" min-width="120px">
                     <template slot-scope="scope">
                         <el-tooltip :content="String(scope.row.demand)" placement="top" :enterable="false">
                             <p>{{ scope.row.demand }}</p>
                         </el-tooltip>
                     </template>
                 </el-table-column>
-                <el-table-column prop="purchase" label="采购扣减数量" min-width="110px">
+                <el-table-column prop="purchase" label="采购单位需求量" min-width="120px">
                     <template slot-scope="scope">
                         <el-tooltip :content="String(scope.row.purchase)" placement="top" :enterable="false">
                             <p>{{ scope.row.purchase }}</p>
@@ -313,26 +313,18 @@ export default {
     watch: {
         page() {
             if(this.page > 0) {
-                if (this.psnInfo) {
-                var params = {
-                    page: this.page - 1,
-                    count: this.pageSize,
-                    orderSn: this.snInfo,
-                    psn: this.psnInfo
-                }
-                } else {
+                if (this.allOrDeatil == false) {
                     var params = {
                         page: this.page - 1,
                         count: this.pageSize,
-                        orderSn: this.snInfo
+                        sn: this.snInfo,
+                        psn: this.psnInfo
                     }
-                }
-                this.pageParams = params;
-                if (this.allOrDeatil == false) {
+                    this.pageParams = params;
                     this.$http.post("/TPA/vMrpDetail/collect", qs.stringify(this.pageParams)).then(res => {
                         if(res.data.code === 0) {
-                            succ(res.data.msg)
                             this.list = res.data.data;
+                            succ(res.data.msg)
 
                             this.total = res.data.attachment.total;
                             if (this.total > this.pageSize) {
@@ -348,10 +340,25 @@ export default {
                         NetworkAnomaly();
                     })
                 } else {
+                    if (this.psnInfo) {
+                    var params = {
+                        page: this.page - 1,
+                        count: this.pageSize,
+                        orderSn: this.snInfo,
+                        psn: this.psnInfo
+                    }
+                    } else {
+                        var params = {
+                            page: this.page - 1,
+                            count: this.pageSize,
+                            orderSn: this.snInfo
+                        }
+                    }
+                    this.pageParams = params;
                     this.$http.post("/TPA/vMrpDetail/search", qs.stringify(this.pageParams)).then(res => {
                         if(res.data.code === 0) {
-                            succ(res.data.msg)
                             this.list = res.data.data.list;
+                            succ(res.data.msg)
 
                             this.total = res.data.data.total;
                             if (this.total > this.pageSize) {

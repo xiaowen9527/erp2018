@@ -144,8 +144,8 @@
                         <button style="margin-top:.5vh;margin-left:1vh" :disabled="secondFormOn" :class="{button_btn:!secondFormOn}" @click="secondSave" class="button">保存</button>
                         <li class="upload">
                             <button style="margin-top:.5vh;margin-left:1vh" :disabled="pic" :class="{button_btn:!pic}" @click="dodesigns" class="button">上传设计图</button>
-                            <button style="margin-top:.5vh;margin-left:1vh" :disabled="pic" :class="{button_btn:!pic}" @click="dosamples" class="button">上传样衣图</button>
                             <button style="margin-top:.5vh;margin-left:1vh" :disabled="pic" :class="{button_btn:!pic}" @click="domaterials" class="button">上传面料图</button>
+                            <button style="margin-top:.5vh;margin-left:1vh" :disabled="pic" :class="{button_btn:!pic}" @click="dosamples" class="button">上传样衣图</button>
                         </li>
 
                     </ul>
@@ -161,6 +161,16 @@
                             </li>
                         </ul>
                     </el-tab-pane>
+                    <el-tab-pane label="面料图">
+                        <ul class="clearfix imgBox">
+                            <li v-for="(item,i) in material" :key="i">
+                                <img :src="item">
+                                <div class="zhezhao"> </div>
+                                <i class="el-icon-error" @click="deleteMaterial(item)"></i>
+                                <i class="el-icon-view detail" @click="detailMaterial(item)"></i>
+                            </li>
+                        </ul>
+                    </el-tab-pane>                    
                     <el-tab-pane label="样衣图">
                         <ul class="clearfix imgBox">
                             <li v-for="(item,i) in sample" :key="i">
@@ -171,16 +181,7 @@
                             </li>
                         </ul>
                     </el-tab-pane>
-                    <el-tab-pane label="面料图">
-                        <ul class="clearfix imgBox">
-                            <li v-for="(item,i) in material" :key="i">
-                                <img :src="item">
-                                <div class="zhezhao"> </div>
-                                <i class="el-icon-error" @click="deleteMaterial(item)"></i>
-                                <i class="el-icon-view detail" @click="detailMaterial(item)"></i>
-                            </li>
-                        </ul>
-                    </el-tab-pane>
+
                 </el-tabs>
             </div>
         </div>
@@ -247,7 +248,7 @@
         </el-dialog>
 
 
-        <el-dialog class="importExport" title="设计图上传" :visible.sync="designbox" width="30%" :showClose="false" :show-file-list="false">
+        <el-dialog class="importExport" title="设计图上传" :limit="1" :visible.sync="designbox" width="30%" :showClose="false" :show-file-list="false">
             <el-upload name="file" class="upload-demo" ref="designq" action="" :file-list="designfileList" :http-request="designUploadFile" :auto-upload="false" accept=".jpg,.jpeg,.png">
                 <el-button slot="trigger" size="small" type="primary" plain>选取文件</el-button>
                 <div slot="tip" class="el-upload__tip">只能上传图片</div>
@@ -257,7 +258,7 @@
                 <el-button type="primary" @click="designUpload" plain>确 定</el-button>
             </span>
         </el-dialog>
-        <el-dialog class="importExport" title="样衣图上传" :visible.sync="samplebox" width="30%" :showClose="false" :show-file-list="false">
+        <el-dialog class="importExport" title="样衣图上传" :limit="1" :visible.sync="samplebox" width="30%" :showClose="false" :show-file-list="false">
             <el-upload name="file" class="upload-demo" ref="sampleq" action="" :file-list="samplefileList" :http-request="sampleUploadFile" :auto-upload="false" accept=".jpg,.jpeg,.png">
                 <el-button slot="trigger" size="small" type="primary" plain>选取文件</el-button>
                 <div slot="tip" class="el-upload__tip">只能上传图片</div>
@@ -267,7 +268,7 @@
                 <el-button type="primary" @click="sampleUpload" plain>确 定</el-button>
             </span>
         </el-dialog>
-        <el-dialog class="importExport" title="面料图上传" :visible.sync="materialbox" width="30%" :showClose="false" :show-file-list="false">
+        <el-dialog class="importExport" title="面料图上传" :limit="1" :visible.sync="materialbox" width="30%" :showClose="false" :show-file-list="false">
             <el-upload name="file" class="upload-demo" ref="materialq" action="" :file-list="materialfileList" :http-request="materialUploadFile" :auto-upload="false" accept=".jpg,.jpeg,.png">
                 <el-button slot="trigger" size="small" type="primary" plain>选取文件</el-button>
                 <div slot="tip" class="el-upload__tip">只能上传图片</div>
@@ -848,6 +849,7 @@ export default {
         },
         //自定义上传
         designUploadFile(params) {
+            this.importZhe = true;
             const _file = params.file;
             let formData = new FormData();
             formData.append("file", _file);
@@ -937,6 +939,7 @@ export default {
         },
         //自定义上传
         sampleUploadFile(params) {
+            this.importZhe = true;
             const _file = params.file;
             let formData = new FormData();
             formData.append("file", _file);
@@ -1026,6 +1029,7 @@ export default {
         },
         //自定义上传
         materialUploadFile(params) {
+            this.importZhe = true;
             const _file = params.file;
             let formData = new FormData();
             formData.append("file", _file);

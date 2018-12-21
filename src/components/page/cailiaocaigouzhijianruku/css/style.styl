@@ -13,6 +13,25 @@
             min-width 980px
             ul
                 li
+                    &.second
+                        width: 50%
+                        label,.gui_num
+                            width: 20%
+                        .gui_input
+                            width: 40%
+                            margin: 0 10px
+                        button
+                            max-width: 60px
+                            height 3.5vh
+                            border 0.1vh solid #d2d2d2
+                            background none
+                            line-height 3.5vh
+                            text-align center
+                            border-radius 0.5vh
+                            cursor pointer
+                            margin 0
+                            text-decoration: none                            
+                    
                     width 30%
                     label
                         width: 30%
@@ -30,6 +49,19 @@
                             width: 45%
                         input
                             width 60%
+                            button
+                                padding 0 1vh
+                                width: 20%
+                                max-width: 60px
+                                height 3.5vh
+                                border 0.1vh solid #d2d2d2
+                                background none
+                                line-height 3.5vh
+                                text-align center
+                                border-radius 0.5vh
+                                cursor pointer
+                                margin 0
+                                text-decoration: none
                     &.date
                         .el-date-editor
                             width: 60%
@@ -37,8 +69,6 @@
 
                 .save
                     padding 0 1vh
-                    width: 20%
-                    max-width: 60px
                     height 3.5vh
                     border 0.1vh solid #d2d2d2
                     background none
@@ -46,12 +76,12 @@
                     text-align center
                     border-radius 0.5vh
                     cursor pointer
-                    margin 0
-                    text-decoration: none
+                    margin 1vh
                 .btn
                     border 0.1vh solid #409eff !important
                     font-weight bold
                     color #409eff
+        
 
 .container>>>.el-textarea
         height: 3.5vh
@@ -195,7 +225,6 @@
  
 // 表格
 .order_table
-  width: 99%
   min-width 1080px
   margin: 5px auto 0
   overflow: hidden

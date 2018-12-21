@@ -108,7 +108,7 @@ export default {
                 spaceBetween: 30,
                 autoplay:true,
                 delay:1000,
-                loop: true,
+                // loop: true,
                 navigation: {
                     nextEl: ".swiper-button-next",
                     prevEl: ".swiper-button-prev"
@@ -235,6 +235,7 @@ export default {
                     "/" +
                     url[5]
             );
+            
         },
         getnavMenu() {
             this.$http

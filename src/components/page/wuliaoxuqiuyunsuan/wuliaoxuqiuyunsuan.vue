@@ -84,14 +84,14 @@
                 </el-table-column>
                 <el-table-column prop="zhxs" label="转换系数" min-width="110px">
                 </el-table-column>
-                <el-table-column prop="demand" label="用量需求数量" min-width="110px">
+                <el-table-column prop="demand" label="用量单位需求量" min-width="120px">
                     <template slot-scope="scope">
                         <el-tooltip :content="String(scope.row.demand)" placement="top" :enterable="false">
                             <p>{{ scope.row.demand }}</p>
                         </el-tooltip>
                     </template>
                 </el-table-column>
-                <el-table-column prop="purchase" label="采购需求数量" min-width="110px">
+                <el-table-column prop="purchase" label="采购单位需求量" min-width="120px">
                     <template slot-scope="scope">
                         <el-tooltip :content="String(scope.row.purchase)" placement="top" :enterable="false">
                             <p>{{ scope.row.purchase }}</p>

@@ -192,7 +192,7 @@ export default {
                 spaceBetween: 30,
                 autoplay: true,
                 delay: 1000,
-                loop: true,
+                // loop: true,
                 navigation: {
                     nextEl: ".swiper-button-next",
                     prevEl: ".swiper-button-prev"
@@ -370,6 +370,7 @@ export default {
         refresh() {
             this.doCancels();
             this.getDateYear();
+            this.getnavMenu()
         },
 
         //点击查询按钮
